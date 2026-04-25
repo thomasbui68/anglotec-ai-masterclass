@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
-import { localAuth } from "@/lib/local-db";
+import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,9 @@ export default function Login() {
   const navigate = useNavigate();
   const webAuthn = useWebAuthn();
 
+  const biometricLoginMutation = trpc.auth.biometricLogin.useMutation();
+  const utils = trpc.useUtils();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +27,6 @@ export default function Login() {
   const [activeTab, setActiveTab] = useState("password");
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  // Clear error when user starts typing again
   const handleEmailChange = (value: string) => {
     setEmail(value);
     if (loginError) setLoginError(null);
@@ -34,7 +36,7 @@ export default function Login() {
     if (loginError) setLoginError(null);
   };
 
-  const handlePasswordLogin = (e: React.FormEvent) => {
+  const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
 
@@ -53,9 +55,7 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const user = localAuth.loginPassword(email.trim(), password);
-      const token = "local_" + Math.random().toString(36).slice(2);
-      login(token, user);
+      await login(email.trim(), password);
       toast.success("Welcome back!");
       navigate("/");
     } catch (err: any) {
@@ -80,21 +80,20 @@ export default function Login() {
     setBioLoading(true);
     setLoginError(null);
     try {
-      const bioData = localAuth.loginBiometric(email.trim());
-      if (!bioData.credentialId) {
+      const credentialId = await utils.client.auth.getBiometricCredential.query({ email: email.trim() });
+      if (!credentialId) {
         setLoginError("Face ID is not set up for this account. Please sign in with your password first.");
         setActiveTab("password");
         return;
       }
 
-      const success = await webAuthn.authenticateBiometric(bioData.credentialId);
+      const success = await webAuthn.authenticateBiometric(credentialId);
       if (!success) {
         setLoginError("Face ID verification failed. Please try again or use your password.");
         return;
       }
 
-      const token = "local_bio_" + Math.random().toString(36).slice(2);
-      login(token, { id: bioData.id, email: bioData.email });
+      await biometricLoginMutation.mutateAsync({ email: email.trim() });
       toast.success("Welcome back!");
       navigate("/");
     } catch (err: any) {
@@ -153,7 +152,6 @@ export default function Login() {
                     </div>
                   </div>
 
-                  {/* Inline error message - stays visible until user types */}
                   {loginError && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
                       <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
@@ -189,7 +187,6 @@ export default function Login() {
                     </p>
                   </div>
 
-                  {/* Inline error for Face ID too */}
                   {loginError && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
                       <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
@@ -221,7 +218,7 @@ export default function Login() {
         </Card>
 
         <p className="text-center text-gray-500 text-xs mt-6">
-          Your data stays on your device. No account needed to get started.
+          Your account is securely stored on our cloud servers.
         </p>
       </div>
     </div>

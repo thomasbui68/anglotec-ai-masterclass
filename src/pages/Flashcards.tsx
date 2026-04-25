@@ -1,15 +1,15 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { localPhrases, useProgress } from "@/hooks/useApi";
+import { useProgress } from "@/hooks/useApi";
+import { trpc } from "@/providers/trpc";
 import { useTTS } from "@/hooks/useTTS";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Volume2, CheckCircle, XCircle, ChevronLeft, ChevronRight, Home, RotateCcw, Brain, Sparkles, Mic } from "lucide-react";
-import type { Phrase } from "@/types";
 
 export default function Flashcards() {
   const [searchParams] = useSearchParams();
@@ -17,8 +17,6 @@ export default function Flashcards() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [phrases, setPhrases] = useState<Phrase[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,33 +25,28 @@ export default function Flashcards() {
   const progressApi = useProgress(user?.id || 0);
   const tts = useTTS();
 
+  // tRPC queries
+  const { data: phraseData, isLoading: phrasesLoading } = trpc.phrase.list.useQuery({
+    category: selectedCategory !== "all" ? selectedCategory : undefined,
+    page: 1,
+    limit: 50,
+  });
+
+  const { data: categoryData } = trpc.phrase.categories.useQuery();
+
+  const phrases = phraseData?.phrases ?? [];
+  const categories = categoryData ?? [];
+
   const currentPhrase = phrases[currentIndex];
 
-  const loadPhrases = useCallback(() => {
-    setIsLoading(true);
-    try {
-      const data = localPhrases.getAll(selectedCategory !== "all" ? selectedCategory : undefined, undefined, 1, 50);
-      setPhrases(data.phrases);
-      setCategories(localPhrases.getCategories());
-      setCurrentIndex(0);
-      setSessionStats({ correct: 0, incorrect: 0 });
-    } catch (e) {
-      toast.error("Couldn't load phrases. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+  useEffect(() => {
+    setIsLoading(phrasesLoading);
+  }, [phrasesLoading]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setSessionStats({ correct: 0, incorrect: 0 });
   }, [selectedCategory]);
-
-  useEffect(() => {
-    loadPhrases();
-  }, [loadPhrases]);
-
-  useEffect(() => {
-    if (phrases.length > 0 && showHint) {
-      const timer = setTimeout(() => setShowHint(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [phrases.length, showHint]);
 
   const playAudio = () => {
     if (!currentPhrase) return;

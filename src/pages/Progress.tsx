@@ -120,8 +120,8 @@ export default function ProgressPage() {
                   <div key={ach.id} className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#d4af37]/10 to-transparent rounded-lg border border-[#d4af37]/20">
                     <div className="w-10 h-10 rounded-full bg-[#d4af37]/20 flex items-center justify-center"><Award size={20} className="text-[#d4af37]" /></div>
                     <div>
-                      <p className="font-semibold text-sm text-[#1a365d]">{ach.badge_name}</p>
-                      <p className="text-xs text-gray-500">{new Date(ach.earned_at).toLocaleDateString()}</p>
+                      <p className="font-semibold text-sm text-[#1a365d]">{ach.badgeName}</p>
+                      <p className="text-xs text-gray-500">{new Date(ach.earnedAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))}

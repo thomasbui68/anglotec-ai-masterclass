@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
-import { localAuth } from "@/lib/local-db";
+import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,11 @@ import { ArrowLeft, KeyRound, Loader2, Fingerprint, HelpCircle, Mail, Smartphone
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const webAuthn = useWebAuthn();
+
+  const forgotMutation = trpc.auth.forgotPassword.useMutation();
+  const resetMutation = trpc.auth.resetPassword.useMutation();
+  const securityMutation = trpc.auth.recoverWithSecurityQuestion.useMutation();
+  const utils = trpc.useUtils();
 
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "options" | "security" | "biometric" | "reset" | "backup" | "phone">("email");
@@ -25,30 +30,38 @@ export default function ForgotPassword() {
   const [verificationCode, setVerificationCode] = useState("");
   const [sentCode, setSentCode] = useState("");
 
-  const handleFindAccount = () => {
+  const handleFindAccount = async () => {
     if (!email.trim() || !email.includes("@")) { toast.error("Please enter a valid email address"); return; }
-    const user = localAuth.findByEmail(email.trim());
-    if (!user) { toast.error("We couldn't find an account with that email. Please check and try again."); return; }
-    setUserRecord(user);
-    setStep("options");
+    try {
+      const user = await utils.client.auth.getUserByEmail.query({ email: email.trim() });
+      if (!user) { toast.error("We couldn't find an account with that email. Please check and try again."); return; }
+      setUserRecord(user);
+      setStep("options");
+    } catch {
+      toast.error("We couldn't find an account with that email. Please check and try again.");
+    }
   };
 
-  const handleSecurityCheck = () => {
+  const handleSecurityCheck = async () => {
     if (!securityAnswer.trim()) { toast.error("Please enter your answer"); return; }
-    const correct = localAuth.checkSecurityAnswer(email.trim(), securityAnswer.trim());
-    if (!correct) { toast.error("That answer doesn't match our records. Please try again."); return; }
-    setStep("reset");
-    toast.success("Security answer verified! You can now set a new password.");
+    try {
+      const result = await securityMutation.mutateAsync({ email: email.trim(), answer: securityAnswer.trim() });
+      setSentCode(result.code);
+      setStep("reset");
+      toast.success("Security answer verified! You can now set a new password.");
+    } catch (err: any) {
+      toast.error(err.message || "That answer doesn't match our records.");
+    }
   };
 
   const handleBiometricReset = async () => {
     if (!email.trim()) { toast.error("Please enter your email first"); return; }
     setBioLoading(true);
     try {
-      const bioData = localAuth.loginBiometric(email.trim());
-      if (!bioData.credentialId) { toast.error("Face ID is not set up for this account."); setStep("options"); return; }
+      const credentialId = await utils.client.auth.getBiometricCredential.query({ email: email.trim() });
+      if (!credentialId) { toast.error("Face ID is not set up for this account."); setStep("options"); return; }
 
-      const success = await webAuthn.authenticateBiometric(bioData.credentialId);
+      const success = await webAuthn.authenticateBiometric(credentialId);
       if (!success) { toast.error("Face ID verification failed. Please try again."); return; }
 
       setStep("reset");
@@ -60,13 +73,17 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleSendBackupCode = () => {
-    if (!userRecord?.backup_email) { toast.error("No backup email on file."); return; }
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setSentCode(code);
-    toast.success(`A verification code has been sent to ${userRecord.backup_email}`);
-    toast.info(`Your verification code is: ${code} (demo mode)`);
-    setStep("backup");
+  const handleSendBackupCode = async () => {
+    if (!userRecord?.backupEmail) { toast.error("No backup email on file."); return; }
+    try {
+      const result = await forgotMutation.mutateAsync({ email: email.trim() });
+      setSentCode(result.code || "");
+      toast.success(`A verification code has been sent to ${userRecord.backupEmail}`);
+      if (result.code) toast.info(`Your verification code is: ${result.code} (demo mode)`);
+      setStep("backup");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send code.");
+    }
   };
 
   const handleVerifyBackupCode = () => {
@@ -76,10 +93,10 @@ export default function ForgotPassword() {
   };
 
   const handleSendPhoneCode = () => {
-    if (!userRecord?.phone_number) { toast.error("No phone number on file."); return; }
+    if (!userRecord?.phoneNumber) { toast.error("No phone number on file."); return; }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setSentCode(code);
-    toast.success(`A verification code has been sent to ${userRecord.phone_number}`);
+    toast.success(`A verification code has been sent to ${userRecord.phoneNumber}`);
     toast.info(`Your verification code is: ${code} (demo mode)`);
     setStep("phone");
   };
@@ -90,11 +107,11 @@ export default function ForgotPassword() {
     toast.success("Code verified! You can now set a new password.");
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     if (!newPassword || newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
     if (newPassword !== confirmPassword) { toast.error("The passwords don't match. Please try again."); return; }
     try {
-      localAuth.resetPassword(email.trim(), newPassword);
+      await resetMutation.mutateAsync({ email: email.trim(), code: sentCode, newPassword });
       toast.success("Your password has been reset! Please sign in with your new password.");
       navigate("/login");
     } catch (err: any) {
@@ -149,7 +166,7 @@ export default function ForgotPassword() {
                 <p className="text-sm text-gray-500 text-center">Account: <strong>{userRecord.email}</strong></p>
                 <p className="text-sm text-gray-500 text-center">How would you like to recover?</p>
 
-                {userRecord.credential_id && webAuthn.isReady && (
+                {userRecord.hasBiometric && webAuthn.isReady && (
                   <button onClick={() => setStep("biometric")} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all text-left flex items-center gap-3">
                     <Fingerprint className="text-orange-500 shrink-0" size={24} />
                     <div>
@@ -159,7 +176,7 @@ export default function ForgotPassword() {
                   </button>
                 )}
 
-                {userRecord.security_question && (
+                {userRecord.securityQuestion && (
                   <button onClick={() => setStep("security")} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all text-left flex items-center gap-3">
                     <HelpCircle className="text-orange-500 shrink-0" size={24} />
                     <div>
@@ -169,27 +186,27 @@ export default function ForgotPassword() {
                   </button>
                 )}
 
-                {userRecord.backup_email && (
+                {userRecord.backupEmail && (
                   <button onClick={handleSendBackupCode} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all text-left flex items-center gap-3">
                     <Mail className="text-orange-500 shrink-0" size={24} />
                     <div>
                       <p className="font-semibold text-gray-800">Backup Email</p>
-                      <p className="text-xs text-gray-500">Send code to {userRecord.backup_email}</p>
+                      <p className="text-xs text-gray-500">Send code to {userRecord.backupEmail}</p>
                     </div>
                   </button>
                 )}
 
-                {userRecord.phone_number && (
+                {userRecord.phoneNumber && (
                   <button onClick={handleSendPhoneCode} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all text-left flex items-center gap-3">
                     <Smartphone className="text-orange-500 shrink-0" size={24} />
                     <div>
                       <p className="font-semibold text-gray-800">Phone Number</p>
-                      <p className="text-xs text-gray-500">Send code to {userRecord.phone_number}</p>
+                      <p className="text-xs text-gray-500">Send code to {userRecord.phoneNumber}</p>
                     </div>
                   </button>
                 )}
 
-                {!userRecord.credential_id && !userRecord.security_question && !userRecord.backup_email && !userRecord.phone_number && (
+                {!userRecord.hasBiometric && !userRecord.securityQuestion && !userRecord.backupEmail && !userRecord.phoneNumber && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
                     <p className="text-sm text-yellow-700">No recovery methods set up. Please create a new account.</p>
                   </div>
@@ -208,15 +225,16 @@ export default function ForgotPassword() {
               <div className="space-y-4">
                 <p className="text-sm text-gray-500">Answer your security question:</p>
                 <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="font-medium text-gray-800">{userRecord.security_question}</p>
+                  <p className="font-medium text-gray-800">{userRecord.securityQuestion}</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="answer">Your Answer</Label>
                   <Input id="answer" type="text" value={securityAnswer} onChange={(e) => setSecurityAnswer(e.target.value)} placeholder="Type your answer" className="h-12 text-base" />
                   <p className="text-xs text-gray-500">Not case-sensitive.</p>
                 </div>
-                <Button onClick={handleSecurityCheck} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold">
-                  <CheckCircle className="mr-2 h-5 w-5" /> Verify Answer
+                <Button onClick={handleSecurityCheck} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold" disabled={securityMutation.isPending}>
+                  {securityMutation.isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle className="mr-2 h-5 w-5" />}
+                  {securityMutation.isPending ? "Verifying..." : "Verify Answer"}
                 </Button>
                 <Button variant="outline" onClick={() => setStep("options")} className="w-full h-12">Try Another Method</Button>
               </div>
@@ -287,8 +305,9 @@ export default function ForgotPassword() {
                   </div>
                   {confirmPassword && newPassword !== confirmPassword && <p className="text-xs text-red-500">Passwords don't match yet.</p>}
                 </div>
-                <Button onClick={handleResetPassword} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold" disabled={!newPassword || newPassword.length < 6 || newPassword !== confirmPassword}>
-                  <KeyRound className="mr-2 h-5 w-5" /> Reset My Password
+                <Button onClick={handleResetPassword} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold" disabled={!newPassword || newPassword.length < 6 || newPassword !== confirmPassword || resetMutation.isPending}>
+                  {resetMutation.isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <KeyRound className="mr-2 h-5 w-5" />}
+                  {resetMutation.isPending ? "Resetting..." : "Reset My Password"}
                 </Button>
               </div>
             )}

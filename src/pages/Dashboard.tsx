@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useOnboarding } from "@/components/Onboarding";
-import { localPhrases, useProgress, useAchievements } from "@/hooks/useApi";
+import { useProgress, useAchievements } from "@/hooks/useApi";
+import { trpc } from "@/providers/trpc";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -29,21 +30,26 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { setShowOnboarding } = useOnboarding();
+  const { data: categoryData, isLoading: catLoading } = trpc.phrase.categories.useQuery();
+  const categories = categoryData ?? [];
+
   const progressApi = useProgress(user?.id || 0);
   const achievementsApi = useAchievements(user?.id || 0);
   const [stats, setStats] = useState<ProgressStats | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load data once on mount only — NOT in a useCallback/useEffect loop
+  // Load data once on mount only
   useEffect(() => {
     if (!user) return;
     let mounted = true;
     try {
-      setCategories(localPhrases.getCategories());
-      setStats(progressApi.getStats() as any);
-      setAchievements(achievementsApi.getAll().slice(0, 5));
+      const progressStats = progressApi.getStats();
+      const allAchievements = achievementsApi.getAll();
+      if (mounted) {
+        setStats(progressStats as any);
+        setAchievements(allAchievements.slice(0, 5));
+      }
     } catch (e) {
       console.error("Dashboard data load failed:", e);
       toast.error("Something went wrong loading your data. Please refresh.");
@@ -53,6 +59,10 @@ export default function Dashboard() {
     return () => { mounted = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!catLoading) setIsLoading(false);
+  }, [catLoading]);
 
   const handleLogout = () => {
     logout();

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useTTS } from "@/hooks/useTTS";
-import { localAuth } from "@/lib/local-db";
+import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,10 @@ export default function Settings() {
   const navigate = useNavigate();
   const webAuthn = useWebAuthn();
   const tts = useTTS();
+
+  const bioRegisterMutation = trpc.auth.registerBiometric.useMutation();
+  const bioRemoveMutation = trpc.auth.removeBiometric.useMutation();
+  const deleteAccountMutation = trpc.auth.deleteAccount.useMutation();
 
   const [isRegistering, setIsRegistering] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -30,18 +34,16 @@ export default function Settings() {
     );
   }
 
-  const userRecord = localAuth.getUser(user.id);
-  const hasBiometric = userRecord?.has_biometric || false;
+  const hasBiometric = user?.hasBiometric || false;
 
   const handleRegisterBiometric = async () => {
     setIsRegistering(true);
     try {
       const credentialId = await webAuthn.registerBiometric(user.email);
       if (credentialId) {
-        localAuth.registerCredential(user.id, credentialId);
+        await bioRegisterMutation.mutateAsync({ credentialId });
         toast.success("Face ID registered successfully! You can now log in with your face.");
       }
-      // If null, error is already set by registerBiometric — no extra toast needed
     } catch (err: any) {
       toast.error(err.message || "Could not register Face ID. Please try again.");
     } finally {
@@ -49,26 +51,18 @@ export default function Settings() {
     }
   };
 
-  const handleRemoveBiometric = () => {
+  const handleRemoveBiometric = async () => {
     try {
-      localAuth.removeCredential(user.id);
+      await bioRemoveMutation.mutateAsync();
       toast.success("Face ID removed. You can set it up again anytime.");
     } catch (err: any) {
       toast.error("Could not remove Face ID. Please try again.");
     }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     try {
-      const dbKey = "anglotec_db";
-      const raw = localStorage.getItem(dbKey);
-      if (raw) {
-        const db = JSON.parse(raw);
-        db.users = db.users.filter((u: any) => u.id !== user.id);
-        db.progress = db.progress.filter((p: any) => p.user_id !== user.id);
-        db.achievements = db.achievements.filter((a: any) => a.user_id !== user.id);
-        localStorage.setItem(dbKey, JSON.stringify(db));
-      }
+      await deleteAccountMutation.mutateAsync();
       logout();
       toast.success("Your account and all data have been deleted.");
       navigate("/login");
@@ -109,33 +103,33 @@ export default function Settings() {
               <span className="text-gray-500 text-sm">Email</span>
               <span className="font-semibold text-[#1a365d]">{user.email}</span>
             </div>
-            {userRecord?.backup_email && (
+            {user?.backupEmail && (
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-500 text-sm">Backup Email</span>
-                <span className="font-semibold text-[#1a365d]">{userRecord.backup_email}</span>
+                <span className="font-semibold text-[#1a365d]">{user.backupEmail}</span>
               </div>
             )}
-            {userRecord?.phone_number && (
+            {user?.phoneNumber && (
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-500 text-sm">Phone</span>
-                <span className="font-semibold text-[#1a365d]">{userRecord.phone_number}</span>
+                <span className="font-semibold text-[#1a365d]">{user.phoneNumber}</span>
               </div>
             )}
             <div className="flex justify-between items-center py-2 border-b">
               <span className="text-gray-500 text-sm">Email Status</span>
-              <Badge className={userRecord?.email_verified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
-                {userRecord?.email_verified ? <><CheckCircle size={12} className="mr-1" /> Verified</> : "Unverified"}
+              <Badge className={user?.emailVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
+                {user?.emailVerified ? <><CheckCircle size={12} className="mr-1" /> Verified</> : "Unverified"}
               </Badge>
             </div>
-            {userRecord?.phone_number && (
+            {user?.phoneNumber && (
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-500 text-sm">Phone Status</span>
-                <Badge className={userRecord?.phone_verified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
-                  {userRecord?.phone_verified ? <><CheckCircle size={12} className="mr-1" /> Verified</> : "Unverified"}
+                <Badge className={user?.phoneVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
+                  {user?.phoneVerified ? <><CheckCircle size={12} className="mr-1" /> Verified</> : "Unverified"}
                 </Badge>
               </div>
             )}
-            {userRecord?.security_question && (
+            {user?.securityQuestion && (
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-500 text-sm">Recovery Question</span>
                 <Badge className="bg-green-100 text-green-700"><CheckCircle size={12} className="mr-1" /> Set</Badge>
@@ -301,7 +295,7 @@ export default function Settings() {
             <div className="flex items-start gap-3 bg-blue-50 p-3 rounded-lg">
               <Info size={18} className="text-blue-500 shrink-0 mt-0.5" />
               <p className="text-sm text-blue-700">
-                All your learning data is stored locally on this device. Nothing is sent to any server. If you clear your browser data, your account will be lost.
+                Your account and learning data are securely stored on our cloud servers. You can access your account from any device.
               </p>
             </div>
           </CardContent>

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { TRPCProvider } from '@/providers/trpc'
 import './index.css'
 import App from './App.tsx'
 
@@ -22,7 +23,9 @@ if (!rootElement) {
 } else {
   createRoot(rootElement).render(
     <StrictMode>
-      <App />
+      <TRPCProvider>
+        <App />
+      </TRPCProvider>
     </StrictMode>,
   )
 }

@@ -1,59 +1,127 @@
-import { createContext, useContext, useState, useCallback } from "react";
-import type { User } from "@/types";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { trpc } from "@/providers/trpc";
 
-function safeGetItem(key: string): string | null {
-  try { return localStorage.getItem(key); } catch (e) { return null; }
-}
-function safeSetItem(key: string, value: string) {
-  try { localStorage.setItem(key, value); } catch (e) { /* ignore */ }
-}
-function safeRemoveItem(key: string) {
-  try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+export interface User {
+  id: number;
+  email: string;
+  role?: string;
+  backupEmail?: string | null;
+  phoneNumber?: string | null;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  securityQuestion?: string | null;
+  hasBiometric?: boolean;
 }
 
 interface AuthState {
-  token: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  isReady: boolean; // true after localStorage is read on initial load
+  isReady: boolean;
 }
 
 interface AuthContextType extends AuthState {
-  login: (token: string, user: User) => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (data: RegisterData) => Promise<{ user: User; verificationCode?: string }>;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  backupEmail?: string;
+  phoneNumber?: string;
+  securityQuestion?: string;
+  securityAnswer?: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [auth, setAuth] = useState<AuthState>(() => {
-    try {
-      const token = safeGetItem("token");
-      const userStr = safeGetItem("user");
-      const user = userStr ? (JSON.parse(userStr) as User) : null;
-      const isAuthenticated = !!(token && user && user.id && user.email);
-      return { token, user, isAuthenticated, isReady: true };
-    } catch {
-      safeRemoveItem("token");
-      safeRemoveItem("user");
-      return { token: null, user: null, isAuthenticated: false, isReady: true };
-    }
+  const [isReady, setIsReady] = useState(false);
+
+  const { data: meData, isLoading } = trpc.auth.me.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: true,
   });
 
-  const login = useCallback((token: string, user: User) => {
-    safeSetItem("token", token);
-    safeSetItem("user", JSON.stringify(user));
-    setAuth({ token, user, isAuthenticated: true, isReady: true });
-  }, []);
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: () => {
+      utils.auth.me.invalidate();
+    },
+  });
+
+  const registerMutation = trpc.auth.register.useMutation({
+    onSuccess: () => {
+      utils.auth.me.invalidate();
+    },
+  });
+
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      utils.auth.me.invalidate();
+    },
+  });
+
+  const utils = trpc.useUtils();
+
+  useEffect(() => {
+    if (!isLoading) {
+      setIsReady(true);
+    }
+  }, [isLoading]);
+
+  const user: User | null = meData
+    ? {
+        id: meData.id,
+        email: meData.email,
+        role: meData.role,
+        backupEmail: meData.backupEmail,
+        phoneNumber: meData.phoneNumber,
+        emailVerified: meData.emailVerified,
+        phoneVerified: meData.phoneVerified,
+        securityQuestion: meData.securityQuestion,
+        hasBiometric: meData.hasBiometric,
+      }
+    : null;
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      await loginMutation.mutateAsync({ email, password });
+    },
+    [loginMutation],
+  );
+
+  const register = useCallback(
+    async (data: RegisterData) => {
+      const result = await registerMutation.mutateAsync(data);
+      return {
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          emailVerified: result.user.emailVerified,
+          hasBiometric: result.user.hasBiometric,
+        },
+        verificationCode: result.verificationCode,
+      };
+    },
+    [registerMutation],
+  );
 
   const logout = useCallback(() => {
-    safeRemoveItem("token");
-    safeRemoveItem("user");
-    setAuth({ token: null, user: null, isAuthenticated: false, isReady: true });
-  }, []);
+    logoutMutation.mutateAsync().catch(() => {});
+  }, [logoutMutation]);
 
   return (
-    <AuthContext.Provider value={{ ...auth, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isReady,
+        login,
+        logout,
+        register,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -2,12 +2,12 @@ export interface User {
   id: number;
   email: string;
   role?: string;
-  backup_email?: string;
-  phone_number?: string;
-  email_verified?: boolean;
-  phone_verified?: boolean;
-  security_question?: string;
-  has_biometric?: boolean;
+  backupEmail?: string | null;
+  phoneNumber?: string | null;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  securityQuestion?: string | null;
+  hasBiometric?: boolean;
 }
 
 export interface Phrase {
@@ -15,11 +15,6 @@ export interface Phrase {
   english: string;
   category: string;
   difficulty: number;
-  audio_generated: number;
-  status?: string;
-  practice_count?: number;
-  last_practiced?: string;
-  mastery_score?: number;
 }
 
 export interface Progress {
@@ -30,14 +25,14 @@ export interface Progress {
   avg_mastery: number;
   total_practices: number;
   active_days: number;
-  last_active: string;
+  last_active: Date | string | null;
 }
 
 export interface Achievement {
   id: number;
-  badge_type: string;
-  badge_name: string;
-  earned_at: string;
+  badgeType: string;
+  badgeName: string;
+  earnedAt: Date;
 }
 
 export interface AuthState {

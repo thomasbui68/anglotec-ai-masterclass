@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
-import { localAuth } from "@/lib/local-db";
+import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,8 +22,11 @@ const SECURITY_QUESTIONS = [
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register } = useAuth();
   const webAuthn = useWebAuthn();
+
+  const verifyMutation = trpc.auth.verifyEmail.useMutation();
+  const bioRegisterMutation = trpc.auth.registerBiometric.useMutation();
 
   const [form, setForm] = useState({
     email: "",
@@ -43,7 +46,7 @@ export default function Register() {
   const [showEmailVerify, setShowEmailVerify] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
-
+  const [createdUserEmail, setCreatedUserEmail] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -79,27 +82,31 @@ export default function Register() {
         setBioRegistering(false);
       }
 
-      const user = localAuth.register(
-        form.email.trim(),
-        form.password,
-        credentialId,
-        {
-          backup_email: form.backup_email.trim() || undefined,
-          phone_number: form.phone_number.trim() || undefined,
-          security_question: form.security_question,
-          security_answer: form.security_answer.trim(),
+      const result = await register({
+        email: form.email.trim(),
+        password: form.password,
+        backupEmail: form.backup_email.trim() || undefined,
+        phoneNumber: form.phone_number.trim() || undefined,
+        securityQuestion: form.security_question,
+        securityAnswer: form.security_answer.trim(),
+      });
+
+      // If we got a credentialId from WebAuthn, register it with the backend
+      if (credentialId) {
+        try {
+          await bioRegisterMutation.mutateAsync({ credentialId });
+        } catch {
+          toast.warning("Could not save biometric credential to server.");
         }
-      );
+      }
 
-      const token = "local_" + Math.random().toString(36).slice(2);
-      login(token, user);
-
-      // Show email verification
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedCode(code);
+      setCreatedUserEmail(form.email.trim());
+      setGeneratedCode(result.verificationCode || "");
       setShowEmailVerify(true);
       toast.success("Account created! Please verify your email.");
-      toast.info(`Your verification code is: ${code} (in production this would be sent to your email)`);
+      if (result.verificationCode) {
+        toast.info(`Your verification code is: ${result.verificationCode} (in production this would be sent to your email)`);
+      }
     } catch (err: any) {
       toast.error(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -107,15 +114,16 @@ export default function Register() {
     }
   };
 
-  const handleVerifyEmail = () => {
-    if (verifyCode.trim() !== generatedCode) { toast.error("The code you entered is incorrect. Please check and try again."); return; }
-    const stored = JSON.parse(localStorage.getItem("user") || "{}");
-    if (stored && stored.id) {
-      localAuth.verifyEmail(stored.id);
+  const handleVerifyEmail = async () => {
+    if (verifyCode.trim().length < 6) { toast.error("Please enter the 6-digit code."); return; }
+    try {
+      await verifyMutation.mutateAsync({ email: createdUserEmail, code: verifyCode.trim() });
+      setShowEmailVerify(false);
+      toast.success("Email verified! Welcome to Anglotec AI Master Class.");
+      navigate("/");
+    } catch (err: any) {
+      toast.error(err.message || "Verification failed. Please try again.");
     }
-    setShowEmailVerify(false);
-    toast.success("Email verified! Welcome to Anglotec AI Master Class.");
-    navigate("/");
   };
 
   if (showEmailVerify) {
@@ -129,7 +137,7 @@ export default function Register() {
           </div>
           <Card className="border-0 shadow-2xl bg-white">
             <CardContent className="pt-6 pb-6 space-y-4">
-              <p className="text-sm text-gray-500 text-center">We sent a 6-digit verification code to <strong>{form.email}</strong>.</p>
+              <p className="text-sm text-gray-500 text-center">We sent a 6-digit verification code to <strong>{createdUserEmail}</strong>.</p>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <p className="text-sm text-blue-700 text-center">Demo mode: Your code is <strong>{generatedCode}</strong></p>
               </div>
@@ -137,8 +145,9 @@ export default function Register() {
                 <Label htmlFor="verifyCode">Enter Verification Code</Label>
                 <Input id="verifyCode" type="text" value={verifyCode} onChange={(e) => setVerifyCode(e.target.value)} placeholder="000000" className="h-12 text-base text-center tracking-[0.5em] font-mono" maxLength={6} />
               </div>
-              <Button onClick={handleVerifyEmail} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold" disabled={verifyCode.length < 6}>
-                <CheckCircle className="mr-2 h-5 w-5" /> Verify Email
+              <Button onClick={handleVerifyEmail} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold" disabled={verifyCode.length < 6 || verifyMutation.isPending}>
+                {verifyMutation.isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle className="mr-2 h-5 w-5" />}
+                {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
               </Button>
               <Button variant="outline" onClick={() => { setShowEmailVerify(false); navigate("/"); }} className="w-full h-12">Skip for Now</Button>
             </CardContent>
@@ -222,7 +231,6 @@ export default function Register() {
                       <Input id="security_answer" name="security_answer" type="text" value={form.security_answer} onChange={handleChange} placeholder="Type your answer here" className="h-12 text-base" autoComplete="off" />
                       <p className="text-xs text-gray-500">You'll need this if you forget your password.</p>
                     </div>
-                    {/* Real-time validation feedback */}
                     <div className="space-y-1">
                       {!form.password && <p className="text-xs text-orange-600">Please enter a password (min 6 characters)</p>}
                       {form.password && form.password.length < 6 && <p className="text-xs text-orange-600">Password must be at least 6 characters</p>}
@@ -266,7 +274,6 @@ export default function Register() {
               {/* STEP 4: Native Face ID / Biometric */}
               {step === 4 && (
                 <>
-                  {/* Biometric capability info */}
                   <div className={`p-3 rounded-lg flex items-start gap-2 ${webAuthn.isReady ? "bg-green-50 border border-green-200" : "bg-yellow-50 border border-yellow-200"}`}>
                     {webAuthn.isReady ? <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" /> : <AlertCircle size={18} className="text-yellow-600 shrink-0 mt-0.5" />}
                     <div>
@@ -310,7 +317,7 @@ export default function Register() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-gray-500 text-xs mt-6">All your data stays on this device. Nothing is sent to any server.</p>
+        <p className="text-center text-gray-500 text-xs mt-6">Your account is securely stored on our cloud servers.</p>
       </div>
     </div>
   );
