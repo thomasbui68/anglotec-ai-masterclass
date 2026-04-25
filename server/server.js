@@ -504,13 +504,30 @@ app.use((err, req, res, next) => {
 });
 
 // Serve static files in production
-const distPath = path.join(__dirname, "..", "dist");
-if (fs.existsSync(distPath)) {
+function findDistPath() {
+  const candidates = [
+    path.join(__dirname, "..", "dist"),
+    path.join(__dirname, "dist"),
+    path.join(process.cwd(), "dist"),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+const distPath = findDistPath();
+console.log("Dist path:", distPath, "CWD:", process.cwd(), "__dirname:", __dirname);
+
+if (distPath) {
   app.use(express.static(distPath));
   app.get("*", (req, res, next) => {
     if (req.path.startsWith("/api")) return next();
     res.sendFile(path.join(distPath, "index.html"));
   });
+} else {
+  console.warn("No dist directory found - running API-only mode");
+  app.get("/", (req, res) => res.json({ message: "Anglotec AI Master Class API is running" }));
 }
 
 // Start server
