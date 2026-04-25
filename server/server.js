@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.SERVER_PORT || 3001;
+const PORT = process.env.PORT || process.env.SERVER_PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "anglotec-ai-master-class-secret-key-2026";
 
 // Middleware
@@ -533,7 +533,8 @@ async function startServer() {
   if (fs.existsSync(distPath)) {
     app.use(express.static(distPath));
     // SPA fallback - serve index.html for all non-API routes
-    app.get(/^(?!\/api).*/, (req, res) => {
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
