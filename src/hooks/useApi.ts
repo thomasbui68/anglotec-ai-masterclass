@@ -1,42 +1,40 @@
-import { useCallback } from "react";
+import { useMemo } from "react";
+import { localPhrases, localProgress, localAchievements } from "@/lib/local-db";
 
-const API_BASE = "/api";
+export { localPhrases, localProgress, localAchievements };
 
 export function useApi() {
   const token = localStorage.getItem("token");
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
 
-  const request = useCallback(
-    async (endpoint: string, options: RequestInit = {}) => {
-      const url = `${API_BASE}${endpoint}`;
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...((options.headers as Record<string, string>) || {}),
-      };
+  const request = async (endpoint: string, _options: any = {}) => {
+    const url = endpoint;
+    throw new Error(`API endpoint ${url} not available in offline mode`);
+  };
 
-      try {
-        const response = await fetch(url, {
-          ...options,
-          headers,
-        });
+  return { request, token, userId: user?.id };
+}
 
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({ error: "Request failed" }));
-          throw new Error(error.error || `HTTP ${response.status}`);
-        }
+export function usePhrases() {
+  return useMemo(() => ({
+    getCategories: () => localPhrases.getCategories(),
+    getPhrases: (category?: string, search?: string, page?: number, limit?: number) =>
+      localPhrases.getAll(category, search, page, limit),
+    getPhraseById: (id: number) => localPhrases.getById(id),
+  }), []);
+}
 
-        // For audio responses
-        if (response.headers.get("Content-Type")?.includes("audio")) {
-          return response.blob();
-        }
+export function useProgress(userId: number) {
+  return useMemo(() => ({
+    getAll: () => localProgress.getAll(userId),
+    getStats: () => localProgress.getStats(userId),
+    update: (phraseId: number, status: string) => localProgress.update(userId, phraseId, status),
+  }), [userId]);
+}
 
-        return response.json();
-      } catch (err) {
-        throw err instanceof Error ? err : new Error("Network error");
-      }
-    },
-    [token]
-  );
-
-  return { request };
+export function useAchievements(userId: number) {
+  return useMemo(() => ({
+    getAll: () => localAchievements.getAll(userId),
+  }), [userId]);
 }

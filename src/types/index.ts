@@ -1,8 +1,13 @@
 export interface User {
   id: number;
-  username: string;
   email: string;
   role?: string;
+  backup_email?: string;
+  phone_number?: string;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  security_question?: string;
+  has_biometric?: boolean;
 }
 
 export interface Phrase {

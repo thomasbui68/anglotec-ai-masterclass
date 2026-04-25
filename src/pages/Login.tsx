@@ -1,209 +1,229 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useApi } from "@/hooks/useApi";
-import { useFaceApi } from "@/hooks/useFaceApi";
+import { useWebAuthn } from "@/hooks/useWebAuthn";
+import { localAuth } from "@/lib/local-db";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { LogIn, ScanFace, Loader2, Eye, EyeOff } from "lucide-react";
+import { LogIn, Fingerprint, Loader2, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
-  const { request } = useApi();
-  const faceApi = useFaceApi();
+  const navigate = useNavigate();
+  const webAuthn = useWebAuthn();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [, setIsFaceMode] = useState(false);
-  const [isFaceLoading, setIsFaceLoading] = useState(false);
+  const [bioLoading, setBioLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("password");
+  const [loginError, setLoginError] = useState<string | null>(null);
 
-  const handlePasswordLogin = async (e: React.FormEvent) => {
+  // Clear error when user starts typing again
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (loginError) setLoginError(null);
+  };
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (loginError) setLoginError(null);
+  };
+
+  const handlePasswordLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) {
-      toast.error("Please enter username and password");
+    setLoginError(null);
+
+    if (!email.trim()) {
+      setLoginError("Please enter your email address.");
       return;
     }
+    if (!email.includes("@")) {
+      setLoginError("Please enter a valid email address (e.g., you@example.com).");
+      return;
+    }
+    if (!password) {
+      setLoginError("Please enter your password.");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const data = await request("/auth/login/password", {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-      });
-      login(data.token, data.user);
+      const user = localAuth.loginPassword(email.trim(), password);
+      const token = "local_" + Math.random().toString(36).slice(2);
+      login(token, user);
       toast.success("Welcome back!");
+      navigate("/");
     } catch (err: any) {
-      toast.error(err.message || "Login failed");
+      const msg = err.message || "Login failed. Please try again.";
+      setLoginError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFaceLogin = async () => {
-    if (!username) {
-      toast.error("Please enter your username first");
+  const handleBiometricLogin = async () => {
+    if (!email.trim()) {
+      setLoginError("Please enter your email first.");
       return;
     }
-    setIsFaceLoading(true);
+    if (!email.includes("@")) {
+      setLoginError("Please enter a valid email address.");
+      return;
+    }
+
+    setBioLoading(true);
+    setLoginError(null);
     try {
-      await faceApi.loadModels();
-      const started = await faceApi.startVideo();
-      if (!started) {
-        toast.error("Could not access camera");
-        setIsFaceLoading(false);
+      const bioData = localAuth.loginBiometric(email.trim());
+      if (!bioData.credentialId) {
+        setLoginError("Face ID is not set up for this account. Please sign in with your password first.");
+        setActiveTab("password");
         return;
       }
-      // Wait for video to stabilize
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      const descriptor = await faceApi.detectFace();
-      faceApi.stopVideo();
-      if (!descriptor) {
-        toast.error("No face detected. Please try again.");
-        setIsFaceLoading(false);
+
+      const success = await webAuthn.authenticateBiometric(bioData.credentialId);
+      if (!success) {
+        setLoginError("Face ID verification failed. Please try again or use your password.");
         return;
       }
-      const data = await request("/auth/login/face", {
-        method: "POST",
-        body: JSON.stringify({ username, faceDescriptor: descriptor }),
-      });
-      login(data.token, data.user);
-      toast.success("Face recognized! Welcome back!");
+
+      const token = "local_bio_" + Math.random().toString(36).slice(2);
+      login(token, { id: bioData.id, email: bioData.email });
+      toast.success("Welcome back!");
+      navigate("/");
     } catch (err: any) {
-      toast.error(err.message || "Face login failed");
-      faceApi.stopVideo();
+      const msg = err.message || "Face ID login failed. Please try again or use your password.";
+      setLoginError(msg);
+      toast.error(msg);
     } finally {
-      setIsFaceLoading(false);
+      setBioLoading(false);
     }
   };
 
+  const isBioAvailable = webAuthn.isReady;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] p-4">
-      <Card className="w-full max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
-        <CardHeader className="text-center pb-2">
-          <div className="flex justify-center mb-2">
-            <img src="/anglotec_logo.png" alt="Anglotec" className="h-16 w-16 object-contain" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-[#1a365d] tracking-wider">
-            ANGLOTEC
-          </CardTitle>
-          <CardDescription className="text-[#d4af37] font-medium">
-            AI MASTER CLASS
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="password" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-[#f8f9fa]">
-              <TabsTrigger value="password" onClick={() => setIsFaceMode(false)}>Password</TabsTrigger>
-              <TabsTrigger value="face" onClick={() => setIsFaceMode(true)}>Face ID</TabsTrigger>
-            </TabsList>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Brand Header */}
+        <div className="text-center mb-8">
+          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg" />
+          <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
+          <p className="text-orange-400 text-lg font-medium mt-1">AI Master Class</p>
+          <p className="text-gray-400 text-sm mt-2">Part of the Anglotec AI Apps Family</p>
+        </div>
 
-            <TabsContent value="password">
-              <form onSubmit={handlePasswordLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter username"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+        <Card className="border-0 shadow-2xl bg-white">
+          <CardHeader className="pb-0 pt-6">
+            <h2 className="text-xl font-semibold text-center text-gray-800">Sign In to Your Account</h2>
+            <p className="text-center text-gray-500 text-sm mt-1">Welcome back! Let's continue your AI journey.</p>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1">
+                <TabsTrigger value="password" className="text-sm">Password</TabsTrigger>
+                <TabsTrigger value="face" className="text-sm">
+                  <Fingerprint size={14} className="mr-1" /> Face ID
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Password Login */}
+              <TabsContent value="password">
+                <form onSubmit={handlePasswordLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => handleEmailChange(e.target.value)} placeholder="you@example.com" className="h-12 text-base" />
                   </div>
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-[#1a365d] hover:bg-[#0f172a] text-white"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <LogIn className="mr-2 h-4 w-4" />
-                  )}
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-            </TabsContent>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                      <Link to="/forgot-password" className="text-xs text-orange-600 hover:text-orange-700 font-medium">Forgot password?</Link>
+                    </div>
+                    <div className="relative">
+                      <Input id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => handlePasswordChange(e.target.value)} placeholder="Enter your password" className="h-12 text-base pr-12" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-2" aria-label={showPassword ? "Hide password" : "Show password"}>
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
 
-            <TabsContent value="face">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="face-username">Username</Label>
-                  <Input
-                    id="face-username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter username for face login"
-                    required
-                  />
-                </div>
-                <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
-                  <video
-                    ref={faceApi.videoRef}
-                    className="w-full h-full object-cover"
-                    muted
-                    playsInline
-                  />
-                  {!faceApi.isLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center text-white text-sm">
-                      <Loader2 className="animate-spin mr-2" />
-                      Loading face models...
+                  {/* Inline error message - stays visible until user types */}
+                  {loginError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                      <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                      <p className="text-sm text-red-700">{loginError}</p>
                     </div>
                   )}
-                  {faceApi.error && (
-                    <div className="absolute inset-0 flex items-center justify-center text-red-400 text-sm px-4 text-center">
-                      {faceApi.error}
+
+                  <Button type="submit" className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <LogIn className="mr-2 h-5 w-5" />}
+                    {isLoading ? "Signing you in..." : "Sign In"}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              {/* Face ID Login */}
+              <TabsContent value="face">
+                <div className="space-y-4">
+                  <div className={`p-3 rounded-lg flex items-start gap-2 ${isBioAvailable ? "bg-green-50 border border-green-200" : "bg-yellow-50 border border-yellow-200"}`}>
+                    {isBioAvailable ? <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" /> : <AlertCircle size={18} className="text-yellow-600 shrink-0 mt-0.5" />}
+                    <p className="text-xs text-gray-700">
+                      {webAuthn.capabilityMessage}
+                      {!isBioAvailable && " You can still log in with your password."}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="face-email" className="text-sm font-medium">Your Email</Label>
+                    <Input id="face-email" type="email" value={email} onChange={(e) => handleEmailChange(e.target.value)} placeholder="Enter your email first" className="h-12 text-base" />
+                    <p className="text-xs text-gray-500">
+                      {isBioAvailable
+                        ? "Tap the button below and use your Face ID or fingerprint to sign in instantly."
+                        : "This browser doesn't support biometric login. Try Safari on iPhone or Chrome on Android."}
+                    </p>
+                  </div>
+
+                  {/* Inline error for Face ID too */}
+                  {loginError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                      <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                      <p className="text-sm text-red-700">{loginError}</p>
                     </div>
                   )}
-                </div>
-                <Button
-                  onClick={handleFaceLogin}
-                  className="w-full bg-[#d4af37] hover:bg-[#b8941f] text-[#1a365d] font-semibold"
-                  disabled={isFaceLoading || !faceApi.isLoaded}
-                >
-                  {isFaceLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <ScanFace className="mr-2 h-4 w-4" />
-                  )}
-                  {isFaceLoading ? "Scanning..." : "Login with Face ID"}
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-[#1a365d] hover:text-[#d4af37] font-medium transition-colors">
-              Register now
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+                  <Button
+                    onClick={handleBiometricLogin}
+                    disabled={bioLoading}
+                    className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base"
+                  >
+                    {bioLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Fingerprint className="mr-2 h-5 w-5" />}
+                    {bioLoading ? "Verifying..." : "Sign In with Face ID"}
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="mt-6 pt-4 border-t text-center">
+              <p className="text-gray-500 text-sm">
+                New here?{" "}
+                <Link to="/register" className="text-orange-600 hover:text-orange-700 font-semibold inline-flex items-center gap-1 transition-colors">
+                  Create an account <ArrowRight size={14} />
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-gray-500 text-xs mt-6">
+          Your data stays on your device. No account needed to get started.
+        </p>
+      </div>
     </div>
   );
 }

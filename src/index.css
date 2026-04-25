@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Defensive: hide only injected overlay pills from hosting platforms */
+@layer base {
+  /* Only hide elements that are EXACT matches for injection patterns */
+  [class="kimi-agent"],
+  [class="kimi-pill"],
+  [id="kimi-agent"],
+  [id="kimi-pill"],
+  [data-testid="kimi-agent"],
+  div[class*="kimi-"][style*="position: fixed"],
+  div[class*="kimi-"][style*="position:fixed"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
