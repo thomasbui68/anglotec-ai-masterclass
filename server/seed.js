@@ -1,4 +1,4 @@
-import { initDb } from "./db.js";
+import { initDb, getDb } from "./db.js";
 
 const CATEGORIES = [
   "Code Generation",
@@ -27,7 +27,6 @@ const PHRASE_TEMPLATES = [
   "Generate TypeScript interfaces for this API response",
   "Create a React component with {feature}",
   "Build a {language} middleware for {purpose}",
-
   // UI/UX Design
   "Design a responsive {component} with mobile-first approach",
   "Create a CSS animation for {effect}",
@@ -39,7 +38,6 @@ const PHRASE_TEMPLATES = [
   "Create a loading skeleton for {content}",
   "Generate SVG icons for {purpose}",
   "Design a dark mode toggle component",
-
   // API & Backend
   "Design a REST API endpoint for {resource}",
   "Create a GraphQL schema for {data}",
@@ -51,7 +49,6 @@ const PHRASE_TEMPLATES = [
   "Create API documentation with OpenAPI",
   "Build a microservice for {purpose}",
   "Design a caching strategy for {data}",
-
   // Data Analysis
   "Parse this CSV and calculate {metric}",
   "Generate descriptive statistics for {dataset}",
@@ -63,7 +60,6 @@ const PHRASE_TEMPLATES = [
   "Build a sentiment analysis model",
   "Generate a forecast for {metric}",
   "Create a data pipeline with {tools}",
-
   // Content Creation
   "Write a blog post about {topic}",
   "Generate social media captions for {product}",
@@ -75,7 +71,6 @@ const PHRASE_TEMPLATES = [
   "Generate FAQ answers for {product}",
   "Create a content calendar for {duration}",
   "Write case studies for {industry}",
-
   // Business Strategy
   "Draft a business plan for {industry}",
   "Create a go-to-market strategy",
@@ -87,7 +82,6 @@ const PHRASE_TEMPLATES = [
   "Design a customer journey map",
   "Create OKRs for {department}",
   "Build a revenue model spreadsheet",
-
   // Database & SQL
   "Write a SQL query to join {tables}",
   "Optimize this database query for speed",
@@ -99,7 +93,6 @@ const PHRASE_TEMPLATES = [
   "Create a stored procedure for {task}",
   "Build a full-text search query",
   "Implement database replication",
-
   // DevOps & Cloud
   "Create a Docker container for {app}",
   "Write a Kubernetes deployment YAML",
@@ -111,7 +104,6 @@ const PHRASE_TEMPLATES = [
   "Set up log aggregation with {tool}",
   "Configure auto-scaling rules",
   "Create infrastructure as code templates",
-
   // Mobile Development
   "Build a React Native screen for {feature}",
   "Create a Flutter widget for {component}",
@@ -123,7 +115,6 @@ const PHRASE_TEMPLATES = [
   "Implement deep linking",
   "Create a responsive image gallery",
   "Build a mobile payment integration",
-
   // AI Model Tuning
   "Fine-tune a model for {task}",
   "Create prompt engineering templates",
@@ -135,7 +126,6 @@ const PHRASE_TEMPLATES = [
   "Implement RLHF for {behavior}",
   "Create a prompt injection defense",
   "Build a model comparison benchmark",
-
   // Cybersecurity
   "Implement input sanitization for {field}",
   "Create a CSP header configuration",
@@ -147,7 +137,6 @@ const PHRASE_TEMPLATES = [
   "Build a SIEM alert configuration",
   "Implement end-to-end encryption",
   "Create an incident response playbook",
-
   // Project Management
   "Create a sprint planning template",
   "Design a kanban board workflow",
@@ -224,10 +213,11 @@ function getCategoryForTemplate(template) {
   return CATEGORIES[Math.min(catIdx, CATEGORIES.length - 1)];
 }
 
-export async function seedDatabase() {
-  const db = await initDb();
+export function seedDatabase() {
+  initDb();
+  const db = getDb();
 
-  const count = await db.get("SELECT COUNT(*) as count FROM phrases");
+  const count = db.prepare("SELECT COUNT(*) as count FROM phrases").get();
   if (count.count > 0) {
     console.log("Database already seeded.");
     return;
@@ -236,13 +226,11 @@ export async function seedDatabase() {
   const phrases = [];
   const usedPhrases = new Set();
 
-  // Generate deterministic phrases
   for (let i = 0; i < 3000; i++) {
     const template = PHRASE_TEMPLATES[i % PHRASE_TEMPLATES.length];
     const category = getCategoryForTemplate(template);
     let phrase = fillTemplate(template);
 
-    // Make unique by appending index if duplicate
     while (usedPhrases.has(phrase)) {
       phrase = `${phrase} (${i})`;
     }
@@ -257,20 +245,21 @@ export async function seedDatabase() {
     });
   }
 
-  const insertStmt = await db.prepare(
-    `INSERT INTO phrases (english, category, difficulty, tags) VALUES (?, ?, ?, ?)`
+  const insertStmt = db.prepare(
+    "INSERT INTO phrases (english, category, difficulty, tags) VALUES (?, ?, ?, ?)"
   );
 
-  for (const phrase of phrases) {
-    await insertStmt.run(phrase.english, phrase.category, phrase.difficulty, phrase.tags);
-  }
+  const insertMany = db.transaction((items) => {
+    for (const item of items) {
+      insertStmt.run(item.english, item.category, item.difficulty, item.tags);
+    }
+  });
 
-  await insertStmt.finalize();
+  insertMany(phrases);
   console.log(`Seeded ${phrases.length} phrases.`);
 }
 
-// Run if called directly
 const isMain = import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  seedDatabase().catch(console.error);
+  seedDatabase();
 }

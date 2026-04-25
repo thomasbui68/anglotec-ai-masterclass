@@ -1,5 +1,4 @@
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
+import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -8,22 +7,21 @@ const __dirname = path.dirname(__filename);
 
 const DB_PATH = path.join(__dirname, "app.db");
 
-export async function getDb() {
-  const db = await open({
-    filename: DB_PATH,
-    driver: sqlite3.Database,
-  });
+let dbInstance = null;
 
-  await db.exec("PRAGMA journal_mode = WAL;");
-  await db.exec("PRAGMA foreign_keys = ON;");
-
-  return db;
+export function getDb() {
+  if (!dbInstance) {
+    dbInstance = new Database(DB_PATH);
+    dbInstance.pragma("journal_mode = WAL");
+    dbInstance.pragma("foreign_keys = ON");
+  }
+  return dbInstance;
 }
 
-export async function initDb() {
-  const db = await getDb();
+export function initDb() {
+  const db = getDb();
 
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
