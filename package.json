@@ -3,10 +3,11 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"vite\"",
     "server": "node --watch server/server.js",
-    "start": "node server/server.js",
+    "start": "node index.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

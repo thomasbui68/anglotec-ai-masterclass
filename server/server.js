@@ -509,15 +509,19 @@ function findDistPath() {
     path.join(__dirname, "..", "dist"),
     path.join(__dirname, "dist"),
     path.join(process.cwd(), "dist"),
+    path.join(process.cwd(), "app", "dist"),
   ];
   for (const p of candidates) {
-    if (fs.existsSync(p)) return p;
+    if (fs.existsSync(p)) {
+      console.log("Found dist at:", p);
+      return p;
+    }
   }
+  console.log("No dist found. Candidates checked:", candidates);
   return null;
 }
 
 const distPath = findDistPath();
-console.log("Dist path:", distPath, "CWD:", process.cwd(), "__dirname:", __dirname);
 
 if (distPath) {
   app.use(express.static(distPath));
@@ -526,8 +530,7 @@ if (distPath) {
     res.sendFile(path.join(distPath, "index.html"));
   });
 } else {
-  console.warn("No dist directory found - running API-only mode");
-  app.get("/", (req, res) => res.json({ message: "Anglotec AI Master Class API is running" }));
+  app.get("/", (req, res) => res.json({ message: "Anglotec AI Master Class API is running", distFound: false }));
 }
 
 // Start server
