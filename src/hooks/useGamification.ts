@@ -1,23 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 
-export interface GamificationState {
-  xp: number;
-  level: number;
-  xpForNextLevel: number;
-  streak: number;
-  longestStreak: number;
-  lastActiveDate: string;
-  totalSessions: number;
-  totalCorrect: number;
-  dailyGoal: number;
-  dailyProgress: number;
-  achievements: string[];
-  rank: string;
-  dailyRewardClaimed: boolean;
-  weeklyChallengeProgress: number;
-  weeklyChallengeGoal: number;
-}
-
 const RANKS = [
   { level: 1, name: "New Explorer", color: "#9CA3AF" },
   { level: 3, name: "Apprentice", color: "#60A5FA" },
@@ -40,178 +22,97 @@ function getRank(level: number) {
   return RANKS[0];
 }
 
-const STORAGE_KEY = "anglotec_game_state";
+const STORAGE_KEY = "anglotec_game_v2";
 
-function loadState(): GamificationState {
+function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch { /* ignore */ }
-  return getDefaultState();
-}
-
-function getDefaultState(): GamificationState {
   return {
-    xp: 0,
-    level: 1,
-    xpForNextLevel: XP_PER_LEVEL(1),
-    streak: 0,
-    longestStreak: 0,
+    xp: 0, level: 1, streak: 0, longestStreak: 0,
+    totalSessions: 0, totalCorrect: 0, dailyProgress: 0,
+    dailyGoal: 10, dailyRewardClaimed: false, achievements: [],
     lastActiveDate: "",
-    totalSessions: 0,
-    totalCorrect: 0,
-    dailyGoal: 10,
-    dailyProgress: 0,
-    achievements: [],
-    rank: RANKS[0].name,
-    dailyRewardClaimed: false,
-    weeklyChallengeProgress: 0,
-    weeklyChallengeGoal: 50,
   };
 }
 
-function saveState(state: GamificationState) {
+function saveState(state: any) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
 }
 
-function getToday(): string {
+function getToday() {
   return new Date().toISOString().split("T")[0];
 }
 
 export function useGamification() {
-  const [state, setState] = useState<GamificationState>(loadState);
+  const [state, setState] = useState(loadState);
   const [newAchievement, setNewAchievement] = useState<string | null>(null);
 
-  // Check daily streak on mount
+  // Only check streak/date once on initial mount
   useEffect(() => {
-    setState((prev) => {
-      const today = getToday();
-      if (prev.lastActiveDate === today) return prev;
+    const today = getToday();
+    if (state.lastActiveDate === today) return;
 
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      let newStreak = prev.streak;
-      let newDailyProgress = prev.dailyProgress;
-      let newDailyRewardClaimed = prev.dailyRewardClaimed;
+    const newStreak = state.lastActiveDate === yesterdayStr ? state.streak + 1 : 1;
 
-      if (prev.lastActiveDate === yesterdayStr) {
-        newStreak = prev.streak + 1; // continued streak
-      } else if (prev.lastActiveDate !== today) {
-        newStreak = 1; // reset streak
-      }
+    const updated = {
+      ...state,
+      streak: newStreak,
+      longestStreak: Math.max(newStreak, state.longestStreak),
+      lastActiveDate: today,
+      dailyProgress: 0,
+      dailyRewardClaimed: false,
+    };
 
-      // Reset daily progress at midnight
-      if (prev.lastActiveDate !== today) {
-        newDailyProgress = 0;
-        newDailyRewardClaimed = false;
-      }
-
-      const updated = {
-        ...prev,
-        streak: newStreak,
-        longestStreak: Math.max(newStreak, prev.longestStreak),
-        lastActiveDate: today,
-        dailyProgress: newDailyProgress,
-        dailyRewardClaimed: newDailyRewardClaimed,
-      };
-      saveState(updated);
-      return updated;
-    });
-  }, []);
-
-  const checkAchievements = useCallback((s: GamificationState): string[] => {
-    const earned: string[] = [];
-    if (s.totalCorrect >= 1 && !s.achievements.includes("first_correct")) earned.push("first_correct");
-    if (s.totalCorrect >= 10 && !s.achievements.includes("getting_started")) earned.push("getting_started");
-    if (s.totalCorrect >= 50 && !s.achievements.includes("half_century")) earned.push("half_century");
-    if (s.totalCorrect >= 100 && !s.achievements.includes("century")) earned.push("century");
-    if (s.totalCorrect >= 500 && !s.achievements.includes("champion")) earned.push("champion");
-    if (s.streak >= 3 && !s.achievements.includes("streak_3")) earned.push("streak_3");
-    if (s.streak >= 7 && !s.achievements.includes("streak_7")) earned.push("streak_7");
-    if (s.streak >= 30 && !s.achievements.includes("streak_30")) earned.push("streak_30");
-    if (s.level >= 5 && !s.achievements.includes("level_5")) earned.push("level_5");
-    if (s.level >= 10 && !s.achievements.includes("level_10")) earned.push("level_10");
-    if (s.level >= 25 && !s.achievements.includes("level_25")) earned.push("level_25");
-    if (s.dailyProgress >= s.dailyGoal && !s.achievements.includes("daily_goal")) earned.push("daily_goal");
-    if (s.totalSessions >= 1 && !s.achievements.includes("first_session")) earned.push("first_session");
-    return earned;
+    setState(updated);
+    saveState(updated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addXp = useCallback((amount: number) => {
-    setState((prev) => {
+    setState((prev: any) => {
       let newXp = prev.xp + amount;
       let newLevel = prev.level;
       let xpNeeded = XP_PER_LEVEL(newLevel);
-      let levelUps = 0;
 
       while (newXp >= xpNeeded) {
         newXp -= xpNeeded;
         newLevel++;
         xpNeeded = XP_PER_LEVEL(newLevel);
-        levelUps++;
       }
 
       const rank = getRank(newLevel);
-      const updated = {
-        ...prev,
-        xp: newXp,
-        level: newLevel,
-        xpForNextLevel: xpNeeded,
-        rank: rank.name,
-      };
-
-      const newAchievements = checkAchievements(updated);
-      if (newAchievements.length > 0) {
-        updated.achievements = [...prev.achievements, ...newAchievements];
-        setTimeout(() => setNewAchievement(newAchievements[0]), 100);
-        setTimeout(() => setNewAchievement(null), 5000);
-      }
-
+      const updated = { ...prev, xp: newXp, level: newLevel, xpForNextLevel: xpNeeded, rank: rank.name };
       saveState(updated);
       return updated;
     });
-  }, [checkAchievements]);
+  }, []);
 
   const recordCorrect = useCallback(() => {
-    setState((prev) => {
-      const updated = {
-        ...prev,
-        totalCorrect: prev.totalCorrect + 1,
-        dailyProgress: prev.dailyProgress + 1,
-      };
-      const newAchievements = checkAchievements(updated);
-      if (newAchievements.length > 0) {
-        updated.achievements = [...prev.achievements, ...newAchievements];
-      }
+    setState((prev: any) => {
+      const updated = { ...prev, totalCorrect: prev.totalCorrect + 1, dailyProgress: prev.dailyProgress + 1 };
       saveState(updated);
       return updated;
     });
     addXp(10);
-  }, [addXp, checkAchievements]);
+  }, [addXp]);
 
   const recordSession = useCallback(() => {
-    setState((prev) => {
+    setState((prev: any) => {
       const updated = { ...prev, totalSessions: prev.totalSessions + 1 };
       saveState(updated);
       return updated;
     });
   }, []);
 
-  const claimDailyReward = useCallback(() => {
-    setState((prev) => {
-      if (prev.dailyRewardClaimed) return prev;
-      const updated = { ...prev, dailyRewardClaimed: true };
-      saveState(updated);
-      return updated;
-    });
-    addXp(50);
-  }, [addXp]);
-
-  const xpPercent = Math.round((state.xp / state.xpForNextLevel) * 100);
   const rankInfo = getRank(state.level);
   const nextRank = RANKS.find((r) => r.level > state.level);
+  const xpPercent = Math.round((state.xp / (state.xpForNextLevel || XP_PER_LEVEL(state.level))) * 100);
 
   return {
     ...state,
@@ -222,7 +123,6 @@ export function useGamification() {
     addXp,
     recordCorrect,
     recordSession,
-    claimDailyReward,
     clearNewAchievement: () => setNewAchievement(null),
   };
 }
