@@ -10,8 +10,7 @@ import "./index.css";
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  const fallback = document.createElement("div");
-  fallback.innerHTML = `
+  document.body.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;background:linear-gradient(135deg,#0f172a,#1a365d)">
       <div>
         <h1 style="color:#F97316;font-size:28px;margin-bottom:12px;">Anglotec AI</h1>
@@ -22,7 +21,6 @@ if (!rootElement) {
       </div>
     </div>
   `;
-  document.body.appendChild(fallback);
 } else {
   createRoot(rootElement).render(
     <StrictMode>
