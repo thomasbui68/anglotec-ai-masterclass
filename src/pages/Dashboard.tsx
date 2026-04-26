@@ -1,284 +1,302 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useOnboarding } from "@/components/Onboarding";
-import { useProgress, useAchievements } from "@/hooks/useApi";
+import { useGamification } from "@/hooks/useGamification";
 import { trpc } from "@/providers/trpc";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { BookOpen, Trophy, Flame, BrainCircuit, Play, BarChart3, LogOut, Settings, Sparkles, HelpCircle, Loader2 } from "lucide-react";
-import type { Progress as ProgressStats } from "@/types";
+import { Button } from "@/components/ui/button";
+import {
+  BookOpen, Trophy, Flame, BrainCircuit, Play, BarChart3,
+  Settings, Sparkles, HelpCircle, Loader2, Zap,
+  Target, Crown, Star, TrendingUp, ChevronRight,
+  GraduationCap
+} from "lucide-react";
 
-const CATEGORY_ICONS: Record<string, string> = {
-  "Code Generation": "</>", "UI/UX Design": "🎨", "API & Backend": "🔌", "Data Analysis": "📊",
-  "Content Creation": "✍️", "Business Strategy": "📈", "Database & SQL": "🗄️", "DevOps & Cloud": "☁️",
-  "Mobile Development": "📱", "AI Model Tuning": "🤖", "Cybersecurity": "🔒", "Project Management": "📋",
+const CATEGORY_ICONS: Record<string, any> = {
+  "Code Generation": Zap,
+  "UI/UX Design": Sparkles,
+  "API & Backend": BarChart3,
+  "Data Analysis": TrendingUp,
+  "Content Creation": BookOpen,
+  "Business Strategy": Crown,
+  "Database & SQL": Target,
+  "DevOps & Cloud": Flame,
+  "Mobile Development": Star,
+  "AI Model Tuning": BrainCircuit,
+  "Cybersecurity": ShieldCheck,
+  "Project Management": GraduationCap,
 };
 
-// Bulletproof navigation that works even if React Router navigate fails
-function safeNavigate(navigate: ReturnType<typeof useNavigate>, path: string) {
-  try {
-    navigate(path);
-  } catch {
-    window.location.hash = path;
-  }
+function ShieldCheck(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="m9 12 2 2 4-4" />
+    </svg>
+  );
 }
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { setShowOnboarding } = useOnboarding();
+  const { user } = useAuth();
+  const game = useGamification();
+
   const { data: categoryData, isLoading: catLoading } = trpc.phrase.categories.useQuery();
+  const { data: progressStats } = trpc.progress.getStats.useQuery(undefined, { enabled: !!user });
   const categories = categoryData ?? [];
 
-  const progressApi = useProgress(user?.id || 0);
-  const achievementsApi = useAchievements(user?.id || 0);
-  const [stats, setStats] = useState<ProgressStats | null>(null);
-  const [achievements, setAchievements] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const stats = progressStats ?? {
+    total_phrases: 3000, mastered: 0, learning: 0, new_count: 3000,
+    avg_mastery: 0, total_practices: 0, active_days: 0, last_active: null,
+  };
 
-  // Load data once on mount only
+  const masteredPercent = stats.total_phrases > 0
+    ? Math.round((stats.mastered / stats.total_phrases) * 100)
+    : 0;
+
+  const dailyPercent = Math.min(100, Math.round((game.dailyProgress / game.dailyGoal) * 100));
+
+  const [animatedStats, setAnimatedStats] = useState(false);
   useEffect(() => {
-    if (!user) return;
-    let mounted = true;
-    try {
-      const progressStats = progressApi.getStats();
-      const allAchievements = achievementsApi.getAll();
-      if (mounted) {
-        setStats(progressStats as any);
-        setAchievements(allAchievements.slice(0, 5));
-      }
-    } catch (e) {
-      console.error("Dashboard data load failed:", e);
-      toast.error("Something went wrong loading your data. Please refresh.");
-    } finally {
-      if (mounted) setIsLoading(false);
-    }
-    return () => { mounted = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const t = setTimeout(() => setAnimatedStats(true), 300);
+    return () => clearTimeout(t);
   }, []);
 
-  useEffect(() => {
-    if (!catLoading) setIsLoading(false);
-  }, [catLoading]);
-
-  const handleLogout = () => {
-    logout();
-    toast.success("You've been signed out. See you soon!");
-    safeNavigate(navigate, "/login");
+  const handleCategory = (cat: string) => {
+    navigate(`/flashcards?category=${encodeURIComponent(cat)}`);
   };
-
-  const handleStartLearning = () => {
-    safeNavigate(navigate, "/flashcards");
-  };
-
-  const handleViewProgress = () => {
-    safeNavigate(navigate, "/progress");
-  };
-
-  const handleCategoryClick = (cat: string) => {
-    safeNavigate(navigate, `/flashcards?category=${encodeURIComponent(cat)}`);
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center">
-        <div className="text-white text-center">
-          <Loader2 className="animate-spin mx-auto mb-2" size={32} />
-          <p>Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex items-center justify-center">
-        <div className="text-center">
-          <BrainCircuit className="animate-pulse mx-auto mb-3 text-orange-500" size={48} />
-          <p className="text-gray-600">Loading your AI Master dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const mastered = stats?.mastered || 0;
-  const total = stats?.total_phrases || 300;
-  const progressPercent = Math.round((mastered / total) * 100);
-  const masteryLevel = progressPercent >= 100 ? "AI MASTER" : progressPercent >= 66 ? "Advanced" : progressPercent >= 33 ? "Intermediate" : "Novice";
-  const displayName = user.email.split("@")[0];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
+      {/* Achievement toast */}
+      {game.newAchievement && (
+        <div className="fixed top-4 left-4 right-4 z-[60] pointer-events-none">
+          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-4 shadow-2xl animate-bounce pointer-events-auto max-w-md mx-auto">
+            <div className="flex items-center gap-3">
+              <Trophy size={28} className="text-white" />
+              <div>
+                <p className="text-white font-bold text-sm">Achievement Unlocked!</p>
+                <p className="text-white/90 text-xs">{game.newAchievement}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <header className="bg-[#1a365d] text-white shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/app-icon.png" alt="Anglotec" className="h-10 w-10 object-contain" />
+            <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg" />
             <div>
-              <h1 className="text-base font-bold tracking-wide">Anglotec AI</h1>
-              <p className="text-xs text-orange-400">AI Master Class</p>
+              <h1 className="text-lg font-bold text-white leading-tight">Anglotec AI</h1>
+              <p className="text-[10px] text-gray-400">AI Master Class</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/help" className="p-2 rounded-full hover:bg-white/10 text-white/80" title="Help & Support">
+            <Link to="/help" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
               <HelpCircle size={20} />
             </Link>
-            <button onClick={() => setShowOnboarding(true)} className="p-2 rounded-full hover:bg-white/10 text-white/80" title="Show tutorial again">
-              <Sparkles size={20} />
-            </button>
-            <Link to="/settings" className="p-2 rounded-full hover:bg-white/10 text-white/80" title="Settings">
+            <Link to="/settings" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
               <Settings size={20} />
             </Link>
-            <div className="hidden sm:flex items-center gap-2 text-sm mr-2">
-              <span className="text-sm text-orange-400">{displayName}</span>
-            </div>
-            <button onClick={handleLogout} className="p-2 rounded-full hover:bg-white/10 text-white/80" title="Sign out">
-              <LogOut size={20} />
-            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 pb-24">
-        {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-5 mb-6 text-white shadow-lg">
+      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        {/* Welcome + User Card */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white">
+              {user ? `Welcome back, ${user.email.split("@")[0]}!` : "Welcome!"}
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              {game.streak > 0
+                ? `${game.streak}-day streak! Keep it going!`
+                : "Let's start learning!"}
+            </p>
+          </div>
           <div className="flex items-center gap-3">
-            <Sparkles className="shrink-0" size={28} />
-            <div>
-              <h2 className="text-lg font-bold">Welcome back, {displayName}!</h2>
-              <p className="text-sm text-white/90">You're at {masteryLevel} level. Keep learning!</p>
+            <div className="text-right">
+              <div className="flex items-center gap-1.5">
+                <Crown size={14} style={{ color: game.rankInfo.color }} />
+                <span className="text-xs font-bold" style={{ color: game.rankInfo.color }}>{game.rankInfo.name}</span>
+              </div>
+              <p className="text-[10px] text-gray-400">Level {game.level}</p>
             </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <Card className="border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
-            <CardContent className="pt-4 pb-3 px-4">
+        {/* XP Progress Bar */}
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <BrainCircuit className="text-orange-500 shrink-0" size={24} />
-                <div>
-                  <p className="text-xs text-gray-500">Level</p>
-                  <p className="text-lg font-bold text-[#1a365d]">{masteryLevel}</p>
-                </div>
+                <Zap size={16} className="text-yellow-400" />
+                <span className="text-sm font-semibold text-white">Level {game.level}</span>
               </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-            <CardContent className="pt-4 pb-3 px-4">
+              <span className="text-xs text-gray-400">{game.xp} / {game.xpForNextLevel} XP</span>
+            </div>
+            <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full transition-all duration-1000 ease-out"
+                style={{ width: animatedStats ? `${game.xpPercent}%` : "0%" }}
+              />
+            </div>
+            {game.nextRank && (
+              <p className="text-[10px] text-gray-500 mt-1 text-right">
+                Next: {game.nextRank?.name} at Level {game.nextRank?.level}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: "Learned", value: stats.mastered, icon: BookOpen, color: "text-green-400", bg: "bg-green-400/10" },
+            { label: "Practicing", value: stats.learning, icon: Flame, color: "text-orange-400", bg: "bg-orange-400/10" },
+            { label: "Streak", value: game.streak, icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-400/10" },
+            { label: "XP Total", value: `${game.xp}/${game.xpForNextLevel}`, icon: Star, color: "text-yellow-400", bg: "bg-yellow-400/10" },
+          ].map((s, i) => (
+            <Card
+              key={s.label}
+              className="bg-white/5 border-white/10 backdrop-blur hover:bg-white/10 transition-all duration-300 hover:scale-105 cursor-pointer"
+              style={{ animationDelay: `${i * 100}ms`, opacity: animatedStats ? 1 : 0, transform: animatedStats ? "translateY(0)" : "translateY(10px)", transition: "all 0.5s ease" }}
+            >
+              <CardContent className="p-3 text-center">
+                <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center mx-auto mb-2`}>
+                  <s.icon size={20} className={s.color} />
+                </div>
+                <p className="text-xl font-bold text-white">{s.value}</p>
+                <p className="text-xs text-gray-400">{s.label}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Daily Goal Progress */}
+        <Card className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-orange-400/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <BookOpen className="text-blue-500 shrink-0" size={24} />
-                <div>
-                  <p className="text-xs text-gray-500">Mastered</p>
-                  <p className="text-lg font-bold text-[#1a365d]">{mastered}/{total}</p>
-                </div>
+                <Target size={16} className="text-orange-400" />
+                <span className="text-sm font-semibold text-white">Daily Goal</span>
               </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
-            <CardContent className="pt-4 pb-3 px-4">
-              <div className="flex items-center gap-2">
-                <Flame className="text-red-500 shrink-0" size={24} />
-                <div>
-                  <p className="text-xs text-gray-500">Streak</p>
-                  <p className="text-lg font-bold text-[#1a365d]">{stats?.active_days || 0} days</p>
-                </div>
+              <span className="text-xs text-orange-300">{game.dailyProgress} / {game.dailyGoal}</span>
+            </div>
+            <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full transition-all duration-1000"
+                style={{ width: animatedStats ? `${dailyPercent}%` : "0%" }}
+              />
+            </div>
+            {dailyPercent >= 100 ? (
+              <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
+                <Star size={12} /> Daily goal complete! Great job!
+              </p>
+            ) : (
+              <p className="text-xs text-gray-400 mt-2">
+                Practice {game.dailyGoal - game.dailyProgress} more to reach your daily goal
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Start */}
+        <div className="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl p-6 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTUpIi8+PC9zdmc+')] opacity-50" />
+          <div className="relative z-10">
+            <div className="flex justify-center mb-3">
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                <Play size={32} className="text-white ml-1" />
               </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
-            <CardContent className="pt-4 pb-3 px-4">
-              <div className="flex items-center gap-2">
-                <Trophy className="text-green-500 shrink-0" size={24} />
-                <div>
-                  <p className="text-xs text-gray-500">Badges</p>
-                  <p className="text-lg font-bold text-[#1a365d]">{achievements.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1">Ready to Learn?</h3>
+            <p className="text-white/80 text-sm mb-4">
+              {stats.mastered > 0
+                ? `You have mastered ${stats.mastered} phrases. Keep going!`
+                : "Start with your first phrase today!"}
+            </p>
+            <Button
+              onClick={() => navigate("/flashcards")}
+              className="h-14 px-8 bg-white text-orange-600 hover:bg-orange-50 font-bold text-lg rounded-xl shadow-lg"
+            >
+              Start Learning <ChevronRight size={20} className="ml-1" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Categories Grid */}
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+            <BrainCircuit size={18} className="text-orange-400" /> Choose a Topic
+          </h3>
+          {catLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 size={32} className="text-orange-400 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {categories.map((cat, i) => {
+                const Icon = CATEGORY_ICONS[cat] || Sparkles;
+                const colors = [
+                  "from-blue-500/30 to-blue-600/10 border-blue-400/30",
+                  "from-green-500/30 to-green-600/10 border-green-400/30",
+                  "from-purple-500/30 to-purple-600/10 border-purple-400/30",
+                  "from-pink-500/30 to-pink-600/10 border-pink-400/30",
+                  "from-orange-500/30 to-orange-600/10 border-orange-400/30",
+                  "from-cyan-500/30 to-cyan-600/10 border-cyan-400/30",
+                ];
+                const c = colors[i % colors.length];
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategory(cat)}
+                    className={`bg-gradient-to-br ${c} backdrop-blur border rounded-2xl p-4 text-left hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 group`}
+                    style={{ animationDelay: `${i * 50}ms`, opacity: animatedStats ? 1 : 0, transform: animatedStats ? "translateY(0)" : "translateY(20px)", transition: "all 0.5s ease" }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-3 group-hover:bg-white/20 transition-colors">
+                      <Icon size={20} className="text-white" />
+                    </div>
+                    <p className="text-sm font-semibold text-white leading-tight">{cat}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">250 phrases</p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Overall Progress */}
-        <Card className="mb-6">
+        <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Your Progress to AI Master</span>
-              <span className="text-sm font-bold text-orange-500">{progressPercent}%</span>
+              <span className="text-sm font-medium text-gray-300">Overall Progress</span>
+              <span className="text-sm font-bold text-white">{masteredPercent}%</span>
             </div>
-            <Progress value={progressPercent} className="h-3" />
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span>Novice</span>
-              <span>Intermediate</span>
-              <span>Advanced</span>
-              <span>AI Master</span>
+            <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full transition-all duration-1500 ease-out"
+                style={{ width: animatedStats ? `${masteredPercent}%` : "0%" }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>0</span>
+              <span>{stats.mastered} learned</span>
+              <span>{stats.total_phrases} total</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Main CTAs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <button onClick={handleStartLearning} className="group bg-gradient-to-r from-[#1a365d] to-[#0f172a] text-white rounded-xl p-5 text-left hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <Play size={28} className="text-orange-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">Start Learning</h3>
-                <p className="text-sm text-gray-300">Practice flashcards with audio</p>
-              </div>
-            </div>
-          </button>
-          <button onClick={handleViewProgress} className="group bg-white border-2 border-orange-200 rounded-xl p-5 text-left hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                <BarChart3 size={28} className="text-orange-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-[#1a365d]">View Progress</h3>
-                <p className="text-sm text-gray-500">See your analytics & badges</p>
-              </div>
-            </div>
-          </button>
-        </div>
-
-        {/* Categories */}
-        <h2 className="text-lg font-bold text-[#1a365d] mb-3">Pick a Topic to Learn</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => handleCategoryClick(cat)}
-              className="bg-white border border-gray-200 rounded-xl p-4 text-left hover:shadow-md hover:border-orange-300 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{CATEGORY_ICONS[cat] || "📚"}</span>
-                <div>
-                  <span className="text-sm font-semibold text-[#1a365d] block">{cat}</span>
-                  <span className="text-xs text-gray-500">25 phrases</span>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Recent Achievements */}
-        {achievements.length > 0 && (
-          <>
-            <h2 className="text-lg font-bold text-[#1a365d] mb-3">Recent Achievements</h2>
-            <div className="flex flex-wrap gap-2">
-              {achievements.map((ach) => (
-                <Badge key={ach.id} variant="secondary" className="bg-orange-100 text-orange-700 px-3 py-1.5 text-sm">
-                  <Trophy size={14} className="mr-1 text-orange-500" />{ach.badge_name}
-                </Badge>
-              ))}
-            </div>
-          </>
-        )}
+        {/* Footer */}
+        <footer className="text-center text-gray-600 text-xs pb-4 pt-2">
+          <p> Anglotec Academy — Part of the Anglotec AI Apps Family</p>
+          <p className="mt-1">Your account is securely stored on our cloud servers.</p>
+        </footer>
       </main>
     </div>
   );
 }
+
+

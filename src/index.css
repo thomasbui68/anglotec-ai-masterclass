@@ -2,51 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Defensive: aggressively hide ALL Kimi platform overlay elements */
-@layer base {
-  /* Exact matches */
-  [class="kimi-agent"],
-  [class="kimi-pill"],
-  [class="kimi-overlay"],
-  [class="kimi-widget"],
-  [class="kimi-bot"],
-  [class="kimi-float"],
-  [id="kimi-agent"],
-  [id="kimi-pill"],
-  [id="kimi-overlay"],
-  [id="kimi-widget"],
-  [id="kimi-bot"],
-  [id="kimi-float"],
-  [data-testid="kimi-agent"],
-  [data-testid="kimi-pill"],
-  [data-testid="kimi-overlay"],
-  /* Any element with kimi in class/id that is fixed-positioned */
-  [class*="kimi"][style*="position: fixed"],
-  [class*="kimi"][style*="position:fixed"],
-  [id*="kimi"][style*="position: fixed"],
-  [id*="kimi"][style*="position:fixed"],
-  /* Any fixed-position element containing "agent" or "pill" with dark background */
-  [class*="agent"][style*="position: fixed"][style*="background: rgb(0"],
-  [class*="agent"][style*="position:fixed"][style*="background:rgb(0"],
-  /* Shadow DOM / web component detection fallback */
-  div[class*="kimi-"],
-  div[id*="kimi-"],
-  span[class*="kimi-"],
-  span[id*="kimi-"],
-  button[class*="kimi-"],
-  button[id*="kimi-"],
-  a[class*="kimi-"],
-  a[id*="kimi-"] {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-  }
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -68,15 +23,7 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
-    --radius: 0.625rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -99,22 +46,133 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(249, 115, 22, 0.6); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.1) rotate(-2deg); }
+  50% { transform: scale(1) rotate(2deg); }
+  75% { transform: scale(1.05) rotate(-1deg); }
+  100% { transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-celebrate {
+  animation: celebrate 0.5s ease-out;
+}
+
+/* Stagger children animations */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+
+/* Hide scrollbar for category selector */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth button interactions */
+button:active:not(:disabled),
+[role="button"]:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 0.15s ease;
+}
+
+/* ========== KIMI/AGENT OVERLAY KILLER ========== */
+[class*="kimi"],
+[id*="kimi"],
+[data-testid*="kimi"],
+[class*="agent"][style*="position: fixed"],
+[id*="agent"][style*="position: fixed"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+}
+
+/* Toast styling */
+[data-sonner-toast] {
+  border-radius: 16px !important;
+  font-size: 14px !important;
 }

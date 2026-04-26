@@ -1,27 +1,27 @@
-import { HashRouter, Routes, Route, Navigate } from "react-router";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { OnboardingProvider } from "@/components/Onboarding";
-import StorageWarning from "@/components/StorageWarning";
+import { Routes, Route, Navigate } from "react-router";
 import { Toaster } from "@/components/ui/sonner";
+import { useAuth } from "@/hooks/useAuth";
+import Home from "@/pages/Home";
+import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
-import ForgotPassword from "@/pages/ForgotPassword";
-import Dashboard from "@/pages/Dashboard";
 import Flashcards from "@/pages/Flashcards";
-import ProgressPage from "@/pages/Progress";
+import ForgotPassword from "@/pages/ForgotPassword";
 import Settings from "@/pages/Settings";
+import Progress from "@/pages/Progress";
 import Help from "@/pages/Help";
 import NotFound from "@/pages/NotFound";
 
-function AppRoutes() {
+function App() {
   const { isAuthenticated, isReady } = useAuth();
 
   if (!isReady) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4" />
-          <p className="text-gray-400">Loading...</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-orange-500 mx-auto mb-6" />
+          <p className="text-gray-400 text-lg">Loading your experience...</p>
+          <p className="text-gray-600 text-xs mt-2">This will only take a moment</p>
         </div>
       </div>
     );
@@ -29,32 +29,30 @@ function AppRoutes() {
 
   return (
     <>
-      <StorageWarning />
-      <Toaster position="top-center" richColors closeButton duration={5000} />
       <Routes>
-        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" replace />} />
-        <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" replace />} />
-        <Route path="/forgot-password" element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/" replace />} />
-        <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
-        <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Dashboard />
+            ) : (
+              <Home />
+            )
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/flashcards" element={isAuthenticated ? <Flashcards /> : <Navigate to="/login" replace />} />
-        <Route path="/progress" element={isAuthenticated ? <ProgressPage /> : <Navigate to="/login" replace />} />
+        <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
         <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} />
-        <Route path="/help" element={isAuthenticated ? <Help /> : <Navigate to="/login" replace />} />
+        <Route path="/progress" element={isAuthenticated ? <Progress /> : <Navigate to="/login" replace />} />
+        <Route path="/help" element={<Help />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Toaster position="top-center" richColors closeButton />
     </>
   );
 }
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <HashRouter>
-        <OnboardingProvider>
-          <AppRoutes />
-        </OnboardingProvider>
-      </HashRouter>
-    </AuthProvider>
-  );
-}
+export default App;
