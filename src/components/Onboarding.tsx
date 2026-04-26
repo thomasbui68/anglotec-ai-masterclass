@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Volume2, Award, Brain, ArrowRight, Sparkles, X } from "lucide-react";
+import { BookOpen, Volume2, Award, Brain, ArrowRight, Sparkles } from "lucide-react";
 
 interface OnboardingContextType {
   showOnboarding: boolean;
@@ -37,7 +37,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     {
       title: "Welcome to AI Master Class",
       icon: <Sparkles className="w-12 h-12 text-orange-500" />,
-      description: "Learn 300 AI prompting phrases used by professionals worldwide. Part of the Anglotec AI Apps family.",
+      description: "Learn 3000 AI prompting phrases used by professionals worldwide. Part of the Anglotec AI Apps family.",
     },
     {
       title: "Flashcard Learning",
@@ -64,16 +64,13 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   return (
     <OnboardingContext.Provider value={{ showOnboarding, setShowOnboarding, currentStep, setCurrentStep }}>
       {children}
-      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+      <Dialog open={showOnboarding} onOpenChange={(open) => { if (!open) finish(); }}>
         <DialogContent className="sm:max-w-md text-center">
-          {/* Step counter */}
-          <div className="flex items-center justify-between mb-2">
+          {/* Step counter — DialogContent provides its own X close button in top-right */}
+          <div className="flex items-center justify-between mb-2 pr-8">
             <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
               Step {currentStep + 1} of {steps.length}
             </p>
-            <button onClick={finish} className="text-gray-400 hover:text-gray-600 p-1" aria-label="Skip tutorial">
-              <X size={16} />
-            </button>
           </div>
           <DialogHeader>
             <div className="flex justify-center mb-4">{steps[currentStep]?.icon}</div>

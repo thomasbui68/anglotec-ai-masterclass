@@ -2,20 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Defensive: hide only injected overlay pills from hosting platforms */
+/* Defensive: aggressively hide ALL Kimi platform overlay elements */
 @layer base {
-  /* Only hide elements that are EXACT matches for injection patterns */
+  /* Exact matches */
   [class="kimi-agent"],
   [class="kimi-pill"],
+  [class="kimi-overlay"],
+  [class="kimi-widget"],
+  [class="kimi-bot"],
+  [class="kimi-float"],
   [id="kimi-agent"],
   [id="kimi-pill"],
+  [id="kimi-overlay"],
+  [id="kimi-widget"],
+  [id="kimi-bot"],
+  [id="kimi-float"],
   [data-testid="kimi-agent"],
-  div[class*="kimi-"][style*="position: fixed"],
-  div[class*="kimi-"][style*="position:fixed"] {
+  [data-testid="kimi-pill"],
+  [data-testid="kimi-overlay"],
+  /* Any element with kimi in class/id that is fixed-positioned */
+  [class*="kimi"][style*="position: fixed"],
+  [class*="kimi"][style*="position:fixed"],
+  [id*="kimi"][style*="position: fixed"],
+  [id*="kimi"][style*="position:fixed"],
+  /* Any fixed-position element containing "agent" or "pill" with dark background */
+  [class*="agent"][style*="position: fixed"][style*="background: rgb(0"],
+  [class*="agent"][style*="position:fixed"][style*="background:rgb(0"],
+  /* Shadow DOM / web component detection fallback */
+  div[class*="kimi-"],
+  div[id*="kimi-"],
+  span[class*="kimi-"],
+  span[id*="kimi-"],
+  button[class*="kimi-"],
+  button[id*="kimi-"],
+  a[class*="kimi-"],
+  a[id*="kimi-"] {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 }
 
