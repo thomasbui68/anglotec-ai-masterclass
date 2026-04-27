@@ -2,7 +2,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { createRouter, publicQuery, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
-import { users, emailVerifications, passwordResets, biometricCredentials, userProgress, achievements } from "@db/schema";
+import { users, emailVerifications, passwordResets, biometricCredentials, userProgress, achievements, subscriptions } from "@db/schema";
 import { eq, and, gte } from "drizzle-orm";
 import { signToken } from "./lib/jwt";
 
@@ -76,6 +76,17 @@ export const authRouter = createRouter({
       const token = signToken({ userId: user.id, email: user.email, role: user.role });
       setAuthCookie(ctx.resHeaders, token);
 
+      // Create free trial subscription for new user
+      const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14-day trial
+      await db.insert(subscriptions).values({
+        userId: user.id,
+        tier: "pro",
+        status: "trial",
+        trialEndsAt,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: trialEndsAt,
+      });
+
       return {
         user: {
           id: user.id,
@@ -83,7 +94,12 @@ export const authRouter = createRouter({
           emailVerified: user.emailVerified === 1,
           hasBiometric: user.hasBiometric === 1,
         },
-        verificationCode: code, // In production, this would be sent via email
+        verificationCode: code,
+        subscription: {
+          tier: "pro" as const,
+          status: "trial" as const,
+          trialEndsAt,
+        },
       };
     }),
 
@@ -106,6 +122,11 @@ export const authRouter = createRouter({
       const token = signToken({ userId: user.id, email: user.email, role: user.role });
       setAuthCookie(ctx.resHeaders, token);
 
+      // Get subscription info
+      const sub = await db.query.subscriptions.findFirst({
+        where: eq(subscriptions.userId, user.id),
+      });
+
       return {
         user: {
           id: user.id,
@@ -116,6 +137,14 @@ export const authRouter = createRouter({
           phoneNumber: user.phoneNumber,
           securityQuestion: user.securityQuestion,
         },
+        subscription: sub
+          ? {
+              tier: sub.tier,
+              status: sub.status,
+              trialEndsAt: sub.trialEndsAt,
+              currentPeriodEnd: sub.currentPeriodEnd,
+            }
+          : { tier: "free" as const, status: "trial" as const },
       };
     }),
 
@@ -126,6 +155,12 @@ export const authRouter = createRouter({
       where: eq(users.id, ctx.user.id),
     });
     if (!user) return null;
+
+    // Get subscription
+    const sub = await db.query.subscriptions.findFirst({
+      where: eq(subscriptions.userId, user.id),
+    });
+
     return {
       id: user.id,
       email: user.email,
@@ -136,6 +171,15 @@ export const authRouter = createRouter({
       phoneNumber: user.phoneNumber,
       securityQuestion: user.securityQuestion,
       role: user.role,
+      subscription: sub
+        ? {
+            tier: sub.tier,
+            status: sub.status,
+            trialEndsAt: sub.trialEndsAt,
+            currentPeriodEnd: sub.currentPeriodEnd,
+            isPaid: sub.status === "active",
+          }
+        : { tier: "free" as const, status: "trial" as const, isPaid: false },
     };
   }),
 

@@ -112,7 +112,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg" />
+          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
           <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
           <p className="text-orange-400 text-lg font-medium mt-1">AI Master Class</p>
           <p className="text-gray-400 text-sm mt-2">Part of the Anglotec AI Apps Family</p>
@@ -196,8 +196,8 @@ export default function Login() {
 
                   <Button
                     onClick={handleBiometricLogin}
-                    disabled={bioLoading}
-                    className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base"
+                    disabled={bioLoading || webAuthn.inIframe}
+                    className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base disabled:opacity-50"
                   >
                     {bioLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Fingerprint className="mr-2 h-5 w-5" />}
                     {bioLoading ? "Verifying..." : "Sign In with Face ID"}

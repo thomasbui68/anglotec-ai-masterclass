@@ -72,10 +72,12 @@ export default function Register() {
       if (setupBio && webAuthn.isReady) {
         setBioRegistering(true);
         toast.info("Please use your Face ID or fingerprint when prompted...");
-        const credId = await webAuthn.registerBiometric(form.email.trim());
-        if (credId) {
-          credentialId = credId;
+        const bioResult = await webAuthn.registerBiometric(form.email.trim());
+        if (bioResult.credentialId) {
+          credentialId = bioResult.credentialId;
           toast.success("Face ID registered successfully!");
+        } else if (bioResult.error) {
+          toast.warning(bioResult.error);
         } else {
           toast.warning("Face ID setup was cancelled. You can set it up later in Settings.");
         }
@@ -131,7 +133,7 @@ export default function Register() {
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg" />
+            <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
             <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
             <p className="text-orange-400 text-lg font-medium mt-1">Verify Your Email</p>
           </div>
@@ -161,7 +163,7 @@ export default function Register() {
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg" />
+          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
           <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
           <p className="text-orange-400 text-lg font-medium mt-1">Create Your Account</p>
         </div>

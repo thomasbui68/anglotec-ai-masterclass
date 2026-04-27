@@ -11,18 +11,18 @@ import type { Progress as ProgressStats, Achievement } from "@/types";
 
 export default function ProgressPage() {
   const { user } = useAuth();
-  const progressApi = user ? useProgress(user.id) : null;
-  const achievementsApi = user ? useAchievements(user.id) : null;
+  const progressApi = useProgress(user?.id || 0);
+  const achievementsApi = useAchievements(user?.id || 0);
   const [stats, setStats] = useState<ProgressStats | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || !progressApi || !achievementsApi) return;
-    setStats(progressApi.getStats() as any);
-    setAchievements(achievementsApi.getAll());
+    if (!user) return;
+    setStats(progressApi.stats as any);
+    setAchievements(achievementsApi.achievements as any);
     setIsLoading(false);
-  }, [user]);
+  }, [user, progressApi.stats, achievementsApi.achievements]);
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ export default function ProgressPage() {
     );
   }
 
-  const total = stats?.total_phrases || 300;
+  const total = stats?.total_phrases || 3000;
   const mastered = stats?.mastered || 0;
   const learning = stats?.learning || 0;
   const newCount = stats?.new_count || total - mastered - learning;

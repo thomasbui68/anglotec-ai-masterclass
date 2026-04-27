@@ -123,7 +123,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg" />
+          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
           <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
           <p className="text-orange-400 text-lg font-medium mt-1">Recover Your Account</p>
         </div>

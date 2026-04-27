@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: "How do I track my progress?",
-    a: "Your Dashboard shows your mastery level, streak, badges, and overall progress bar. Tap 'View Progress' for detailed analytics including phrases mastered per category and your journey from Novice to AI Master.",
+    a: "Your Dashboard shows your mastery level, streak, badges, and overall progress bar. You earn XP for every correct answer and can climb from New Explorer all the way to AI Champion!",
     icon: <Trophy size={18} className="text-orange-500" />,
   },
   {
@@ -29,18 +29,18 @@ const FAQS = [
     icon: <Volume2 size={18} className="text-orange-500" />,
   },
   {
-    q: "Is my data private?",
-    a: "Absolutely. All your learning data, account info, and Face ID credentials are stored only on your device. Nothing is sent to any server. Your Face ID credential lives in your device's secure hardware — we never see or store your face.",
+    q: "Is my data safe?",
+    a: "Absolutely. Your account and all learning progress are stored securely on our cloud servers with encryption. You can log in from any device and pick up exactly where you left off. Your Face ID credential never leaves your device — it stays in your phone's secure hardware.",
     icon: <Shield size={18} className="text-orange-500" />,
   },
   {
     q: "Can I use this on multiple devices?",
-    a: "Since all data is stored locally on your device, each device keeps its own copy. If you want to use the app on another device, you'll need to create a new account there. This ensures maximum privacy.",
+    a: "Yes! Since your account is stored in the cloud, you can log in from any phone, tablet, or computer. Your progress, achievements, and settings will all be there waiting for you.",
     icon: <Sparkles size={18} className="text-orange-500" />,
   },
   {
     q: "How do I sign out?",
-    a: "Tap the person icon or exit icon in the top-right corner of the Dashboard, then confirm sign out. Your data stays saved on the device for when you return.",
+    a: "Go to Settings and tap 'Sign Out' at the bottom. Your account stays safe in the cloud and everything will be right there when you log back in.",
     icon: <LogOut size={18} className="text-orange-500" />,
   },
 ];
@@ -48,11 +48,10 @@ const FAQS = [
 export default function Help() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white">
-      {/* Header */}
       <header className="bg-[#1a365d] text-white shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/app-icon.png" alt="Anglotec" className="h-10 w-10 object-contain" />
+            <img src="/app-icon.png" alt="Anglotec" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
               <h1 className="text-base font-bold tracking-wide">Anglotec AI</h1>
               <p className="text-xs text-orange-400">Help & Support</p>
@@ -60,7 +59,7 @@ export default function Help() {
           </div>
           <Link to="/">
             <button className="flex items-center gap-1 text-white hover:bg-white/10 rounded-lg px-3 py-2 text-sm transition-colors">
-              <ArrowLeft size={16} /> Back to Dashboard
+              <ArrowLeft size={16} /> Back
             </button>
           </Link>
         </div>
@@ -73,7 +72,6 @@ export default function Help() {
           <p className="text-gray-500 mt-1">Everything you need to get the most from Anglotec AI Master Class.</p>
         </div>
 
-        {/* Contact */}
         <Card className="mb-6 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
@@ -89,7 +87,6 @@ export default function Help() {
           </CardContent>
         </Card>
 
-        {/* FAQ Grid */}
         <div className="space-y-4">
           {FAQS.map((faq, i) => (
             <Card key={i} className="hover:shadow-md transition-shadow">
@@ -106,7 +103,6 @@ export default function Help() {
           ))}
         </div>
 
-        {/* Re-show tutorial */}
         <div className="mt-8 text-center">
           <Link to="/">
             <button className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-6 py-3 font-semibold transition-colors">

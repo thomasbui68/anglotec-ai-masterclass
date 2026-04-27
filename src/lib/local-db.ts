@@ -201,6 +201,65 @@ export const localAuth = {
     return { id: user.id, email: user.email, credentialId: user.credential_id };
   },
 
+  login(email: string, password: string) {
+    if (!email || !password) throw new Error("Please enter both your email and password");
+    const db = getDb();
+    const user = db.users.find((u: any) => u.email === email);
+    if (!user) return null;
+    const passwordHash = btoa(password + "anglotec_salt");
+    if (user.password_hash !== passwordHash) return null;
+    user.last_login = new Date().toISOString();
+    saveDb(db);
+    // Store current user
+    try { localStorage.setItem("anglotec_user", JSON.stringify({ id: user.id, email: user.email })); } catch { /* ignore */ }
+    return { id: user.id, email: user.email, backupEmail: user.backup_email, phoneNumber: user.phone_number, emailVerified: user.email_verified === 1, securityQuestion: user.security_question, hasBiometric: !!user.credential_id };
+  },
+
+  getCurrentUser() {
+    try {
+      const userStr = localStorage.getItem("anglotec_user");
+      if (userStr) return JSON.parse(userStr);
+      const db = getDb();
+      if (db.users.length > 0) return { id: db.users[0].id, email: db.users[0].email };
+    } catch { /* ignore */ }
+    return null;
+  },
+
+  registerUser(data: {
+    email: string;
+    password: string;
+    password_hash: string;
+    backup_email?: string;
+    phone_number?: string;
+    security_question?: string;
+    security_answer_hash?: string | null;
+  }) {
+    const db = getDb();
+    if (db.users.find((u: any) => u.email === data.email)) return null;
+    const newId = db.users.length > 0 ? Math.max(...db.users.map((u: any) => u.id)) + 1 : 1;
+    const now = new Date().toISOString();
+    const newUser = {
+      id: newId,
+      email: data.email,
+      password_hash: data.password_hash,
+      backup_email: data.backup_email || null,
+      phone_number: data.phone_number || null,
+      security_question: data.security_question || null,
+      security_answer_hash: data.security_answer_hash || null,
+      credential_id: null,
+      biometric_enabled: false,
+      email_verified: false,
+      phone_verified: false,
+      created_at: now,
+      last_login: now,
+    };
+    db.users.push(newUser);
+    saveDb(db);
+    // Store current user
+    try { localStorage.setItem("anglotec_user", JSON.stringify({ id: newUser.id, email: newUser.email })); } catch { /* ignore */ }
+    return { id: newUser.id, email: newUser.email, backupEmail: newUser.backup_email, phoneNumber: newUser.phone_number, emailVerified: false, securityQuestion: newUser.security_question, hasBiometric: false };
+  },
+
   registerCredential(userId: number, credentialId: string) {
     const db = getDb();
     const user = db.users.find((u: any) => u.id === userId);

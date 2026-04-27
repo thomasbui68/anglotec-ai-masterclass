@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
       <div className="text-center">
-        <img src="/app-icon.png" alt="Anglotec" className="h-16 w-16 object-contain mx-auto mb-6 opacity-80" />
+        <img src="/app-icon.png" alt="Anglotec" className="h-16 w-16 object-contain mx-auto mb-6 opacity-80 rounded-2xl" />
         <SearchX size={64} className="mx-auto mb-4 text-orange-400" />
         <h1 className="text-4xl font-bold text-white mb-2">Page Not Found</h1>
         <p className="text-gray-300 text-lg mb-8 max-w-md mx-auto">

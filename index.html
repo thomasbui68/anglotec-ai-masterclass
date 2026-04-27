@@ -2,8 +2,78 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="description" content="Anglotec AI Master Class - Learn 3000 AI prompting phrases" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/app-icon-64.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/app-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/app-icon-192.png" />
+    <meta name="msapplication-TileImage" content="/app-icon-192.png" />
+    <link rel="shortcut icon" href="/app-icon-64.png" />
     <title>Anglotec AI Master Class</title>
+    <style>
+      /* ===== KILL KIMI AGENT PILL — runs before ANY JavaScript ===== */
+      [class*="kimi"],[id*="kimi"],[data-testid*="kimi"],
+      [class*="agent"][style*="position:fixed"],[class*="agent"][style*="position: fixed"],
+      [class*="pill"][style*="position:fixed"],[class*="pill"][style*="position: fixed"] {
+        display:none!important;visibility:hidden!important;opacity:0!important;
+        pointer-events:none!important;width:0!important;height:0!important;
+        overflow:hidden!important;position:fixed!important;top:-9999px!important;
+        left:-9999px!important;z-index:-9999!important;margin:0!important;
+        padding:0!important;border:0!important;clip:rect(0,0,0,0)!important;
+      }
+    </style>
+    <script>
+      // ===== AGGRESSIVE KIMI PILL REMOVAL =====
+      // Runs immediately before React loads
+      (function() {
+        var KILL_PATTERNS = ['kimi','agent','pill','widget','bot','float','overlay'];
+        function killPills() {
+          var all = document.querySelectorAll('*');
+          for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            var cls = (el.className || '').toString().toLowerCase();
+            var id = (el.id || '').toLowerCase();
+            var text = (el.textContent || '').slice(0, 60).toLowerCase();
+            for (var j = 0; j < KILL_PATTERNS.length; j++) {
+              var p = KILL_PATTERNS[j];
+              if (cls.indexOf(p) !== -1 || id.indexOf(p) !== -1) {
+                if (cls.indexOf('kimi') !== -1 || text.indexOf('kimi') !== -1 || text.indexOf('agent') !== -1) {
+                  el.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;height:0!important;position:fixed!important;top:-9999px!important;z-index:-9999!important;';
+                  if (el.parentNode) el.parentNode.removeChild(el);
+                }
+                break;
+              }
+            }
+          }
+        }
+        // Run immediately and repeatedly
+        killPills();
+        setInterval(killPills, 500);
+        // Watch for new elements
+        if (typeof MutationObserver !== 'undefined') {
+          new MutationObserver(function(mutations) {
+            for (var m = 0; m < mutations.length; m++) {
+              var added = mutations[m].addedNodes;
+              for (var n = 0; n < added.length; n++) {
+                var node = added[n];
+                if (node.nodeType === 1) {
+                  var cls2 = (node.className || '').toString().toLowerCase();
+                  var id2 = (node.id || '').toLowerCase();
+                  var txt2 = (node.textContent || '').slice(0, 60).toLowerCase();
+                  if (cls2.indexOf('kimi') !== -1 || id2.indexOf('kimi') !== -1 || txt2.indexOf('kimi') !== -1 || txt2.indexOf('agent') !== -1) {
+                    node.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;width:0!important;height:0!important;position:fixed!important;top:-9999px!important;z-index:-9999!important;';
+                    if (node.parentNode) node.parentNode.removeChild(node);
+                  }
+                }
+              }
+            }
+          }).observe(document.documentElement, { childList: true, subtree: true });
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

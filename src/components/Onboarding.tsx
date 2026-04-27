@@ -41,44 +41,28 @@ const steps = [
 ];
 
 interface OnboardingContext {
-  hasSeenOnboarding: boolean;
-  startOnboarding: () => void;
-  finishOnboarding: () => void;
+  show: boolean;
+  open: () => void;
+  close: () => void;
 }
 
-const Context = createContext<OnboardingContext>({
-  hasSeenOnboarding: true,
-  startOnboarding: () => {},
-  finishOnboarding: () => {},
-});
+const Context = createContext<OnboardingContext>({ show: false, open: () => {}, close: () => {} });
 
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
-    try {
-      return localStorage.getItem("anglotec_onboarding_done") === "true";
-    } catch {
-      return false;
-    }
-  });
+  const [show, setShow] = useState(false);
 
-  const startOnboarding = useCallback(() => {
-    setHasSeenOnboarding(false);
-    try { localStorage.removeItem("anglotec_onboarding_done"); } catch { /* ignore */ }
-  }, []);
-
-  const finishOnboarding = useCallback(() => {
-    setHasSeenOnboarding(true);
-    try { localStorage.setItem("anglotec_onboarding_done", "true"); } catch { /* ignore */ }
-  }, []);
+  const open = useCallback(() => setShow(true), []);
+  const close = useCallback(() => setShow(false), []);
 
   return (
-    <Context.Provider value={{ hasSeenOnboarding, startOnboarding, finishOnboarding }}>
+    <Context.Provider value={{ show, open, close }}>
       {children}
+      {show && <OnboardingModal onFinish={close} />}
     </Context.Provider>
   );
 }
 
-export function OnboardingModal({ onFinish }: { onFinish: () => void }) {
+function OnboardingModal({ onFinish }: { onFinish: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const step = steps[currentStep];
   const Icon = step.icon;
@@ -91,17 +75,9 @@ export function OnboardingModal({ onFinish }: { onFinish: () => void }) {
     }
   };
 
-  const skip = () => onFinish();
-
   return (
-    <div
-      className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) skip(); }}
-    >
-      <div
-        className="bg-[#1e293b] border border-white/10 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#1e293b] border border-white/10 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
         {/* Step dots */}
         <div className="flex items-center justify-between px-6 pt-5">
           <div className="flex gap-1.5">
@@ -114,12 +90,7 @@ export function OnboardingModal({ onFinish }: { onFinish: () => void }) {
               />
             ))}
           </div>
-          <button
-            onClick={skip}
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors font-medium"
-          >
-            Skip
-          </button>
+          <button onClick={onFinish} className="text-xs text-gray-500 hover:text-gray-300 font-medium">Skip</button>
         </div>
 
         {/* Content */}
@@ -127,7 +98,6 @@ export function OnboardingModal({ onFinish }: { onFinish: () => void }) {
           <div className={`w-20 h-20 ${step.bgColor} rounded-3xl flex items-center justify-center mx-auto mb-5`}>
             <Icon size={36} className={step.color} />
           </div>
-
           <p className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">
             Step {currentStep + 1} of {steps.length}
           </p>
@@ -147,14 +117,6 @@ export function OnboardingModal({ onFinish }: { onFinish: () => void }) {
               <>Next <ChevronRight size={18} className="ml-1" /></>
             )}
           </Button>
-
-          {currentStep === steps.length - 1 && (
-            <div className="flex justify-center gap-3 mt-4">
-              {["Code", "Design", "AI", "Cloud", "Security", "Data"].map((tag) => (
-                <span key={tag} className="text-[10px] bg-white/5 text-gray-500 px-2 py-1 rounded-full">{tag}</span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>

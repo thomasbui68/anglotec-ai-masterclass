@@ -1,11 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
-// WebAuthn (Web Authentication API) — uses device's native Face ID / Touch ID / Fingerprint
-// No models to download. Uses hardware-level biometric authentication.
-// iOS Safari, Android Chrome, Mac Safari (Touch ID), Windows Hello
-
-type BioStatus = "unknown" | "available" | "unavailable" | "ready" | "error";
-
 function bufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let binary = "";
@@ -30,33 +24,24 @@ function randomChallenge(): Uint8Array {
   return crypto.getRandomValues(new Uint8Array(32));
 }
 
-const RP_NAME = "Anglotec AI Master Class";
+const RP_NAME = "Anglotec AI";
 const RP_ID = typeof window !== "undefined" ? window.location.hostname : "localhost";
 
-// Detect if this is a device that likely has Face ID / Touch ID / fingerprint
 function likelyHasBiometric(): boolean {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent;
   const platform = navigator.platform || "";
-
-  // iPhone / iPad — always has Face ID or Touch ID
   if (/iPhone|iPad/.test(platform) || /iPhone|iPad/.test(ua)) return true;
-  // Android — most modern phones have fingerprint / face unlock
   if (/Android/.test(ua)) return true;
-  // Mac with Touch ID
   if (/Mac/.test(platform) && /Safari/.test(ua) && !/Chrome/.test(ua)) return true;
-  // Windows Hello
   if (/Win/.test(platform)) return true;
-
   return false;
 }
 
-// Detect if browser supports WebAuthn
 function supportsWebAuthn(): boolean {
   return typeof window !== "undefined" && !!window.PublicKeyCredential;
 }
 
-// Detect if we're in a cross-origin iframe (WebAuthn is blocked here)
 function isInCrossOriginIframe(): boolean {
   try {
     return window.self !== window.top;
@@ -66,12 +51,11 @@ function isInCrossOriginIframe(): boolean {
 }
 
 export function useWebAuthn() {
-  const [bioStatus, setBioStatus] = useState<BioStatus>("unknown");
+  const [bioStatus, setBioStatus] = useState<"unknown" | "available" | "unavailable" | "ready" | "error">("unknown");
   const [error, setError] = useState<string | null>(null);
   const [inIframe, setInIframe] = useState(false);
   const hasCheckedRef = useRef(false);
 
-  // Smart availability check
   useEffect(() => {
     if (hasCheckedRef.current) return;
     hasCheckedRef.current = true;
@@ -82,28 +66,29 @@ export function useWebAuthn() {
       return;
     }
 
-    // Detect cross-origin iframe
     if (isInCrossOriginIframe()) {
       setInIframe(true);
-      setBioStatus("available");
-      setError("This preview panel blocks Face ID. Please open the app directly in your browser.");
+      setBioStatus("unavailable");
+      setError("Face ID cannot be set up inside a preview panel. Please open the app directly in Safari or Chrome.");
       return;
     }
 
-    if (likelyHasBiometric()) {
-      setBioStatus("available");
-    } else {
-      setBioStatus("available");
-    }
+    setBioStatus(likelyHasBiometric() ? "available" : "available");
   }, []);
 
-  // Register a new biometric credential (Face ID / fingerprint)
-  const registerBiometric = useCallback(async (email: string): Promise<string | null> => {
+  const registerBiometric = useCallback(async (email: string): Promise<{ credentialId: string | null; error: string | null }> => {
     setError(null);
 
     if (isInCrossOriginIframe()) {
-      setError("Face ID cannot be set up inside a preview panel. Please open the app directly in Safari.");
-      return null;
+      const msg = "Face ID cannot be set up inside a preview panel. Please open the app directly in Safari or Chrome.";
+      setError(msg);
+      return { credentialId: null, error: msg };
+    }
+
+    if (!supportsWebAuthn()) {
+      const msg = "Your browser doesn't support Face ID. Try Safari on iPhone or Chrome on Android.";
+      setError(msg);
+      return { credentialId: null, error: msg };
     }
 
     try {
@@ -131,79 +116,75 @@ export function useWebAuthn() {
       });
 
       if (!credential) {
-        setError("Face ID setup was cancelled.");
-        return null;
+        const msg = "Face ID setup was cancelled.";
+        setError(msg);
+        return { credentialId: null, error: msg };
       }
 
       const credId = bufferToBase64((credential as PublicKeyCredential).rawId);
       setBioStatus("ready");
-      return credId;
+      return { credentialId: credId, error: null };
     } catch (err: any) {
+      let msg = "Face ID setup failed. Please try again.";
       if (err.name === "NotAllowedError") {
-        if (isInCrossOriginIframe()) {
-          setError("Face ID cannot be set up inside a preview panel. Please open the app directly in your browser.");
-        } else {
-          setError("Face ID setup was cancelled or denied. Please try again.");
-        }
+        msg = isInCrossOriginIframe()
+          ? "Face ID is blocked by this preview. Please open the app directly in your browser."
+          : "Face ID setup was cancelled or denied. Please try again.";
       } else if (err.name === "NotSupportedError") {
-        setError("This browser doesn't support Face ID on this device.");
+        msg = "This browser doesn't support Face ID on this device. Try Safari on iPhone.";
       } else if (err.name === "SecurityError") {
-        setError("Face ID requires a secure connection (HTTPS). Please try on the official app URL.");
-      } else {
-        setError(err.message || "Face ID setup failed. Please try again.");
+        msg = "Face ID requires a secure HTTPS connection.";
+      } else if (err.message) {
+        msg = err.message;
       }
-      return null;
+      setError(msg);
+      setBioStatus("error");
+      return { credentialId: null, error: msg };
     }
   }, []);
 
-  // Authenticate with biometric (Face ID / fingerprint prompt)
   const authenticateBiometric = useCallback(async (credentialId: string): Promise<boolean> => {
     setError(null);
     try {
       const assertion = await navigator.credentials.get({
         publicKey: {
           challenge: randomChallenge() as BufferSource,
-          allowCredentials: [
-            {
-              id: base64ToBuffer(credentialId),
-              type: "public-key",
-              transports: ["internal"],
-            },
-          ],
+          allowCredentials: [{
+            id: base64ToBuffer(credentialId),
+            type: "public-key",
+            transports: ["internal"],
+          }],
           userVerification: "required",
           timeout: 60000,
           rpId: RP_ID,
         },
       });
-
       return !!assertion;
     } catch (err: any) {
-      if (err.name === "NotAllowedError") {
-        setError("Face ID verification was cancelled.");
-      } else if (err.name === "SecurityError") {
-        setError("Face ID requires a secure connection.");
-      } else {
-        setError(err.message || "Face ID verification failed.");
-      }
+      let msg = "Face ID verification failed.";
+      if (err.name === "NotAllowedError") msg = "Face ID verification was cancelled.";
+      else if (err.name === "SecurityError") msg = "Face ID requires a secure connection.";
+      setError(msg);
       return false;
     }
   }, []);
 
-  const isReady = bioStatus === "available" || bioStatus === "ready";
+  const canUseBiometric = !inIframe && supportsWebAuthn();
+  const isReady = canUseBiometric && (bioStatus === "available" || bioStatus === "ready");
 
   const capabilityMessage = (() => {
-    if (inIframe) return "Face ID is available but blocked by this preview panel";
+    if (inIframe) return "Face ID cannot work inside a preview panel. Please open the app directly in Safari or Chrome.";
+    if (!supportsWebAuthn()) return "Your browser doesn't support Face ID. Try Safari on iPhone or Chrome on Android.";
     if (bioStatus === "unknown") return "Checking your device...";
-    if (bioStatus === "available") return "Face ID / Touch ID / fingerprint is available on this device";
-    if (bioStatus === "ready") return "Face ID is ready";
-    if (bioStatus === "unavailable") return "Face ID not available on this browser";
     if (bioStatus === "error") return error || "Something went wrong";
-    return "";
+    if (bioStatus === "ready") return "Face ID is ready!";
+    return "Face ID / Touch ID is available on this device.";
   })();
 
   return {
     bioStatus,
     isReady,
+    canUseBiometric,
     isChecking: bioStatus === "unknown",
     inIframe,
     capabilityMessage,
@@ -213,7 +194,6 @@ export function useWebAuthn() {
   };
 }
 
-// Request camera + microphone permissions
 export async function requestMediaPermissions(): Promise<{ camera: boolean; microphone: boolean }> {
   const result = { camera: false, microphone: false };
   try {
@@ -226,16 +206,12 @@ export async function requestMediaPermissions(): Promise<{ camera: boolean; micr
       const vStream = await navigator.mediaDevices.getUserMedia({ video: true });
       vStream.getTracks().forEach((track) => track.stop());
       result.camera = true;
-    } catch {
-      result.camera = false;
-    }
+    } catch { result.camera = false; }
     try {
       const aStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       aStream.getTracks().forEach((track) => track.stop());
       result.microphone = true;
-    } catch {
-      result.microphone = false;
-    }
+    } catch { result.microphone = false; }
   }
   return result;
 }

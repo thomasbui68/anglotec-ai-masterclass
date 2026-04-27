@@ -2,15 +2,18 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
-import { trpc } from "@/providers/trpc";
+import { usePhrases, useProgress } from "@/hooks/useApi";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { UpgradePrompt, TrialBanner, UsageLimitWarning } from "@/components/UpgradePrompt";
 import {
   BookOpen, Flame, BrainCircuit, Play, BarChart3,
   Settings, Sparkles, HelpCircle, Loader2, Zap,
   Target, Crown, Star, TrendingUp, ChevronRight,
-  GraduationCap, Shield
+  GraduationCap, Shield, Gem
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const CATEGORY_ICONS: Record<string, any> = {
   "Code Generation": Zap,
@@ -31,15 +34,19 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const game = useGamification();
+  const phraseApi = usePhrases();
+  const progressApi = useProgress(user?.id || 0);
+  const subscription = useSubscription();
 
-  const { data: categoryData, isLoading: catLoading } = trpc.phrase.categories.useQuery();
-  const { data: progressStats } = trpc.progress.getStats.useQuery(undefined, { enabled: !!user });
-
-  const categories = categoryData ?? [];
-  const stats = progressStats ?? {
+  const categories = phraseApi.categories ?? [];
+  const catLoading = phraseApi.isLoading;
+  const stats = progressApi.stats ?? {
     total_phrases: 3000, mastered: 0, learning: 0, new_count: 3000,
     avg_mastery: 0, total_practices: 0, active_days: 0, last_active: null,
   };
+
+  // Usage quota for free users
+  const quota = subscription.getRemainingQuota("phrases_viewed");
 
   const masteredPercent = stats.total_phrases > 0
     ? Math.round((stats.mastered / stats.total_phrases) * 100)
@@ -59,13 +66,21 @@ export default function Dashboard() {
       <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg" />
+            <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
               <h1 className="text-lg font-bold text-white leading-tight">Anglotec AI</h1>
               <p className="text-[10px] text-gray-400">AI Master Class</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {subscription.tier === "free" && (
+              <button
+                onClick={() => navigate("/pricing")}
+                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
+              >
+                <Gem size={14} /> Upgrade
+              </button>
+            )}
             <Link to="/help" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
               <HelpCircle size={20} />
             </Link>
@@ -77,6 +92,18 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        {/* Trial Banner */}
+        <TrialBanner trialEndsAt={subscription.trialEndsAt} />
+
+        {/* Usage Limit Warning for Free Users */}
+        {subscription.tier === "free" && (
+          <UsageLimitWarning
+            used={quota.used}
+            limit={quota.limit}
+            type="phrases"
+          />
+        )}
+
         {/* Welcome */}
         <div className="flex items-center justify-between">
           <div>
@@ -95,6 +122,11 @@ export default function Dashboard() {
               <span className="text-xs font-bold" style={{ color: game.rankInfo.color }}>{game.rankInfo.name}</span>
             </div>
             <p className="text-[10px] text-gray-400">Level {game.level}</p>
+            {subscription.isPaid && (
+              <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 text-[10px] mt-1">
+                <Crown size={10} className="mr-0.5" /> {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -182,6 +214,11 @@ export default function Dashboard() {
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <BrainCircuit size={18} className="text-orange-400" /> Choose a Topic
+            {subscription.tier === "free" && categories.length > 6 && (
+              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-400/30 text-[10px] ml-2">
+                {categories.length - 6} more with Pro
+              </Badge>
+            )}
           </h3>
           {catLoading ? (
             <div className="flex justify-center py-8">
@@ -200,23 +237,48 @@ export default function Dashboard() {
                   "from-cyan-500/30 to-cyan-600/10 border-cyan-400/30",
                 ];
                 const c = colors[i % colors.length];
+                const isLocked = subscription.tier === "free" && ![
+                  "Code Generation", "UI/UX Design", "Content Creation",
+                  "Business Strategy", "Data Analysis", "Project Management",
+                ].includes(cat);
+
                 return (
                   <button
                     key={cat}
-                    onClick={() => navigate(`/flashcards?category=${encodeURIComponent(cat)}`)}
-                    className={`bg-gradient-to-br ${c} backdrop-blur border rounded-2xl p-4 text-left hover:scale-105 transition-all duration-300 hover:shadow-lg group`}
+                    onClick={() => {
+                      if (isLocked) {
+                        navigate("/pricing");
+                        return;
+                      }
+                      navigate(`/flashcards?category=${encodeURIComponent(cat)}`);
+                    }}
+                    className={`bg-gradient-to-br ${c} backdrop-blur border rounded-2xl p-4 text-left hover:scale-105 transition-all duration-300 hover:shadow-lg group relative ${
+                      isLocked ? "opacity-60" : ""
+                    }`}
                   >
+                    {isLocked && (
+                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center">
+                        <Zap size={12} className="text-yellow-400" />
+                      </div>
+                    )}
                     <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-3 group-hover:bg-white/20 transition-colors">
                       <Icon size={20} className="text-white" />
                     </div>
                     <p className="text-sm font-semibold text-white leading-tight">{cat}</p>
-                    <p className="text-[10px] text-gray-400 mt-1">250 phrases</p>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      {isLocked ? "Pro only" : "250 phrases"}
+                    </p>
                   </button>
                 );
               })}
             </div>
           )}
         </div>
+
+        {/* Upgrade Prompt for Free Users */}
+        {subscription.tier === "free" && (
+          <UpgradePrompt variant="banner" />
+        )}
 
         {/* Overall Progress */}
         <Card className="bg-white/5 border-white/10 backdrop-blur">
