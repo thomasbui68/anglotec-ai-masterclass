@@ -11,7 +11,7 @@ import {
   BookOpen, Flame, BrainCircuit, Play, BarChart3,
   Settings, Sparkles, HelpCircle, Loader2, Zap,
   Target, Crown, Star, TrendingUp, ChevronRight,
-  GraduationCap, Shield, Gem, LogOut
+  GraduationCap, Shield, Gem, LogOut, ShieldCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -73,7 +73,12 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {subscription.tier === "free" && (
+            {user?.isAdmin && (
+              <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-1 rounded-full border border-purple-500/30">
+                <ShieldCheck size={12} /> ADMIN
+              </span>
+            )}
+            {subscription.tier === "free" && !user?.isAdmin && (
               <button
                 onClick={() => navigate("/pricing")}
                 className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"

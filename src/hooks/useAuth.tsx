@@ -4,6 +4,12 @@ import { toast } from "sonner";
 
 /* ---- Types ---- */
 
+// Admin emails — these accounts get full pro access always
+const ADMIN_EMAILS = [
+  "thomasb@anglotec.com",
+  // Add more admin emails here as needed
+];
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -12,6 +18,7 @@ export interface AuthUser {
   emailVerified: boolean;
   plan: "free" | "pro" | "family" | "classroom";
   hasBiometric: boolean;
+  isAdmin: boolean;
 }
 
 interface AuthContextType {
@@ -48,14 +55,17 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 function buildAuthUser(sessionUser: any, profile?: UserProfile | null): AuthUser | null {
   if (!sessionUser) return null;
+  const email = sessionUser.email || "";
+  const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
   return {
     id: sessionUser.id,
-    email: sessionUser.email || "",
-    displayName: profile?.display_name || sessionUser.user_metadata?.display_name || sessionUser.email?.split("@")[0],
+    email,
+    displayName: profile?.display_name || sessionUser.user_metadata?.display_name || email.split("@")[0],
     avatarUrl: profile?.avatar_url || sessionUser.user_metadata?.avatar_url,
     emailVerified: !!sessionUser.email_confirmed_at,
     plan: profile?.plan || sessionUser.user_metadata?.plan || "free",
     hasBiometric: !!sessionUser.user_metadata?.has_biometric,
+    isAdmin,
   };
 }
 

@@ -455,6 +455,55 @@ export default function Settings() {
             )}
           </CardContent>
         </Card>
+
+        {/* Admin Panel — only visible to admin users */}
+        {user?.isAdmin && (
+          <Card className="border-purple-300 bg-purple-50/30">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2 text-purple-700">
+                <ShieldCheck size={20} /> Admin Controls
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-purple-600">
+                You have admin access. Your account automatically gets Pro with all features unlocked.
+              </p>
+              <div className="bg-white rounded-lg p-3 space-y-2">
+                <p className="text-xs font-bold text-gray-500 uppercase">Force View Mode (for testing)</p>
+                <p className="text-xs text-gray-400">
+                  Temporarily view the app as a different tier to test paywall behavior. Refresh to reset.
+                </p>
+                <div className="flex gap-2">
+                  {(["free", "pro", "family", "classroom"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        localStorage.setItem("admin_view_tier", t);
+                        toast.success(`Viewing as ${t.toUpperCase()} tier — refresh to apply`);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${
+                        (localStorage.getItem("admin_view_tier") || "pro") === t
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("admin_view_tier");
+                    toast.success("Reset to default admin (Pro) — refresh to apply");
+                  }}
+                  className="text-xs text-purple-600 underline mt-1"
+                >
+                  Reset to Admin (Pro)
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   );

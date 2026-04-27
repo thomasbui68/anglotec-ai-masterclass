@@ -85,8 +85,9 @@ const BASIC_CATEGORIES = [
 ];
 
 export function useSubscription() {
-  const { isAuthenticated, isReady, mode } = useAuth();
+  const { isAuthenticated, isReady, mode, user } = useAuth();
   const isLocalMode = mode === "local" || mode === "unknown";
+  const isAdmin = user?.isAdmin ?? false;
 
   const mySub = trpc.subscription.mySubscription.useQuery(undefined, {
     enabled: isReady && isAuthenticated && !isLocalMode,
@@ -131,18 +132,31 @@ export function useSubscription() {
     }
   }, [isLocalMode]);
 
-  // Determine effective tier
-  const tier: SubscriptionTier = isLocalMode
-    ? localTier
-    : (mySub.data?.tier ?? "free");
+  // Determine effective tier — admin users always get pro (unless testing another tier)
+  const adminViewTier = isAdmin ? (localStorage.getItem("admin_view_tier") as SubscriptionTier | null) : null;
+  const tier: SubscriptionTier = adminViewTier
+    ? adminViewTier
+    : (isAdmin
+      ? "pro"
+      : (isLocalMode
+        ? localTier
+        : (mySub.data?.tier ?? "free")));
 
-  const status = isLocalMode
-    ? (localTrialEnd && localTrialEnd > new Date() ? "trial" : "expired")
-    : (mySub.data?.status ?? "trial");
+  const status = adminViewTier
+    ? (adminViewTier === "free" ? "expired" : "active")
+    : (isAdmin
+      ? "active"
+      : (isLocalMode
+        ? (localTrialEnd && localTrialEnd > new Date() ? "trial" : "expired")
+        : (mySub.data?.status ?? "trial")));
 
-  const isPaid = isLocalMode
-    ? (localTier !== "free" && (!localTrialEnd || localTrialEnd > new Date()))
-    : (mySub.data?.isPaid ?? false);
+  const isPaid = adminViewTier
+    ? (adminViewTier !== "free")
+    : (isAdmin
+      ? true
+      : (isLocalMode
+        ? (localTier !== "free" && (!localTrialEnd || localTrialEnd > new Date()))
+        : (mySub.data?.isPaid ?? false)));
 
   const trialEndsAt = isLocalMode
     ? localTrialEnd
