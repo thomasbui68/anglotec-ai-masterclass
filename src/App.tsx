@@ -2,7 +2,7 @@ import { createHashRouter, RouterProvider, Navigate } from "react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { OnboardingProvider } from "@/components/Onboarding";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { InstallPrompt, StandaloneBadge } from "@/components/InstallPrompt";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -135,11 +135,11 @@ const router = createHashRouter([
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <OnboardingProvider>
-        <RouterProvider router={router} />
-        <Toaster position="top-center" richColors closeButton />
-      </OnboardingProvider>
-    </ErrorBoundary>
+    <OnboardingProvider>
+      <RouterProvider router={router} />
+      <Toaster position="top-center" richColors closeButton />
+      <InstallPrompt />
+      <StandaloneBadge />
+    </OnboardingProvider>
   );
 }

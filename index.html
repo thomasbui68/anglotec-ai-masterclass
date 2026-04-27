@@ -2,17 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>Anglotec AI Master Class</title>
+    <meta name="description" content="Master 3,000+ AI prompting phrases with premium voice and gamification. Learn AI like a pro." />
+
+    <!-- ===== PWA: Web App Manifest (Chrome, Edge, Firefox, Opera, Samsung) ===== -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ===== iOS / iPadOS / Safari ===== -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#0f172a" />
-    <meta name="description" content="Anglotec AI Master Class - Learn 3000 AI prompting phrases" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/app-icon-64.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/app-icon-192.png" />
+    <meta name="apple-mobile-web-app-title" content="Anglotec AI" />
     <link rel="apple-touch-icon" sizes="192x192" href="/app-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/app-icon.png" />
+    <link rel="apple-touch-startup-image" href="/app-icon.png" />
+
+    <!-- ===== Android / Chrome ===== -->
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Anglotec AI" />
+
+    <!-- ===== Microsoft Edge / Windows ===== -->
+    <meta name="msapplication-TileColor" content="#1a365d" />
     <meta name="msapplication-TileImage" content="/app-icon-192.png" />
+    <meta name="msapplication-config" content="none" />
+    <meta name="msapplication-starturl" content="/" />
+
+    <!-- ===== General ===== -->
+    <link rel="icon" type="image/png" sizes="64x64" href="/app-icon-64.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/app-icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/app-icon.png" />
     <link rel="shortcut icon" href="/app-icon-64.png" />
-    <title>Anglotec AI Master Class</title>
+
+    <!-- ===== Open Graph / Social Sharing ===== -->
+    <meta property="og:title" content="Anglotec AI Master Class" />
+    <meta property="og:description" content="Master 3,000+ AI prompting phrases with premium voice and gamification" />
+    <meta property="og:image" content="/app-icon-192.png" />
+    <meta property="og:type" content="website" />
+
+    <!-- ===== Old Browser Polyfills (Safari <14, Firefox ESR on old macOS) ===== -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015,es2016,es2017,es2018,es2019,Promise.allSettled,Object.fromEntries,globalThis,Intl"></script>
+
+    <script>
+      // ===== IFRAME BUST — break out if loaded in a frame (breaks auth, routing, sizing) =====
+      if (window.self !== window.top) {
+        window.top.location = window.self.location;
+      }
+    </script>
+
+    <!-- ===== Service Worker Registration ===== -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(reg) { console.log('[PWA] Service worker registered', reg.scope); })
+            .catch(function(err) { console.log('[PWA] Service worker registration failed', err); });
+        });
+      }
+    </script>
     <style>
       /* ===== KILL KIMI AGENT PILL — runs before ANY JavaScript ===== */
       [class*="kimi"],[id*="kimi"],[data-testid*="kimi"],

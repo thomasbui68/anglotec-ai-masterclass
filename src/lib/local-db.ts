@@ -1,6 +1,18 @@
 import { seedPhrases } from "./seed-phrases";
 
 const DB_KEY = "anglotec_db";
+const REPAIR_LOG: string[] = [];
+
+/** Hash password — must be identical to the function in useAuth.tsx */
+export function hashPassword(password: string): string {
+  let hash = 0;
+  for (let i = 0; i < password.length; i++) {
+    const char = password.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return "local_" + Math.abs(hash).toString(16);
+}
 
 // === LOCALSTORAGE HEALTH CHECK ===
 let _storageWorks: boolean | null = null;
@@ -33,8 +45,66 @@ function testStorage(): { works: boolean; error: string | null } {
   }
 }
 
-export function getStorageStatus(): { works: boolean; error: string | null } {
-  return testStorage();
+export function getStorageStatus(): { works: boolean; error: string | null; repairs: string[] } {
+  return { ...testStorage(), repairs: [...REPAIR_LOG] };
+}
+
+// === DATA INTEGRITY VALIDATION & REPAIR ===
+function validateAndRepair(db: any): any {
+  let repaired = false;
+
+  // Validate users array
+  if (!Array.isArray(db.users)) {
+    db.users = [];
+    REPAIR_LOG.push("Repaired: users array was missing or invalid");
+    repaired = true;
+  }
+  // Remove corrupted user entries
+  const validUsers = db.users.filter((u: any) => u && typeof u.email === "string" && u.email.includes("@"));
+  if (validUsers.length !== db.users.length) {
+    REPAIR_LOG.push(`Repaired: removed ${db.users.length - validUsers.length} corrupt user entries`);
+    db.users = validUsers;
+    repaired = true;
+  }
+
+  // Validate progress array
+  if (!Array.isArray(db.progress)) {
+    db.progress = [];
+    REPAIR_LOG.push("Repaired: progress array was missing or invalid");
+    repaired = true;
+  }
+
+  // Validate achievements array
+  if (!Array.isArray(db.achievements)) {
+    db.achievements = [];
+    REPAIR_LOG.push("Repaired: achievements array was missing or invalid");
+    repaired = true;
+  }
+
+  // Validate phrases - re-seed if empty or corrupted
+  if (!Array.isArray(db.phrases) || db.phrases.length < 10) {
+    db.phrases = seedPhrases();
+    REPAIR_LOG.push("Repaired: phrases data was missing or too small, re-seeded from source");
+    repaired = true;
+  }
+
+  // Validate currentUser
+  if (db.currentUser && typeof db.currentUser === "object") {
+    if (!db.currentUser.email || !db.currentUser.email.includes("@")) {
+      db.currentUser = null;
+      REPAIR_LOG.push("Repaired: currentUser had invalid email, logged out");
+      repaired = true;
+    }
+  } else if (db.currentUser !== null) {
+    db.currentUser = null;
+    REPAIR_LOG.push("Repaired: currentUser was invalid type");
+    repaired = true;
+  }
+
+  if (repaired) {
+    safeSet(db);
+  }
+  return db;
 }
 
 function safeGet(): any {
@@ -43,24 +113,27 @@ function safeGet(): any {
   try {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return validateAndRepair(parsed);
   } catch (e) {
-    console.error("DB read failed, creating fresh:", e);
-    safeSet(createFreshDb());
-    return createFreshDb();
+    console.error("[SelfHeal] DB read failed, creating fresh:", e);
+    REPAIR_LOG.push("Repaired: DB was corrupted, created fresh database");
+    const fresh = createFreshDb();
+    safeSet(fresh);
+    return fresh;
   }
 }
 
 function safeSet(value: any) {
   const { works } = testStorage();
   if (!works) {
-    console.error("Cannot save: localStorage is not working.");
+    console.error("[SelfHeal] Cannot save: localStorage is not working.");
     return;
   }
   try {
     localStorage.setItem(DB_KEY, JSON.stringify(value));
   } catch (e: any) {
-    console.error("DB write failed:", e);
+    console.error("[SelfHeal] DB write failed:", e);
     if (e.name === "QuotaExceededError") {
       _storageWorks = false;
       _storageError = "Storage quota exceeded. Try clearing other site data.";
@@ -148,28 +221,14 @@ export const localAuth = {
     return { ...u, has_biometric: !!u.credential_id, has_face_id: !!u.credential_id };
   },
 
-  checkSecurityAnswer(email: string, answer: string) {
-    const db = getDb();
-    const user = db.users.find((u: any) => u.email === email);
-    if (!user || !user.security_answer_hash) return false;
-    const answerHash = btoa(answer.toLowerCase().trim() + "_anglotec_salt");
-    return user.security_answer_hash === answerHash;
-  },
-
   resetPassword(email: string, newPassword: string) {
     if (!newPassword || newPassword.length < 6) throw new Error("Password must be at least 6 characters");
     const db = getDb();
     const user = db.users.find((u: any) => u.email === email);
     if (!user) throw new Error("Account not found.");
-    user.password_hash = btoa(newPassword + "anglotec_salt");
+    user.password_hash = hashPassword(newPassword);
     saveDb(db);
     return true;
-  },
-
-  verifyEmail(userId: number) {
-    const db = getDb();
-    const user = db.users.find((u: any) => u.id === userId);
-    if (user) { user.email_verified = true; saveDb(db); }
   },
 
   verifyPhone(userId: number) {
@@ -184,8 +243,17 @@ export const localAuth = {
     const user = db.users.find((u: any) => u.email === email);
     if (!user) throw new Error("We couldn't find an account with that email. Please check and try again.");
 
-    const passwordHash = btoa(password + "anglotec_salt");
-    if (user.password_hash !== passwordHash) throw new Error("The password you entered is incorrect. Please try again.");
+    const newHash = hashPassword(password);
+    const oldHash = btoa(password + "anglotec_salt");
+
+    if (user.password_hash === newHash) {
+      // Match
+    } else if (user.password_hash === oldHash) {
+      // Old hash — migrate
+      user.password_hash = newHash;
+    } else {
+      throw new Error("The password you entered is incorrect. Please try again.");
+    }
 
     user.last_login = new Date().toISOString();
     saveDb(db);
@@ -206,13 +274,41 @@ export const localAuth = {
     const db = getDb();
     const user = db.users.find((u: any) => u.email === email);
     if (!user) return null;
-    const passwordHash = btoa(password + "anglotec_salt");
-    if (user.password_hash !== passwordHash) return null;
+
+    // Try new hash first
+    const newHash = hashPassword(password);
+    // Fallback: old btoa hash for backward compatibility
+    const oldHash = btoa(password + "anglotec_salt");
+
+    if (user.password_hash === newHash) {
+      // Perfect match with new hash
+    } else if (user.password_hash === oldHash) {
+      // Old hash — migrate to new hash now
+      user.password_hash = newHash;
+    } else {
+      return null; // Neither hash matches
+    }
+
     user.last_login = new Date().toISOString();
     saveDb(db);
     // Store current user
     try { localStorage.setItem("anglotec_user", JSON.stringify({ id: user.id, email: user.email })); } catch { /* ignore */ }
     return { id: user.id, email: user.email, backupEmail: user.backup_email, phoneNumber: user.phone_number, emailVerified: user.email_verified === 1, securityQuestion: user.security_question, hasBiometric: !!user.credential_id };
+  },
+
+  getUserByEmail(email: string) {
+    const db = getDb();
+    const user = db.users.find((u: any) => u.email === email);
+    if (!user) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      backupEmail: user.backup_email,
+      phoneNumber: user.phone_number,
+      emailVerified: user.email_verified,
+      securityQuestion: user.security_question,
+      hasBiometric: !!user.credential_id,
+    };
   },
 
   getCurrentUser() {
@@ -235,9 +331,25 @@ export const localAuth = {
     security_answer_hash?: string | null;
   }) {
     const db = getDb();
-    if (db.users.find((u: any) => u.email === data.email)) return null;
-    const newId = db.users.length > 0 ? Math.max(...db.users.map((u: any) => u.id)) + 1 : 1;
+    const existing = db.users.find((u: any) => u.email === data.email);
     const now = new Date().toISOString();
+
+    if (existing) {
+      // Update existing account (re-register with new password)
+      existing.password_hash = data.password_hash;
+      existing.backup_email = data.backup_email || null;
+      existing.phone_number = data.phone_number || null;
+      existing.security_question = data.security_question || null;
+      existing.security_answer_hash = data.security_answer_hash || null;
+      existing.email_verified = false;
+      existing.last_login = now;
+      saveDb(db);
+      // Store current user
+      try { localStorage.setItem("anglotec_user", JSON.stringify({ id: existing.id, email: existing.email })); } catch { /* ignore */ }
+      return { id: existing.id, email: existing.email, backupEmail: existing.backup_email, phoneNumber: existing.phone_number, emailVerified: false, securityQuestion: existing.security_question, hasBiometric: !!existing.credential_id };
+    }
+
+    const newId = db.users.length > 0 ? Math.max(...db.users.map((u: any) => u.id)) + 1 : 1;
     const newUser = {
       id: newId,
       email: data.email,
@@ -260,12 +372,40 @@ export const localAuth = {
     return { id: newUser.id, email: newUser.email, backupEmail: newUser.backup_email, phoneNumber: newUser.phone_number, emailVerified: false, securityQuestion: newUser.security_question, hasBiometric: false };
   },
 
+  checkSecurityAnswer(email: string, answer: string) {
+    const db = getDb();
+    const user = db.users.find((u: any) => u.email === email);
+    if (!user) throw new Error("Account not found.");
+    if (!user.security_question || !user.security_answer_hash) throw new Error("No security question set for this account.");
+    const answerHash = hashPassword(answer.toLowerCase().trim());
+    // Try new hash, then old btoa hash
+    const oldAnswerHash = btoa(answer.toLowerCase().trim() + "anglotec_salt");
+    if (user.security_answer_hash !== answerHash && user.security_answer_hash !== oldAnswerHash) {
+      throw new Error("That answer doesn't match our records.");
+    }
+    // If old hash matched, migrate it
+    if (user.security_answer_hash === oldAnswerHash) {
+      user.security_answer_hash = answerHash;
+      saveDb(db);
+    }
+    return { success: true, code: "123456" };
+  },
+
   registerCredential(userId: number, credentialId: string) {
     const db = getDb();
     const user = db.users.find((u: any) => u.id === userId);
     if (!user) throw new Error("User not found");
     user.credential_id = credentialId;
     saveDb(db);
+  },
+
+  verifyEmail(email: string) {
+    const db = getDb();
+    const user = db.users.find((u: any) => u.email === email);
+    if (!user) return false;
+    user.email_verified = true;
+    saveDb(db);
+    return true;
   },
 
   removeCredential(userId: number) {

@@ -1,325 +1,284 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
-import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { UserPlus, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle, Shield, Mail, Smartphone, Fingerprint, ShieldCheck, AlertCircle } from "lucide-react";
-
-const SECURITY_QUESTIONS = [
-  "What was the name of your first pet?",
-  "In what city were you born?",
-  "What is your mother's maiden name?",
-  "What was the name of your first school?",
-  "What is your favorite book?",
-];
+import {
+  Mail, Lock, User, Phone, Shield, CheckCircle, ArrowRight,
+  ArrowLeft, Sparkles, Eye, EyeOff, AlertCircle
+} from "lucide-react";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const auth = useAuth();
   const webAuthn = useWebAuthn();
 
-  const verifyMutation = trpc.auth.verifyEmail.useMutation();
-  const bioRegisterMutation = trpc.auth.registerBiometric.useMutation();
-
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    backup_email: "",
-    phone_number: "",
-    security_question: SECURITY_QUESTIONS[0],
-    security_answer: "",
-  });
+  // Form state
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [securityQuestion, setSecurityQuestion] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [setupBio, setSetupBio] = useState(false);
-  const [bioRegistering, setBioRegistering] = useState(false);
-  const [step, setStep] = useState(1);
-  const [showEmailVerify, setShowEmailVerify] = useState(false);
-  const [verifyCode, setVerifyCode] = useState("");
-  const [generatedCode, setGeneratedCode] = useState("");
-  const [createdUserEmail, setCreatedUserEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const passwordStrong = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password);
+
+  const handleNext = () => {
+    setError(null);
+    if (step === 1) {
+      if (!email.trim() || !email.includes("@")) { setError("Please enter a valid email"); return; }
+    }
+    if (step === 2) {
+      if (!passwordStrong) { setError("Password must be at least 8 characters with uppercase, lowercase, and a number"); return; }
+      if (!passwordsMatch) { setError("Passwords do not match"); return; }
+      if (!securityQuestion || !securityAnswer) { setError("Please set a security question for account recovery"); return; }
+    }
+    setStep(step + 1);
   };
 
-  const canProceed = () => {
-    if (step === 1) return form.email.includes("@");
-    if (step === 2) return form.password.length >= 6 && form.password === form.confirmPassword && form.security_answer.trim().length > 0;
-    return true;
-  };
+  const handleBack = () => { if (step > 1) { setError(null); setStep(step - 1); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (form.password !== form.confirmPassword) { toast.error("Your passwords don't match. Please check and try again."); return; }
-    if (form.password.length < 6) { toast.error("Your password must be at least 6 characters long."); return; }
-    if (!form.security_answer.trim()) { toast.error("Please answer your security question for account recovery."); return; }
-
+  const handleRegister = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      let credentialId: string | undefined;
-
-      // Register biometric (Face ID / fingerprint) if requested
-      if (setupBio && webAuthn.isReady) {
-        setBioRegistering(true);
-        toast.info("Please use your Face ID or fingerprint when prompted...");
-        const bioResult = await webAuthn.registerBiometric(form.email.trim());
-        if (bioResult.credentialId) {
-          credentialId = bioResult.credentialId;
-          toast.success("Face ID registered successfully!");
-        } else if (bioResult.error) {
-          toast.warning(bioResult.error);
-        } else {
-          toast.warning("Face ID setup was cancelled. You can set it up later in Settings.");
-        }
-        setBioRegistering(false);
-      }
-
-      const result = await register({
-        email: form.email.trim(),
-        password: form.password,
-        backupEmail: form.backup_email.trim() || undefined,
-        phoneNumber: form.phone_number.trim() || undefined,
-        securityQuestion: form.security_question,
-        securityAnswer: form.security_answer.trim(),
+      await auth.register({
+        email,
+        password,
+        displayName: displayName || undefined,
+        phone: phone || undefined,
+        securityQuestion: securityQuestion || undefined,
+        securityAnswer: securityAnswer || undefined,
       });
-
-      // If we got a credentialId from WebAuthn, register it with the backend
-      if (credentialId) {
-        try {
-          await bioRegisterMutation.mutateAsync({ credentialId });
-        } catch {
-          toast.warning("Could not save biometric credential to server.");
-        }
-      }
-
-      setCreatedUserEmail(form.email.trim());
-      setGeneratedCode(result.verificationCode || "");
-      setShowEmailVerify(true);
-      toast.success("Account created! Please verify your email.");
-      if (result.verificationCode) {
-        toast.info(`Your verification code is: ${result.verificationCode} (in production this would be sent to your email)`);
-      }
+      setRegistrationComplete(true);
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleVerifyEmail = async () => {
-    if (verifyCode.trim().length < 6) { toast.error("Please enter the 6-digit code."); return; }
+  const handleResend = async () => {
     try {
-      await verifyMutation.mutateAsync({ email: createdUserEmail, code: verifyCode.trim() });
-      setShowEmailVerify(false);
-      toast.success("Email verified! Welcome to Anglotec AI Master Class.");
-      navigate("/");
+      await auth.resendVerification(email);
+      toast.success("Verification email resent! Check your inbox.");
     } catch (err: any) {
-      toast.error(err.message || "Verification failed. Please try again.");
+      toast.error(err.message || "Failed to resend. Please try again.");
     }
   };
 
-  if (showEmailVerify) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
-            <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
-            <p className="text-orange-400 text-lg font-medium mt-1">Verify Your Email</p>
-          </div>
-          <Card className="border-0 shadow-2xl bg-white">
-            <CardContent className="pt-6 pb-6 space-y-4">
-              <p className="text-sm text-gray-500 text-center">We sent a 6-digit verification code to <strong>{createdUserEmail}</strong>.</p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-700 text-center">Demo mode: Your code is <strong>{generatedCode}</strong></p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="verifyCode">Enter Verification Code</Label>
-                <Input id="verifyCode" type="text" value={verifyCode} onChange={(e) => setVerifyCode(e.target.value)} placeholder="000000" className="h-12 text-base text-center tracking-[0.5em] font-mono" maxLength={6} />
-              </div>
-              <Button onClick={handleVerifyEmail} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold" disabled={verifyCode.length < 6 || verifyMutation.isPending}>
-                {verifyMutation.isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle className="mr-2 h-5 w-5" />}
-                {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
-              </Button>
-              <Button variant="outline" onClick={() => { setShowEmailVerify(false); navigate("/"); }} className="w-full h-12">Skip for Now</Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  // Progress dots
+  const steps = [
+    { num: 1, label: "Email" },
+    { num: 2, label: "Password" },
+    { num: 3, label: "Profile" },
+    { num: 4, label: "Review" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <img src="/app-icon.png" alt="Anglotec" className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
-          <h1 className="text-3xl font-bold text-white tracking-wide">Anglotec AI</h1>
-          <p className="text-orange-400 text-lg font-medium mt-1">Create Your Account</p>
+        {/* Header */}
+        <div className="text-center mb-6">
+          <img src="/app-icon.png" alt="Anglotec" className="h-16 w-16 object-contain mx-auto mb-3 drop-shadow-lg rounded-2xl" />
+          <h1 className="text-2xl font-bold text-white">Create Your Account</h1>
+          <p className="text-gray-400 text-sm">Join the Anglotec AI Masterclass</p>
         </div>
 
-        <Card className="border-0 shadow-2xl bg-white">
-          <CardHeader className="pb-0 pt-6">
-            <h2 className="text-xl font-semibold text-center text-gray-800">Get Started in 4 Easy Steps</h2>
-            <div className="flex justify-center gap-2 mt-3">
-              {[1, 2, 3, 4].map((s) => (
-                <div key={s} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${s === step ? "bg-orange-500 text-white" : s < step ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"}`}>
-                  {s < step ? <CheckCircle size={16} /> : s}
+        {/* Masterclass Banner */}
+        <div className="bg-gradient-to-r from-[#1a365d] via-[#234a7c] to-[#1a365d] rounded-xl p-4 mb-6 border border-orange-400/30 text-center">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Sparkles size={14} className="text-orange-400" />
+            <p className="text-orange-400 font-bold text-xs tracking-widest uppercase">ANGLOTEC AI MASTERCLASS</p>
+            <Sparkles size={14} className="text-orange-400" />
+          </div>
+          <p className="text-white text-xs leading-relaxed">
+            You're joining <span className="font-bold text-orange-300">3,000 AI Prompting Phrases</span> across 12 expert categories.
+          </p>
+        </div>
+
+        {/* Step Indicator */}
+        {!registrationComplete && (
+          <div className="flex items-center justify-center gap-2 mb-6">
+            {steps.map((s, i) => (
+              <div key={s.num} className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                  step === s.num ? "bg-orange-500 text-white" :
+                  step > s.num ? "bg-green-500 text-white" : "bg-white/10 text-gray-400"
+                }`}>
+                  {step > s.num ? <CheckCircle size={16} /> : s.num}
                 </div>
-              ))}
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* STEP 1: Email */}
-              {step === 1 && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Your Email <span className="text-red-500">*</span></Label>
-                    <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" className="h-12 text-base" />
-                    <p className="text-xs text-gray-500">This is what you'll use to sign in. We never share your email.</p>
-                  </div>
-                  <Button type="button" onClick={() => setStep(2)} disabled={!canProceed()} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base">
-                    Continue <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                  </Button>
-                </>
-              )}
+                {i < steps.length - 1 && (
+                  <div className={`w-8 h-0.5 rounded ${step > s.num ? "bg-green-500" : "bg-white/10"}`} />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
-              {/* STEP 2: Password + Security */}
-              {step === 2 && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Create a Password <span className="text-red-500">*</span></Label>
-                    <div className="relative">
-                      <Input id="password" name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={handleChange} placeholder="Min 6 characters" className="h-12 text-base pr-12" />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-2">
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password <span className="text-red-500">*</span></Label>
-                    <div className="relative">
-                      <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} value={form.confirmPassword} onChange={handleChange} placeholder="Type your password again" className="h-12 text-base pr-12" />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-2">
-                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
-                    </div>
-                    {form.confirmPassword && form.password !== form.confirmPassword && <p className="text-xs text-red-500">Passwords don't match yet.</p>}
-                  </div>
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Shield size={16} className="text-orange-500" />
-                      <p className="text-sm font-medium text-gray-800">Security Question (for recovery)</p>
-                    </div>
-                    <Select value={form.security_question} onValueChange={(v) => setForm((p) => ({ ...p, security_question: v }))}>
-                      <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {SECURITY_QUESTIONS.map((q) => (<SelectItem key={q} value={q}>{q}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                    <div className="space-y-1">
-                      <Label htmlFor="security_answer">Your Answer <span className="text-red-500">*</span></Label>
-                      <Input id="security_answer" name="security_answer" type="text" value={form.security_answer} onChange={handleChange} placeholder="Type your answer here" className="h-12 text-base" autoComplete="off" />
-                      <p className="text-xs text-gray-500">You'll need this if you forget your password.</p>
-                    </div>
-                    <div className="space-y-1">
-                      {!form.password && <p className="text-xs text-orange-600">Please enter a password (min 6 characters)</p>}
-                      {form.password && form.password.length < 6 && <p className="text-xs text-orange-600">Password must be at least 6 characters</p>}
-                      {form.password.length >= 6 && form.confirmPassword && form.password !== form.confirmPassword && <p className="text-xs text-red-500">Passwords don't match yet</p>}
-                      {form.password.length >= 6 && form.password === form.confirmPassword && <p className="text-xs text-green-600">Passwords match</p>}
-                      {!form.security_answer.trim() && (form.password.length >= 6) && <p className="text-xs text-orange-600">Please answer the security question above</p>}
-                      {form.security_answer.trim() && <p className="text-xs text-green-600">Security answer saved</p>}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1 h-12"><ArrowLeft size={16} className="mr-1" /> Back</Button>
-                    <Button type="button" onClick={() => setStep(3)} disabled={!canProceed()} className="flex-1 h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold">Continue</Button>
-                  </div>
-                </>
-              )}
+        {/* Error */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-400/30 rounded-xl p-3 mb-4 flex items-start gap-2">
+            <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
+            <p className="text-red-300 text-sm">{error}</p>
+          </div>
+        )}
 
-              {/* STEP 3: Backup Info */}
-              {step === 3 && (
-                <>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2"><Mail size={16} className="text-orange-500" />
-                      <Label htmlFor="backup_email">Backup Email <span className="text-gray-400 font-normal">(optional)</span></Label>
-                    </div>
-                    <Input id="backup_email" name="backup_email" type="email" value={form.backup_email} onChange={handleChange} placeholder="backup@example.com" className="h-12 text-base" />
-                    <p className="text-xs text-gray-500">Used to recover your account if you lose access.</p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2"><Smartphone size={16} className="text-orange-500" />
-                      <Label htmlFor="phone_number">Phone Number <span className="text-gray-400 font-normal">(optional)</span></Label>
-                    </div>
-                    <Input id="phone_number" name="phone_number" type="tel" value={form.phone_number} onChange={handleChange} placeholder="+1 234 567 8900" className="h-12 text-base" />
-                    <p className="text-xs text-gray-500">For recovery via SMS verification code.</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1 h-12"><ArrowLeft size={16} className="mr-1" /> Back</Button>
-                    <Button type="button" onClick={() => setStep(4)} className="flex-1 h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold">Continue</Button>
-                  </div>
-                </>
-              )}
+        {/* Back / Cancel */}
+        {!registrationComplete && (
+          <div className="flex items-center justify-between mb-4">
+            <button onClick={handleBack} className={`text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors ${step === 1 ? "invisible" : ""}`}>
+              <ArrowLeft size={16} /> Back
+            </button>
+            <button onClick={() => navigate("/login")} className="text-sm text-gray-400 hover:text-white transition-colors">
+              Cancel
+            </button>
+          </div>
+        )}
 
-              {/* STEP 4: Native Face ID / Biometric */}
-              {step === 4 && (
-                <>
-                  <div className={`p-3 rounded-lg flex items-start gap-2 ${webAuthn.isReady ? "bg-green-50 border border-green-200" : "bg-yellow-50 border border-yellow-200"}`}>
-                    {webAuthn.isReady ? <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" /> : <AlertCircle size={18} className="text-yellow-600 shrink-0 mt-0.5" />}
-                    <div>
-                      <p className="text-sm font-medium text-gray-800">{webAuthn.isReady ? "Face ID Available" : "Face ID Not Available"}</p>
-                      <p className="text-xs text-gray-600">{webAuthn.capabilityMessage}</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <Fingerprint className="text-orange-500 shrink-0 mt-0.5" size={20} />
-                      <div>
-                        <p className="font-medium text-gray-800 text-sm">Set Up Face ID / Fingerprint</p>
-                        <p className="text-xs text-gray-600 mt-1">Log in instantly using your device's built-in Face ID or fingerprint. No passwords needed. Only one biometric credential per account.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Checkbox id="setupBio" checked={setupBio} onCheckedChange={(checked) => setSetupBio(checked === true)} disabled={!webAuthn.isReady} />
-                      <Label htmlFor="setupBio" className={`text-sm cursor-pointer ${!webAuthn.isReady ? "text-gray-400" : ""}`}>
-                        {webAuthn.isReady ? "Yes, set up Face ID for quick login" : "Your device doesn't support Face ID"}
-                      </Label>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setStep(3)} className="flex-1 h-12"><ArrowLeft size={16} className="mr-1" /> Back</Button>
-                    <Button type="submit" className="flex-1 h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base" disabled={isLoading || bioRegistering}>
-                      {isLoading || bioRegistering ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <UserPlus className="mr-2 h-5 w-5" />}
-                      {bioRegistering ? "Setting up Face ID..." : isLoading ? "Creating..." : "Create My Account"}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </form>
-
-            <div className="mt-6 pt-4 border-t text-center">
-              <p className="text-gray-500 text-sm">
-                Already have an account? <Link to="/login" className="text-orange-600 hover:text-orange-700 font-semibold transition-colors">Sign in</Link>
+        {/* Registration Complete */}
+        {registrationComplete ? (
+          <Card className="border-0 shadow-2xl">
+            <CardContent className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle size={32} className="text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">Verify Your Email</h3>
+                <p className="text-gray-500 text-sm mt-2">
+                  We've sent a verification link to <strong>{email}</strong>
+                </p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                <p className="text-sm text-blue-800 font-medium mb-2">Next steps:</p>
+                <ol className="text-sm text-blue-700 space-y-1.5 list-decimal pl-4">
+                  <li>Check your inbox for the verification email</li>
+                  <li>Click the "Verify Email" button in the email</li>
+                  <li>Return here and sign in with your password</li>
+                </ol>
+              </div>
+              <div className="space-y-3">
+                <Button onClick={handleResend} variant="outline" className="w-full h-12">
+                  Resend Verification Email
+                </Button>
+                <Button onClick={() => navigate("/login")} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">
+                  Go to Sign In
+                </Button>
+              </div>
+              <p className="text-xs text-gray-400">
+                Didn't receive it? Check your spam folder or click Resend above.
               </p>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Step 1: Email */}
+            {step === 1 && (
+              <Card className="border-0 shadow-2xl">
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Mail size={20} className="text-orange-500" /> Your Email</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Email Address</Label>
+                    <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" required />
+                    <p className="text-xs text-gray-500">We'll send a verification link to this email.</p>
+                  </div>
+                  <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">Continue <ArrowRight size={18} className="ml-2" /></Button>
+                  <p className="text-center text-sm text-gray-500">
+                    Already have an account? <Link to="/login" className="text-orange-600 font-bold">Sign In</Link>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-        <p className="text-center text-gray-500 text-xs mt-6">Your account is securely stored on our cloud servers.</p>
+            {/* Step 2: Password */}
+            {step === 2 && (
+              <Card className="border-0 shadow-2xl">
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Lock size={20} className="text-orange-500" /> Create Password</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Password</Label>
+                    <div className="relative">
+                      <Input type={showPassword ? "text" : "password"} placeholder="Min 8 chars, upper, lower, number" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pr-10" />
+                      <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" type="button">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    </div>
+                    {password && (
+                      <div className="space-y-1 text-xs">
+                        <p className={password.length >= 8 ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> 8+ characters</p>
+                        <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> Uppercase letter</p>
+                        <p className={/[a-z]/.test(password) ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> Lowercase letter</p>
+                        <p className={/[0-9]/.test(password) ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> Number</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Confirm Password</Label>
+                    <div className="relative">
+                      <Input type={showConfirmPassword ? "text" : "password"} placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pr-10" />
+                      <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" type="button">{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    </div>
+                    {confirmPassword && (passwordsMatch ? <p className="text-xs text-green-600">Passwords match!</p> : <p className="text-xs text-red-500">Passwords do not match</p>)}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1"><Shield size={14} /> Security Question</Label>
+                    <Input placeholder="e.g., What was your first pet's name?" value={securityQuestion} onChange={(e) => setSecurityQuestion(e.target.value)} className="h-12" />
+                    <Input placeholder="Your answer (used for account recovery)" value={securityAnswer} onChange={(e) => setSecurityAnswer(e.target.value)} className="h-12" />
+                  </div>
+                  <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">Continue <ArrowRight size={18} className="ml-2" /></Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 3: Profile */}
+            {step === 3 && (
+              <Card className="border-0 shadow-2xl">
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User size={20} className="text-orange-500" /> Your Profile</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Display Name <span className="text-gray-400">(optional)</span></Label>
+                    <Input placeholder="How should we call you?" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="h-12" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1"><Phone size={14} /> Phone <span className="text-gray-400">(optional)</span></Label>
+                    <Input type="tel" placeholder="+1 234 567 8900" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" />
+                    <p className="text-xs text-gray-500">For account recovery and two-factor authentication.</p>
+                  </div>
+                  <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">Continue <ArrowRight size={18} className="ml-2" /></Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 4: Review & Create */}
+            {step === 4 && (
+              <Card className="border-0 shadow-2xl">
+                <CardHeader><CardTitle className="text-lg">Review Your Information</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-gray-50 rounded-xl p-4 space-y-3 text-sm">
+                    <div className="flex justify-between"><span className="text-gray-500">Email</span><span className="font-medium">{email}</span></div>
+                    {displayName && <div className="flex justify-between"><span className="text-gray-500">Display Name</span><span className="font-medium">{displayName}</span></div>}
+                    {phone && <div className="flex justify-between"><span className="text-gray-500">Phone</span><span className="font-medium">{phone}</span></div>}
+                    <div className="flex justify-between"><span className="text-gray-500">Security</span><span className="font-medium">{securityQuestion ? "Set" : "Not set"}</span></div>
+                  </div>
+                  <p className="text-xs text-gray-500">By creating an account, you agree to our Terms of Service and Privacy Policy.</p>
+                  <Button onClick={handleRegister} disabled={isLoading} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-xl shadow-lg">
+                    {isLoading ? "Creating Account..." : "Create My Account"}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

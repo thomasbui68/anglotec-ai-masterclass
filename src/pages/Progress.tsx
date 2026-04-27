@@ -1,33 +1,84 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgress, useAchievements } from "@/hooks/useApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trophy, Flame, Brain, BookOpen, ArrowLeft, Award, TrendingUp, Calendar } from "lucide-react";
+import { Trophy, Flame, Brain, BookOpen, ArrowLeft, Award, TrendingUp, Calendar, Home, AlertCircle } from "lucide-react";
 import type { Progress as ProgressStats, Achievement } from "@/types";
 
 export default function ProgressPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const progressApi = useProgress(user?.id || 0);
   const achievementsApi = useAchievements(user?.id || 0);
   const [stats, setStats] = useState<ProgressStats | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    // Safety timeout — if data doesn't load in 5 seconds, show content anyway
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        setLoadError(true);
+        setIsLoading(false);
+      }
+    }, 5000);
+
+    if (!user) {
+      setIsLoading(false);
+      clearTimeout(timeout);
+      return;
+    }
+
     setStats(progressApi.stats as any);
     setAchievements(achievementsApi.achievements as any);
     setIsLoading(false);
-  }, [user, progressApi.stats, achievementsApi.achievements]);
+    clearTimeout(timeout);
+  }, [user, progressApi.stats, achievementsApi.achievements, isLoading]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex items-center justify-center">
-        <div className="text-[#1a365d] animate-pulse">Loading your progress...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
+        <div className="text-[#1a365d] animate-pulse mb-4">Loading your progress...</div>
+        <Button onClick={() => navigate("/")} variant="outline" className="mt-4">
+          <Home size={16} className="mr-2" /> Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
+        <AlertCircle size={48} className="text-orange-500 mb-4" />
+        <p className="text-gray-600 mb-4">Please sign in to view your progress.</p>
+        <div className="flex gap-3">
+          <Button onClick={() => navigate("/login")} className="bg-orange-500 hover:bg-orange-600 text-white">
+            Sign In
+          </Button>
+          <Button onClick={() => navigate("/")} variant="outline">
+            <Home size={16} className="mr-2" /> Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
+        <AlertCircle size={48} className="text-orange-500 mb-4" />
+        <p className="text-gray-600 mb-4">Couldn't load your progress right now. Please try again.</p>
+        <div className="flex gap-3">
+          <Button onClick={() => window.location.reload()} variant="outline">Retry</Button>
+          <Button onClick={() => navigate("/")} className="bg-orange-500 hover:bg-orange-600 text-white">
+            <Home size={16} className="mr-2" /> Dashboard
+          </Button>
+        </div>
       </div>
     );
   }
@@ -52,7 +103,7 @@ export default function ProgressPage() {
       <header className="bg-[#1a365d] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/anglotec_logo.png" alt="Anglotec" className="h-8 w-8 object-contain" />
+            <img src="/app-icon.png" alt="Anglotec" className="h-8 w-8 object-contain rounded-lg" />
             <span className="font-bold tracking-wider text-sm">PROGRESS & ANALYTICS</span>
           </div>
           <Link to="/dashboard">

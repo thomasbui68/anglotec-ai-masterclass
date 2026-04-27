@@ -11,7 +11,7 @@ import {
   BookOpen, Flame, BrainCircuit, Play, BarChart3,
   Settings, Sparkles, HelpCircle, Loader2, Zap,
   Target, Crown, Star, TrendingUp, ChevronRight,
-  GraduationCap, Shield, Gem
+  GraduationCap, Shield, Gem, LogOut
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -32,7 +32,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const game = useGamification();
   const phraseApi = usePhrases();
   const progressApi = useProgress(user?.id || 0);
@@ -87,6 +87,16 @@ export default function Dashboard() {
             <Link to="/settings" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
               <Settings size={20} />
             </Link>
+            <button
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-colors text-xs font-bold"
+              title="Exit / Log Out"
+            >
+              <LogOut size={16} /> Exit
+            </button>
           </div>
         </div>
       </header>
@@ -127,6 +137,39 @@ export default function Dashboard() {
                 <Crown size={10} className="mr-0.5" /> {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
               </Badge>
             )}
+          </div>
+        </div>
+
+        {/* Masterclass Hero Banner */}
+        <div className="bg-gradient-to-r from-[#1a365d] via-[#234a7c] to-[#1a365d] rounded-2xl p-5 border border-orange-400/30 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl" />
+          <div className="relative z-10 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center shrink-0 shadow-lg">
+              <GraduationCap size={24} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles size={14} className="text-orange-400" />
+                <p className="text-orange-400 font-bold text-xs tracking-widest uppercase">Anglotec AI Masterclass</p>
+                <Sparkles size={14} className="text-orange-400" />
+              </div>
+              <p className="text-white font-bold text-lg leading-tight">
+                Master All <span className="text-orange-400">3,000 AI Prompting Phrases</span>
+              </p>
+              <p className="text-gray-400 text-xs mt-1 leading-relaxed">
+                12 expert categories — from beginner to AI power-user. Your complete AI training curriculum starts here.
+              </p>
+              <div className="flex items-center gap-3 mt-3">
+                <div className="flex items-center gap-1 text-xs text-gray-300">
+                  <BookOpen size={12} className="text-blue-400" />
+                  <span>{stats.mastered} / 3,000 learned</span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-300">
+                  <Target size={12} className="text-green-400" />
+                  <span>{Math.max(0, 3000 - stats.mastered)} remaining</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -192,17 +235,21 @@ export default function Dashboard() {
 
         {/* Quick Start */}
         <div className="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl p-6 text-center relative overflow-hidden">
+          <div className="absolute -top-8 -left-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           <div className="relative z-10">
             <div className="flex justify-center mb-3">
               <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
                 <Play size={32} className="text-white ml-1" />
               </div>
             </div>
-            <h3 className="text-xl font-bold text-white mb-1">Ready to Learn?</h3>
+            <h3 className="text-xl font-bold text-white mb-1">
+              {stats.mastered > 0 ? "Keep Mastering AI!" : "Start Your AI Masterclass!"}
+            </h3>
             <p className="text-white/80 text-sm mb-4">
               {stats.mastered > 0
-                ? `You have mastered ${stats.mastered} phrases. Keep going!`
-                : "Start with your first phrase today!"}
+                ? `You've mastered ${stats.mastered} of 3,000 phrases. You're on your way to becoming an AI expert!`
+                : "3,000 AI prompting phrases across 12 categories await. Your journey to AI mastery begins now!"}
             </p>
             <Button onClick={() => navigate("/flashcards")} className="h-14 px-8 bg-white text-orange-600 hover:bg-orange-50 font-bold text-lg rounded-xl shadow-lg">
               Start Learning <ChevronRight size={20} className="ml-1" />
@@ -213,7 +260,7 @@ export default function Dashboard() {
         {/* Categories */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-            <BrainCircuit size={18} className="text-orange-400" /> Choose a Topic
+            <BrainCircuit size={18} className="text-orange-400" /> 12 Categories — 3,000 Phrases Total
             {subscription.tier === "free" && categories.length > 6 && (
               <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-400/30 text-[10px] ml-2">
                 {categories.length - 6} more with Pro

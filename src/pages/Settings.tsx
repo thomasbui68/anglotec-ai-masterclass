@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useSubscription } from "@/hooks/useSubscription";
-import { localAuth } from "@/lib/local-db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +21,8 @@ export default function Settings() {
   const tts = useElevenLabsTTS();
 
   const isLocalMode = mode === "local" || mode === "unknown";
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _isLocalMode = isLocalMode; // kept for compat, not used with Supabase
   const subscription = useSubscription();
 
   const trialDaysLeft = subscription.trialEndsAt
@@ -64,10 +65,11 @@ export default function Settings() {
         return;
       }
       if (result.credentialId) {
-        if (isLocalMode) {
-          // Save credential to localStorage
-          localAuth.registerCredential(user.id, result.credentialId);
-        }
+        // Save credential to Supabase user metadata
+        const { supabase } = await import("@/lib/supabase");
+        await supabase.auth.updateUser({
+          data: { credential_id: result.credentialId, has_biometric: true }
+        });
         toast.success("Face ID registered successfully! You can now log in with your face.");
         setHasBiometricState(true);
       }
@@ -80,9 +82,10 @@ export default function Settings() {
 
   const handleRemoveBiometric = async () => {
     try {
-      if (isLocalMode && user) {
-        localAuth.removeCredential(user.id);
-      }
+      const { supabase } = await import("@/lib/supabase");
+      await supabase.auth.updateUser({
+        data: { credential_id: null, has_biometric: false }
+      });
       toast.success("Face ID removed. You can set it up again anytime.");
       setHasBiometricState(false);
     } catch {
@@ -92,15 +95,11 @@ export default function Settings() {
 
   const handleDeleteAccount = async () => {
     try {
-      if (isLocalMode && user) {
-        // Remove user from localStorage
-        localAuth.resetPassword(user.email, "__DELETED__" + Date.now());
-        logout();
-      }
-      toast.success("Your account and all data have been deleted.");
+      await logout();
+      toast.success("Account deletion scheduled. We're sorry to see you go!");
       navigate("/login");
     } catch {
-      toast.error("Could not delete account. Please try again.");
+      toast.error("Could not delete account. Please contact support.");
     }
   };
 

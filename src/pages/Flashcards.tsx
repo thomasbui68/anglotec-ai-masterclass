@@ -49,16 +49,25 @@ export default function Flashcards() {
   const categories = phraseApi.categories ?? [];
   const currentPhrase = phrases[currentIndex];
 
-  // Load phrases when category changes
+  // Reset index when category changes
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [selectedCategory]);
+
+  // Load phrases when category or phraseApi changes
   useEffect(() => {
     setPhrasesLoading(true);
-    const result = phraseApi.getPhrases(
-      selectedCategory !== "all" ? selectedCategory : undefined,
-      undefined, 1, 50
-    );
-    setPhrases(result.phrases);
-    setCurrentIndex(0);
-    setPhrasesLoading(false);
+    try {
+      const result = phraseApi.getPhrases(
+        selectedCategory !== "all" ? selectedCategory : undefined,
+        undefined, 1, 50
+      );
+      setPhrases(result.phrases);
+    } catch {
+      setPhrases([]);
+    } finally {
+      setPhrasesLoading(false);
+    }
   }, [selectedCategory, phraseApi]);
 
   // Session start
@@ -252,11 +261,22 @@ export default function Flashcards() {
               </div>
             </div>
 
-            <div className="bg-orange-500/10 border border-orange-400/30 rounded-xl p-3 mb-6">
+            <div className="bg-orange-500/10 border border-orange-400/30 rounded-xl p-3 mb-4">
               <div className="flex items-center justify-center gap-2">
                 <Zap size={16} className="text-orange-400" />
                 <span className="text-sm text-orange-300">+{sessionStats.correct * 10 + (comboCount >= 3 ? comboCount * 5 : 0)} XP earned!</span>
               </div>
+            </div>
+
+            {/* Masterclass progress reminder */}
+            <div className="bg-[#1a365d] border border-white/10 rounded-xl p-3 mb-6">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Sparkles size={14} className="text-orange-400" />
+                <span className="text-xs text-orange-400 font-bold tracking-wide">ANGLOTEC AI MASTERCLASS</span>
+              </div>
+              <p className="text-xs text-gray-400">
+                {sessionStats.correct} more of 3,000 phrases mastered. Keep building your AI expertise!
+              </p>
             </div>
 
             {/* Primary actions */}
@@ -264,7 +284,7 @@ export default function Flashcards() {
               <Button onClick={restart} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">
                 <RotateCcw className="mr-2" size={18} /> Practice Again
               </Button>
-              <Button onClick={() => navigate("/")} variant="outline" className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-xl">
+              <Button onClick={() => navigate("/")} className="w-full h-12 bg-white/10 border border-white/20 text-white hover:bg-white/20 font-semibold rounded-xl">
                 <Home size={18} className="mr-2" /> Back to Dashboard
               </Button>
             </div>
@@ -281,6 +301,7 @@ export default function Flashcards() {
         <div className="text-center">
           <Loader2 size={40} className="text-orange-400 animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading your phrases...</p>
+          <p className="text-gray-500 text-xs mt-2">Anglotec AI Masterclass — 3,000 phrases</p>
         </div>
       </div>
     );
@@ -299,7 +320,7 @@ export default function Flashcards() {
               <Button onClick={quitSession} className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">
                 <Home size={16} className="mr-2" /> Back to Dashboard
               </Button>
-              <Button onClick={() => setShowQuitConfirm(false)} variant="outline" className="w-full h-11 border-white/20 text-white hover:bg-white/10 rounded-xl">
+              <Button onClick={() => setShowQuitConfirm(false)} className="w-full h-11 bg-white/10 border border-white/20 text-white hover:bg-white/20 rounded-xl">
                 Keep Learning
               </Button>
             </div>
@@ -405,6 +426,19 @@ export default function Flashcards() {
               </button>
             );
           })}
+        </div>
+
+        {/* Masterclass Context Banner */}
+        <div className="bg-gradient-to-r from-[#1a365d] to-[#234a7c] rounded-xl p-3 mb-4 border border-orange-400/20 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center shrink-0">
+            <Sparkles size={16} className="text-orange-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-orange-400 font-bold tracking-wide">ANGLOTEC AI MASTERCLASS</p>
+            <p className="text-[10px] text-gray-400 truncate">
+              Phrase {currentIndex + 1} of {phrases.length} &middot; 3,000 phrases total across 12 categories
+            </p>
+          </div>
         </div>
 
         {/* Hint tooltip */}

@@ -93,7 +93,8 @@ export function usePhrases() {
     [useLocalData, listQuery.data]
   );
 
-  return { categories, phrases: phrases.phrases, getPhrases, isLoading };
+  return useMemo(() => ({ categories, phrases: phrases.phrases, getPhrases, isLoading }), 
+    [categories, phrases.phrases, getPhrases, isLoading]);
 }
 
 // ===== PROGRESS =====
