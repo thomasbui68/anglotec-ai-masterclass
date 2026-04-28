@@ -22,7 +22,14 @@ const enResources = {
   "app": {
     "name": "Anglotec AI",
     "tagline": "AI Masterclass",
-    "family": "Part of the Anglotec AI Apps Family"
+    "family": "Anglotec Academy — Part of the Anglotec AI Apps Family"
+  },
+  "masterclass": {
+    "title": "ANGLOTEC AI MASTERCLASS",
+    "headline": "Master All 3,000 AI Prompting Phrases",
+    "subtitle": "12 expert categories — from beginner to AI power-user. Your complete training curriculum starts here.",
+    "learned": "learned",
+    "remaining": "remaining"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -35,13 +42,6 @@ const enResources = {
     "register": "Create Account",
     "logout": "Log Out",
     "exit": "Exit"
-  },
-  "masterclass": {
-    "title": "ANGLOTEC AI MASTERCLASS",
-    "headline": "Master All 3,000 AI Prompting Phrases",
-    "subtitle": "12 expert categories — from beginner to AI power-user. Your complete training curriculum starts here.",
-    "learned": "learned",
-    "remaining": "remaining"
   },
   "auth": {
     "email": "Email",
@@ -115,7 +115,16 @@ const enResources = {
     "categories": "12 Categories — 3,000 Phrases Total",
     "overallProgress": "Overall Progress",
     "quickStart": "Start Your AI Masterclass!",
-    "quickStartDesc": "3,000 AI prompting phrases across 12 categories await. Your journey to AI mastery begins now!"
+    "quickStartDesc": "3,000 AI prompting phrases across 12 categories await. Your journey to AI mastery begins now!",
+    "streakMessage": "{{count}}-day streak! Keep it up!",
+    "learned": "Learned",
+    "practicing": "Practicing",
+    "dailyGoalComplete": "Daily goal complete!",
+    "practiceMore": "Practice {{count}} more to reach your daily goal",
+    "keepMastering": "Keep Mastering AI!",
+    "masteredCount": "You've mastered {{count}} of 3,000 phrases. You're on your way to becoming an AI expert!",
+    "nextRank": "Next: {{rank}} at Level {{level}}",
+    "total": "total"
   },
   "onboarding": {
     "title": "Welcome to Anglotec AI Masterclass",
@@ -170,7 +179,10 @@ const enResources = {
     "greatJobXp": "Great job! +10 XP",
     "comboMessage": "{{count}}x Combo! You are on fire!",
     "streakMessage": "10 in a row! Amazing!",
-    "shortcuts": "Shortcuts: Space = Listen | 1 = I Know This | 2 = Practice More | ← → = Navigate | ESC = Exit"
+    "shortcuts": "Shortcuts: Space = Listen | 1 = I Know This | 2 = Practice More | ← → = Navigate | ESC = Exit",
+    "combo": "Combo",
+    "premiumVoiceError": "Premium Voice Error",
+    "upgradeVoice": "Upgrade ElevenLabs"
   },
   "settings": {
     "title": "Settings",
@@ -328,7 +340,8 @@ const enResources = {
       "classAnalytics": "Class analytics",
       "assignmentBuilder": "Assignment builder",
       "gradebookExport": "Gradebook export",
-      "customOnboarding": "Custom onboarding"
+      "customOnboarding": "Custom onboarding",
+      "moreWithPro": "more with Pro"
     },
     "seePlans": "See Plans",
     "freeDesc": "Start learning with basic access",
@@ -394,7 +407,9 @@ const enResources = {
     "faceIdRequiresPassword": "Face ID requires a one-time password sign-in first. Please sign in with your password, then you can enable Face ID in Settings.",
     "passwordRequirements": "Password must be at least 8 characters with uppercase, lowercase, and a number",
     "securityQuestionRequired": "Please set a security question for account recovery",
-    "registerFailed": "Registration failed. Please try again."
+    "registerFailed": "Registration failed. Please try again.",
+    "faceIdNotAvailable": "Face ID is not available on this browser.",
+    "resetFailed": "Failed to send reset email. Please try again."
   },
   "common": {
     "loading": "Loading...",
@@ -412,7 +427,53 @@ const enResources = {
     "notSet": "Not set",
     "set": "Set",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "current": "Current"
+  },
+  "help": {
+    "title": "Help & Support",
+    "heading": "How Can We Help?",
+    "subheading": "Everything you need to get the most from Anglotec AI Master Class.",
+    "contactTitle": "Need more help?",
+    "contactDesc": "Contact the Anglotec AI Apps support team at",
+    "faq1Q": "How do I start learning?",
+    "faq1A": "From the Dashboard, tap 'Start Learning' or pick any topic from the category grid. You'll see flashcards with AI prompting phrases. Tap 'Listen' to hear pronunciation, then 'I Know This' when you feel confident, or 'Practice More' to review later.",
+    "faq2Q": "How do I set up Face ID login?",
+    "faq2A": "Go to Settings and tap 'Set Up Face ID'. Your device will prompt you to use Face ID or fingerprint. Once registered, you can log in instantly without typing your password. If the button doesn't seem to work, make sure you're using Safari on iPhone or Chrome on Android.",
+    "faq3Q": "I forgot my password. What do I do?",
+    "faq3A": "On the login screen, tap 'Forgot password?' You'll be guided through recovery using your security question, Face ID, backup email verification code, or phone SMS code — whichever you set up during registration.",
+    "faq4Q": "How do I track my progress?",
+    "faq4A": "Your Dashboard shows your mastery level, streak, badges, and overall progress bar. You earn XP for every correct answer and can climb from New Explorer all the way to AI Champion!",
+    "faq5Q": "Does the audio work on my device?",
+    "faq5A": "The 'Listen' button uses enhanced text-to-speech with smart voice selection. On iPhone, you'll hear the high-quality Premium Voice. On other devices, the app automatically picks the clearest available voice. You can customize your voice in Settings > Voice & Audio. Works on all modern browsers.",
+    "faq6Q": "Is my data safe?",
+    "faq6A": "Absolutely. Your account and all learning progress are stored securely on our cloud servers with encryption. You can log in from any device and pick up exactly where you left off. Your Face ID credential never leaves your device.",
+    "faq7Q": "Can I use this on multiple devices?",
+    "faq7A": "Yes! Since your account is stored in the cloud, you can log in from any phone, tablet, or computer. Your progress, achievements, and settings will all be there waiting for you.",
+    "faq8Q": "How do I sign out?",
+    "faq8A": "Go to Settings and tap 'Sign Out' at the bottom. Your account stays safe in the cloud and everything will be right there when you log back in."
+  },
+  "progress": {
+    "title": "PROGRESS & ANALYTICS",
+    "loading": "Loading your progress...",
+    "signInRequired": "Please sign in to view your progress.",
+    "loadError": "Couldn't load your progress right now. Please try again.",
+    "retry": "Retry",
+    "currentLevel": "Current Level",
+    "completeTowards": "complete towards AI Mastery",
+    "mastered": "Mastered",
+    "learning": "Learning",
+    "activeDays": "Active Days",
+    "totalPractices": "Total Practices",
+    "learningDistribution": "Learning Distribution",
+    "masteryRoadmap": "Mastery Roadmap",
+    "new": "New",
+    "novice": "Novice",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "aiMaster": "AI Master",
+    "achievements": "Achievements",
+    "noAchievements": "No achievements yet. Start learning to earn badges!"
   }
 };
 
