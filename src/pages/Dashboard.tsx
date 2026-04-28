@@ -13,6 +13,8 @@ import {
   Target, Crown, Star, TrendingUp, ChevronRight,
   GraduationCap, Shield, Gem, LogOut, ShieldCheck
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { Badge } from "@/components/ui/badge";
 
 const CATEGORY_ICONS: Record<string, any> = {
@@ -31,6 +33,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 };
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const game = useGamification();
@@ -73,12 +76,12 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {user?.isAdmin && (
+            {(user?.isAdmin || user?.email?.toLowerCase() === "thomasb@anglotec.com") && (
               <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-1 rounded-full border border-purple-500/30">
                 <ShieldCheck size={12} /> ADMIN
               </span>
             )}
-            {subscription.tier === "free" && !user?.isAdmin && (
+            {subscription.tier === "free" && !(user?.isAdmin || user?.email?.toLowerCase() === "thomasb@anglotec.com") && (
               <button
                 onClick={() => navigate("/pricing")}
                 className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
@@ -89,6 +92,7 @@ export default function Dashboard() {
             <Link to="/help" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
               <HelpCircle size={20} />
             </Link>
+            <LanguageSelector />
             <Link to="/settings" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
               <Settings size={20} />
             </Link>
@@ -123,19 +127,27 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white">
-              {user ? `Welcome back!` : "Welcome!"}
+              {user ? t("dashboard.welcome") : t("dashboard.welcome")}
             </h2>
             <p className="text-gray-400 text-sm mt-1">
               {game.streak > 0
-                ? `${game.streak}-day streak! Keep it going!`
-                : "Let's start learning!"}
+                ? `${game.streak}-day streak! ${t("common.continue")}`
+                : t("dashboard.startLearning")}
             </p>
           </div>
           <div className="text-right">
-            <div className="flex items-center gap-1.5">
-              <Crown size={14} style={{ color: game.rankInfo.color }} />
-              <span className="text-xs font-bold" style={{ color: game.rankInfo.color }}>{game.rankInfo.name}</span>
-            </div>
+            {/* Admin rank override */}
+            {user?.email?.toLowerCase() === "thomasb@anglotec.com" ? (
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-purple-400" />
+                <span className="text-xs font-bold text-purple-400">ADMIN</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Crown size={14} style={{ color: game.rankInfo.color }} />
+                <span className="text-xs font-bold" style={{ color: game.rankInfo.color }}>{game.rankInfo.name}</span>
+              </div>
+            )}
             <p className="text-[10px] text-gray-400">Level {game.level}</p>
             {subscription.isPaid && (
               <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 text-[10px] mt-1">

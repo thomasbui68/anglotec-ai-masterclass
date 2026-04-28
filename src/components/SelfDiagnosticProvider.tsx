@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Wifi, WifiOff, AlertTriangle, RefreshCw, CheckCircle, Shield } from "lucide-react";
+import { Wifi, WifiOff, AlertTriangle, RefreshCw, CheckCircle, Shield, Gauge } from "lucide-react";
 import { toast } from "sonner";
 
 interface DiagnosticState {
@@ -9,6 +9,9 @@ interface DiagnosticState {
   lastError: string | null;
   errorCount: number;
   autoHealed: string[];
+  fps: number;
+  memoryMB: number | null;
+  slowFrames: number;
 }
 
 export function SelfDiagnosticProvider({ children }: { children: React.ReactNode }) {
@@ -19,6 +22,9 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
     lastError: null,
     errorCount: 0,
     autoHealed: [],
+    fps: 60,
+    memoryMB: null,
+    slowFrames: 0,
   });
   const [showPanel, setShowPanel] = useState(false);
 
@@ -55,10 +61,8 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
         const newCount = s.errorCount + 1;
         const healed = [...s.autoHealed];
 
-        // Auto-heal known errors
         if (msg.includes("localStorage") || msg.includes("quota") || msg.includes("Storage")) {
           try {
-            // Clear corrupted keys
             const keys = Object.keys(localStorage);
             let cleared = 0;
             for (const key of keys) {
@@ -137,12 +141,54 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
     }
   }, []);
 
-  // ── 4. Health Report ──
+  // ── 4. Performance Monitor (FPS + Memory) ──
+  useEffect(() => {
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let rafId: number;
+    let slowFrames = 0;
+
+    const measure = () => {
+      frameCount++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        const fps = Math.round((frameCount * 1000) / (now - lastTime));
+        frameCount = 0;
+        lastTime = now;
+
+        // Detect slow frames
+        if (fps < 20) slowFrames++;
+        else slowFrames = Math.max(0, slowFrames - 1);
+
+        // Memory
+        let memoryMB: number | null = null;
+        if ((performance as any).memory) {
+          memoryMB = Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024);
+        }
+
+        setState((s) => ({ ...s, fps, memoryMB, slowFrames }));
+
+        // Warn if consistently slow
+        if (slowFrames >= 5 && s.slowFrames < 5) {
+          toast.warning("Your device is working hard. Consider closing other tabs.", {
+            icon: <Gauge size={14} />,
+            duration: 5000,
+            id: "performance-warn",
+          });
+        }
+      }
+      rafId = requestAnimationFrame(measure);
+    };
+
+    rafId = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  // ── 5. Health Report ──
   const runDiagnostics = useCallback(() => {
     const results: string[] = [];
     let allOk = true;
 
-    // Network
     if (navigator.onLine) {
       results.push("Network: OK");
     } else {
@@ -150,7 +196,6 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
       allOk = false;
     }
 
-    // Storage
     try {
       const test = "test" + Date.now();
       localStorage.setItem("__diag__", test);
@@ -163,12 +208,14 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
       allOk = false;
     }
 
-    // Memory
-    if (performance && (performance as any).memory) {
-      const mem = (performance as any).memory;
-      const used = Math.round(mem.usedJSHeapSize / 1024 / 1024);
-      const limit = Math.round(mem.jsHeapSizeLimit / 1024 / 1024);
-      results.push(`Memory: ${used}MB / ${limit}MB`);
+    if (state.memoryMB !== null) {
+      results.push(`Memory: ${state.memoryMB}MB`);
+    }
+
+    results.push(`FPS: ${state.fps}`);
+    if (state.fps < 30) {
+      results.push("Rendering: Slow");
+      allOk = false;
     }
 
     toast.info(
@@ -182,7 +229,7 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
     );
 
     return allOk;
-  }, []);
+  }, [state.fps, state.memoryMB]);
 
   return (
     <>
@@ -223,6 +270,20 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
                 {state.storageOk ? "OK" : state.storageError || "Error"}
               </span>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">FPS</span>
+              <span className={state.fps >= 30 ? "text-green-400" : state.fps >= 20 ? "text-amber-400" : "text-red-400"}>
+                {state.fps}
+              </span>
+            </div>
+            {state.memoryMB !== null && (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Memory</span>
+                <span className={state.memoryMB < 128 ? "text-green-400" : state.memoryMB < 256 ? "text-amber-400" : "text-red-400"}>
+                  {state.memoryMB}MB
+                </span>
+              </div>
+            )}
             {state.errorCount > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">Errors Caught</span>

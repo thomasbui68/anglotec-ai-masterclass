@@ -111,13 +111,20 @@ export function useGamification() {
   }, []);
 
   const rankInfo = getRank(state.level);
+  
+  // Override rank for admin users
+  const isAdmin = typeof window !== 'undefined' && 
+    window.localStorage.getItem('anglotec_user') && 
+    JSON.parse(window.localStorage.getItem('anglotec_user') || '{}').email?.toLowerCase() === 'thomasb@anglotec.com';
+  
+  const displayRank = isAdmin ? { name: "ADMIN", color: "#A855F7" } : rankInfo;
   const nextRank = RANKS.find((r) => r.level > state.level);
   const xpPercent = Math.round((state.xp / (state.xpForNextLevel || XP_PER_LEVEL(state.level))) * 100);
 
   return {
     ...state,
     xpPercent,
-    rankInfo,
+    rankInfo: displayRank,
     nextRank,
     newAchievement,
     addXp,

@@ -36,5 +36,6 @@ export default defineConfig({
     target: "es2015",
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    cssMinify: false,
   },
 });

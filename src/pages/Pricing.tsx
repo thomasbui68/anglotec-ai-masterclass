@@ -11,112 +11,114 @@ import {
   Sparkles, Shield, TrendingUp, Volume2, Smartphone,
   Star, Loader2, Clock
 } from "lucide-react";
-
-const PLAN_DETAILS = [
-  {
-    tier: "free" as SubscriptionTier,
-    name: "Free",
-    description: "Start learning with basic access",
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    icon: Sparkles,
-    color: "from-gray-500 to-gray-600",
-    borderColor: "border-gray-200",
-    popular: false,
-    features: [
-      "20 phrases per day",
-      "6 basic categories",
-      "Local progress tracking",
-      "Basic achievements",
-    ],
-    notIncluded: [
-      "AI voice pronunciation",
-      "Cross-device sync",
-      "Weekly new phrases",
-      "Advanced analytics",
-    ],
-  },
-  {
-    tier: "pro" as SubscriptionTier,
-    name: "Pro",
-    description: "Unlimited access for serious learners",
-    monthlyPrice: 1999,
-    yearlyPrice: 17999,
-    icon: Crown,
-    color: "from-orange-500 to-yellow-500",
-    borderColor: "border-orange-300",
-    popular: true,
-    badge: "Most Popular",
-    features: [
-      "Unlimited phrases (3,000+)",
-      "All 12 categories",
-      "AI voice pronunciation",
-      "Cross-device sync",
-      "Weekly new phrases",
-      "Advanced analytics",
-      "Progress reports",
-      "Priority support",
-    ],
-    notIncluded: [
-      "Family sharing",
-      "Parent dashboard",
-    ],
-  },
-  {
-    tier: "family" as SubscriptionTier,
-    name: "Family",
-    description: "Learn together with your family",
-    monthlyPrice: 3999,
-    yearlyPrice: 34999,
-    icon: Users,
-    color: "from-blue-500 to-cyan-500",
-    borderColor: "border-blue-300",
-    popular: false,
-    badge: "Best Value",
-    features: [
-      "Everything in Pro",
-      "Up to 3 family members",
-      "Parent dashboard",
-      "Weekly family reports",
-      "Shared achievements",
-      "Family challenges",
-    ],
-    notIncluded: [
-      "Teacher dashboard",
-      "Classroom management",
-    ],
-  },
-  {
-    tier: "classroom" as SubscriptionTier,
-    name: "Classroom",
-    description: "For educators and teams",
-    monthlyPrice: 19999,
-    yearlyPrice: 199999,
-    icon: GraduationCap,
-    color: "from-purple-500 to-pink-500",
-    borderColor: "border-purple-300",
-    popular: false,
-    badge: "For Schools",
-    features: [
-      "Everything in Family",
-      "Up to 50 students",
-      "Teacher dashboard",
-      "Class analytics",
-      "Assignment builder",
-      "Gradebook export",
-      "Priority support",
-      "Custom onboarding",
-    ],
-    notIncluded: [],
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export default function Pricing() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const subscription = useSubscription();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
+
+  const PLAN_DETAILS = [
+    {
+      tier: "free" as SubscriptionTier,
+      name: t("pricing.free"),
+      description: t("pricing.freeDesc"),
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      icon: Sparkles,
+      color: "from-gray-500 to-gray-600",
+      borderColor: "border-gray-200",
+      popular: false,
+      features: [
+        t("pricing.features.phrases20"),
+        t("pricing.features.categories6"),
+        t("pricing.features.localTracking"),
+        t("pricing.features.basicAchievements"),
+      ],
+      notIncluded: [
+        t("pricing.features.aiVoice"),
+        t("pricing.features.crossDevice"),
+        t("pricing.features.weeklyPhrases"),
+        t("pricing.features.advancedAnalytics"),
+      ],
+    },
+    {
+      tier: "pro" as SubscriptionTier,
+      name: t("pricing.pro"),
+      description: t("pricing.proDesc"),
+      monthlyPrice: 1999,
+      yearlyPrice: 17999,
+      icon: Crown,
+      color: "from-orange-500 to-yellow-500",
+      borderColor: "border-orange-300",
+      popular: true,
+      badge: t("pricing.mostPopular"),
+      features: [
+        t("pricing.features.unlimitedPhrases"),
+        t("pricing.features.allCategories"),
+        t("pricing.features.aiVoice"),
+        t("pricing.features.crossDevice"),
+        t("pricing.features.weeklyPhrases"),
+        t("pricing.features.advancedAnalytics"),
+        t("pricing.features.progressReports"),
+        t("pricing.features.prioritySupport"),
+      ],
+      notIncluded: [
+        t("pricing.features.familySharing"),
+        t("pricing.features.parentDashboard"),
+      ],
+    },
+    {
+      tier: "family" as SubscriptionTier,
+      name: t("pricing.family"),
+      description: t("pricing.familyDesc"),
+      monthlyPrice: 3999,
+      yearlyPrice: 34999,
+      icon: Users,
+      color: "from-blue-500 to-cyan-500",
+      borderColor: "border-blue-300",
+      popular: false,
+      badge: t("pricing.bestValue"),
+      features: [
+        t("pricing.features.everythingPro"),
+        t("pricing.features.family5"),
+        t("pricing.features.parentDashboard"),
+        t("pricing.features.familyReports"),
+        t("pricing.features.sharedAchievements"),
+        t("pricing.features.familyChallenges"),
+      ],
+      notIncluded: [
+        t("pricing.features.teacherDashboard"),
+        t("pricing.features.classroomMgmt"),
+      ],
+    },
+    {
+      tier: "classroom" as SubscriptionTier,
+      name: t("pricing.classroom"),
+      description: t("pricing.classroomDesc"),
+      monthlyPrice: 20000,
+      yearlyPrice: 180000,
+      icon: GraduationCap,
+      color: "from-purple-500 to-pink-500",
+      borderColor: "border-purple-300",
+      popular: false,
+      badge: t("pricing.forSchools"),
+      features: [
+        t("pricing.features.everythingFamily"),
+        t("pricing.features.students16"),
+        t("pricing.features.teacherDashboard"),
+        t("pricing.features.classAnalytics"),
+        t("pricing.features.assignmentBuilder"),
+        t("pricing.features.gradebookExport"),
+        t("pricing.features.prioritySupport"),
+        t("pricing.features.customOnboarding"),
+      ],
+      notIncluded: [],
+    },
+  ];
 
   // Calculate days left in trial
   const trialDaysLeft = subscription.trialEndsAt
@@ -125,18 +127,17 @@ export default function Pricing() {
   const inTrial = subscription.status === "trial" && trialDaysLeft > 0;
 
   const getButtonText = (planTier: SubscriptionTier) => {
-    // During trial, show "Keep Pro" on Pro plan instead of "Start Pro Trial"
     if (inTrial && planTier === "pro") {
-      return "Keep Pro After Trial";
+      return t("pricing.keepProAfterTrial");
     }
     if (inTrial && planTier === "family") {
-      return "Switch to Family";
+      return t("pricing.switchToFamily");
     }
-    if (planTier === "free") return "Downgrade to Free";
-    if (planTier === "classroom") return "Contact Sales";
-    if (planTier === "pro") return "Start Pro Trial";
-    if (planTier === "family") return "Start Family Trial";
-    return "Choose Plan";
+    if (planTier === "free") return t("pricing.downgradeFree");
+    if (planTier === "classroom") return t("pricing.contactSales");
+    if (planTier === "pro") return t("pricing.startTrial");
+    if (planTier === "family") return t("pricing.startFamilyTrial");
+    return t("pricing.choosePlan");
   };
 
   const handleUpgrade = async (tier: SubscriptionTier) => {
@@ -146,7 +147,7 @@ export default function Pricing() {
     }
 
     if (tier === "classroom") {
-      toast.info("Classroom plan requires a quick setup call. We'll contact you shortly!");
+      toast.info(t("pricing.classroomSetup"));
       return;
     }
 
@@ -154,11 +155,11 @@ export default function Pricing() {
     try {
       const result = await subscription.upgrade(tier, 30);
       if (result.success) {
-        toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+        toast.success(t("pricing.planActivated", { tier: t(`tiers.${tier}`) }));
         setTimeout(() => navigate("/dashboard"), 1500);
       }
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong. Please try again.");
+      toast.error(err.message || t("errors.generic"));
     } finally {
       setUpgradingTier(null);
     }
@@ -172,13 +173,13 @@ export default function Pricing() {
           <div className="flex items-center gap-3">
             <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
-              <h1 className="text-lg font-bold text-white leading-tight">Anglotec AI</h1>
-              <p className="text-[10px] text-gray-400">Choose Your Plan</p>
+              <h1 className="text-lg font-bold text-white leading-tight">{t("app.name")}</h1>
+              <p className="text-[10px] text-gray-400">{t("pricing.title")}</p>
             </div>
           </div>
           <Link to="/">
             <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-              <ArrowLeft size={18} className="mr-1" /> Dashboard
+              <ArrowLeft size={18} className="mr-1" /> {t("nav.dashboard")}
             </Button>
           </Link>
         </div>
@@ -189,26 +190,26 @@ export default function Pricing() {
         <div className="text-center mb-10">
           {inTrial ? (
             <Badge className="bg-green-500/20 text-green-300 border-green-400/30 mb-4 text-xs">
-              <Clock size={12} className="mr-1" /> {trialDaysLeft} days left in your Pro trial
+              <Clock size={12} className="mr-1" /> {t("pricing.trialDaysLeft", { days: trialDaysLeft })}
             </Badge>
           ) : (
             <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 mb-4 text-xs">
-              <Star size={12} className="mr-1" /> Try any plan free for 14 days
+              <Star size={12} className="mr-1" /> {t("pricing.tryFree14")}
             </Badge>
           )}
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-            {inTrial ? "Keep Your Pro Access" : "Choose Your Learning Path"}
+            {inTrial ? t("pricing.keepProAccess") : t("pricing.choosePath")}
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
             {inTrial
-              ? "Your trial is active! Pick a plan now to keep unlimited access after your trial ends. No interruptions."
-              : "Start free and upgrade when you are ready. Every plan comes with a 14-day free trial — no credit card needed."}
+              ? t("pricing.trialActiveDesc")
+              : t("pricing.startFreeDesc")}
           </p>
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-3 mt-6">
             <span className={`text-sm ${billingCycle === "monthly" ? "text-white font-semibold" : "text-gray-400"}`}>
-              Monthly
+              {t("pricing.monthly")}
             </span>
             <button
               onClick={() => setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly")}
@@ -221,10 +222,10 @@ export default function Pricing() {
               />
             </button>
             <span className={`text-sm ${billingCycle === "yearly" ? "text-white font-semibold" : "text-gray-400"}`}>
-              Yearly
+              {t("pricing.yearly")}
             </span>
             <Badge className="bg-green-500/20 text-green-300 border-green-400/30 text-[10px]">
-              Save 25%
+              {t("pricing.save25")}
             </Badge>
           </div>
         </div>
@@ -265,7 +266,7 @@ export default function Pricing() {
                   {/* Price */}
                   <div className="mb-4">
                     {plan.monthlyPrice === 0 ? (
-                      <span className="text-3xl font-bold text-white">Free</span>
+                      <span className="text-3xl font-bold text-white">{t("pricing.free")}</span>
                     ) : (
                       <>
                         <span className="text-3xl font-bold text-white">
@@ -273,10 +274,10 @@ export default function Pricing() {
                             ? formatPriceMonthly(plan.monthlyPrice)
                             : formatPriceMonthly(plan.yearlyPrice / 12)}
                         </span>
-                        <span className="text-gray-400 text-sm">/mo</span>
+                        <span className="text-gray-400 text-sm">{t("pricing.perMonth")}</span>
                         {billingCycle === "yearly" && (
                           <p className="text-xs text-green-400 mt-1">
-                            {formatPrice(plan.yearlyPrice)} billed yearly
+                            {formatPrice(plan.yearlyPrice)} {t("pricing.billedYearly")}
                           </p>
                         )}
                       </>
@@ -289,7 +290,7 @@ export default function Pricing() {
                       disabled
                       className="w-full h-11 bg-white/10 text-white border border-white/20 cursor-default"
                     >
-                      <Check size={16} className="mr-1" /> Current Plan
+                      <Check size={16} className="mr-1" /> {t("pricing.currentPlan")}
                     </Button>
                   ) : (
                     <Button
@@ -302,7 +303,7 @@ export default function Pricing() {
                       ) : (
                         <Zap size={16} className="mr-1" />
                       )}
-                      {isLoading ? "Activating..." : buttonText}
+                      {isLoading ? t("pricing.activating") : buttonText}
                     </Button>
                   )}
 
@@ -331,46 +332,46 @@ export default function Pricing() {
         <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-500 mb-10">
           <div className="flex items-center gap-1.5">
             <Shield size={14} className="text-green-400" />
-            <span>Secure & Private</span>
+            <span>{t("pricing.securePrivate")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <TrendingUp size={14} className="text-blue-400" />
-            <span>Cancel Anytime</span>
+            <span>{t("pricing.cancelAnytime")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Volume2 size={14} className="text-orange-400" />
-            <span>14-Day Free Trial</span>
+            <span>{t("pricing.trial14Days")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Smartphone size={14} className="text-purple-400" />
-            <span>Works on All Devices</span>
+            <span>{t("pricing.allDevices")}</span>
           </div>
         </div>
 
         {/* FAQ */}
         <div className="max-w-2xl mx-auto">
-          <h3 className="text-lg font-semibold text-white text-center mb-6">Questions? We Have Answers</h3>
+          <h3 className="text-lg font-semibold text-white text-center mb-6">{t("pricing.faqTitle")}</h3>
           <div className="space-y-3">
             {[
               {
-                q: "Can I cancel anytime?",
-                a: "Yes! Cancel from your Settings page whenever you want. You will keep access until the end of your current billing period. No hard feelings!",
+                q: t("pricing.faq1Q"),
+                a: t("pricing.faq1A"),
               },
               {
-                q: "What happens when my trial ends?",
-                a: "We will remind you a few days before. If you choose not to subscribe, your account switches to the Free plan with 20 phrases per day. Your progress is always saved!",
+                q: t("pricing.faq2Q"),
+                a: t("pricing.faq2A"),
               },
               {
-                q: "Can I switch plans later?",
-                a: "Absolutely! Upgrade or downgrade anytime. We automatically handle any price difference.",
+                q: t("pricing.faq3Q"),
+                a: t("pricing.faq3A"),
               },
               {
-                q: "Do you offer school discounts?",
-                a: "Yes! Classroom plans include special educational pricing. Contact us and we will set up a free evaluation for your school.",
+                q: t("pricing.faq4Q"),
+                a: t("pricing.faq4A"),
               },
               {
-                q: "What payment methods do you accept?",
-                a: "All major credit cards, PayPal, and Apple Pay. For Classroom plans, we can also send an invoice.",
+                q: t("pricing.faq5Q"),
+                a: t("pricing.faq5A"),
               },
             ].map((faq, i) => (
               <details
@@ -389,8 +390,8 @@ export default function Pricing() {
 
         {/* Footer */}
         <footer className="text-center text-gray-600 text-xs mt-12 pb-4">
-          <p>Anglotec Academy — Part of the Anglotec AI Apps Family</p>
-          <p className="mt-1">Questions? Contact us at support@anglotec.ai</p>
+          <p>{t("app.family")}</p>
+          <p className="mt-1">{t("pricing.supportEmail")}</p>
         </footer>
       </main>
     </div>

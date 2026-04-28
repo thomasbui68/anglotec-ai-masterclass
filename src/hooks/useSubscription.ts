@@ -246,10 +246,10 @@ export function useSubscription() {
 
 export function formatPrice(cents: number): string {
   if (cents === 0) return "Free";
-  return `$${(cents / 100).toFixed(2)}`;
+  return `£${(cents / 100).toFixed(2)}`;
 }
 
 export function formatPriceMonthly(cents: number): string {
   if (cents === 0) return "Free";
-  return `$${(cents / 100).toFixed(0)}`;
+  return `£${(cents / 100).toFixed(0)}`;
 }

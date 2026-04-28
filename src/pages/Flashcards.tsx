@@ -5,6 +5,8 @@ import { useGamification } from "@/hooks/useGamification";
 import { useProgress, usePhrases } from "@/hooks/useApi";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useSessionRestore } from "@/components/SelfSavingProvider";
+import { useSelfProtecting } from "@/components/SelfProtectingProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,16 +15,17 @@ import { toast } from "sonner";
 import {
   Volume2, CheckCircle, XCircle, ChevronLeft, ChevronRight,
   Home, RotateCcw, Brain, Sparkles, Star, Flame,
-  Zap, Loader2, Lock, ArrowLeft, X, SkipForward
+  Zap, Loader2, Lock, ArrowLeft, X, SkipForward, AlertTriangle
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-// Free user basic categories
 const BASIC_CATEGORIES = [
   "Code Generation", "UI/UX Design", "Content Creation",
   "Business Strategy", "Data Analysis", "Project Management",
 ];
 
 export default function Flashcards() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
@@ -33,6 +36,7 @@ export default function Flashcards() {
   const progressApi = useProgress(user?.id || 0);
   const phraseApi = usePhrases();
   const subscription = useSubscription();
+  const protect = useSelfProtecting();
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -45,6 +49,42 @@ export default function Flashcards() {
   const [phrases, setPhrases] = useState<any[]>([]);
   const [phrasesLoading, setPhrasesLoading] = useState(true);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+
+  // ── Self-Saving Session Restore ──
+  const { checkpoint } = useSessionRestore("flashcards_session");
+
+  // Restore on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("__autosave_flashcards_session");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.data && Date.now() - parsed.savedAt < 30 * 60 * 1000) {
+          // Restore within 30 minutes
+          if (parsed.data.category) setSelectedCategory(parsed.data.category);
+          if (typeof parsed.data.index === "number") setCurrentIndex(parsed.data.index);
+          if (parsed.data.stats) setSessionStats(parsed.data.stats);
+          if (typeof parsed.data.combo === "number") setComboCount(parsed.data.combo);
+        }
+      }
+    } catch {
+      // ignore corrupt save
+    }
+  }, []);
+
+  // Checkpoint every card change
+  const saveCheckpoint = useCallback(() => {
+    checkpoint({
+      category: selectedCategory,
+      index: currentIndex,
+      stats: sessionStats,
+      combo: comboCount,
+    });
+  }, [selectedCategory, currentIndex, sessionStats, comboCount, checkpoint]);
+
+  useEffect(() => {
+    saveCheckpoint();
+  }, [saveCheckpoint]);
 
   const categories = phraseApi.categories ?? [];
   const currentPhrase = phrases[currentIndex];
@@ -129,6 +169,9 @@ export default function Flashcards() {
 
   const handleFeedback = useCallback((isCorrect: boolean) => {
     if (flipped || feedback) return; // Prevent double-tap
+    if (!protect.canAnswer) return; // Rate limiter from SelfProtecting
+    protect.recordAnswer();
+    
     setFlipped(true);
     setFeedback(isCorrect ? "correct" : "wrong");
 
@@ -146,10 +189,10 @@ export default function Flashcards() {
       setComboCount(newCombo);
 
       if (newCombo >= 3) {
-        toast.success(`${newCombo}x Combo! You are on fire!`, { icon: <Flame size={16} className="text-orange-500" /> });
+        toast.success(t("flashcards.comboMessage", { count: newCombo }), { icon: <Flame size={16} className="text-orange-500" /> });
         game.addXp(5);
       }
-      if (newStreak === 10) toast.success("10 in a row! Amazing!", { icon: <Star size={16} className="text-yellow-500" /> });
+      if (newStreak === 10) toast.success(t("flashcards.streakMessage"), { icon: <Star size={16} className="text-yellow-500" /> });
     } else {
       setSessionStats((s) => ({ ...s, incorrect: s.incorrect + 1, streak: 0 }));
       setComboCount(0);
@@ -167,7 +210,7 @@ export default function Flashcards() {
         subscription.recordUsage("sessions_completed", 1);
       }
     }, 1200);
-  }, [currentPhrase, currentIndex, phrases.length, sessionStats, comboCount, game, progressApi, subscription, flipped, feedback]);
+  }, [currentPhrase, currentIndex, phrases.length, sessionStats, comboCount, game, progressApi, subscription, flipped, feedback, protect]);
 
   const nextCard = useCallback(() => {
     if (flipped) return;
@@ -211,14 +254,14 @@ export default function Flashcards() {
             onClick={() => navigate("/")}
             className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 text-sm transition-colors bg-white/5 px-4 py-2 rounded-xl hover:bg-white/10"
           >
-            <ArrowLeft size={18} /> Back to Dashboard
+            <ArrowLeft size={18} /> {t("flashcards.backToDashboard")}
           </button>
           <UpgradePrompt variant="card" />
           <button
             onClick={() => navigate("/pricing")}
             className="w-full mt-4 h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors"
           >
-            See Plans
+            {t("pricing.seePlans")}
           </button>
         </div>
       </div>
@@ -242,29 +285,29 @@ export default function Flashcards() {
               ))}
             </div>
             <h2 className="text-2xl font-bold text-white mb-1">
-              {accuracy >= 90 ? "Outstanding!" : accuracy >= 60 ? "Great Job!" : "Keep Practicing!"}
+              {accuracy >= 90 ? t("flashcards.outstanding") : accuracy >= 60 ? t("flashcards.greatJob") : t("flashcards.keepPracticing")}
             </h2>
-            <p className="text-gray-400 text-sm mb-6">Session Complete</p>
+            <p className="text-gray-400 text-sm mb-6">{t("flashcards.sessionComplete")}</p>
 
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="bg-white/5 rounded-xl p-3">
                 <p className="text-2xl font-bold text-green-400">{sessionStats.correct}</p>
-                <p className="text-xs text-gray-400">Correct</p>
+                <p className="text-xs text-gray-400">{t("flashcards.correct")}</p>
               </div>
               <div className="bg-white/5 rounded-xl p-3">
                 <p className="text-2xl font-bold text-blue-400">{accuracy}%</p>
-                <p className="text-xs text-gray-400">Accuracy</p>
+                <p className="text-xs text-gray-400">{t("flashcards.accuracy")}</p>
               </div>
               <div className="bg-white/5 rounded-xl p-3">
                 <p className="text-2xl font-bold text-orange-400">{sessionStats.bestStreak}</p>
-                <p className="text-xs text-gray-400">Best Streak</p>
+                <p className="text-xs text-gray-400">{t("flashcards.bestStreak")}</p>
               </div>
             </div>
 
             <div className="bg-orange-500/10 border border-orange-400/30 rounded-xl p-3 mb-4">
               <div className="flex items-center justify-center gap-2">
                 <Zap size={16} className="text-orange-400" />
-                <span className="text-sm text-orange-300">+{sessionStats.correct * 10 + (comboCount >= 3 ? comboCount * 5 : 0)} XP earned!</span>
+                <span className="text-sm text-orange-300">+{sessionStats.correct * 10 + (comboCount >= 3 ? comboCount * 5 : 0)} {t("flashcards.xpEarned")}</span>
               </div>
             </div>
 
@@ -272,20 +315,20 @@ export default function Flashcards() {
             <div className="bg-[#1a365d] border border-white/10 rounded-xl p-3 mb-6">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Sparkles size={14} className="text-orange-400" />
-                <span className="text-xs text-orange-400 font-bold tracking-wide">ANGLOTEC AI MASTERCLASS</span>
+                <span className="text-xs text-orange-400 font-bold tracking-wide">{t("masterclass.title")}</span>
               </div>
               <p className="text-xs text-gray-400">
-                {sessionStats.correct} more of 3,000 phrases mastered. Keep building your AI expertise!
+                {sessionStats.correct} {t("flashcards.masteredCount")}
               </p>
             </div>
 
             {/* Primary actions */}
             <div className="space-y-3">
               <Button onClick={restart} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">
-                <RotateCcw className="mr-2" size={18} /> Practice Again
+                <RotateCcw className="mr-2" size={18} /> {t("flashcards.practiceAgain")}
               </Button>
               <Button onClick={() => navigate("/")} className="w-full h-12 bg-white/10 border border-white/20 text-white hover:bg-white/20 font-semibold rounded-xl">
-                <Home size={18} className="mr-2" /> Back to Dashboard
+                <Home size={18} className="mr-2" /> {t("flashcards.backToDashboard")}
               </Button>
             </div>
           </CardContent>
@@ -300,8 +343,8 @@ export default function Flashcards() {
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={40} className="text-orange-400 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading your phrases...</p>
-          <p className="text-gray-500 text-xs mt-2">Anglotec AI Masterclass — 3,000 phrases</p>
+          <p className="text-gray-400">{t("flashcards.loadingPhrases")}</p>
+          <p className="text-gray-500 text-xs mt-2">{t("masterclass.title")} — 3,000 {t("flashcards.phrases")}</p>
         </div>
       </div>
     );
@@ -314,14 +357,14 @@ export default function Flashcards() {
       {showQuitConfirm && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowQuitConfirm(false)}>
           <div className="bg-[#1a2332] border border-white/10 rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-white mb-2">End Session?</h3>
-            <p className="text-sm text-gray-400 mb-6">Your progress so far will be saved. You can come back anytime.</p>
+            <h3 className="text-lg font-bold text-white mb-2">{t("flashcards.endSession")}</h3>
+            <p className="text-sm text-gray-400 mb-6">{t("flashcards.progressSaved")}</p>
             <div className="space-y-2">
               <Button onClick={quitSession} className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">
-                <Home size={16} className="mr-2" /> Back to Dashboard
+                <Home size={16} className="mr-2" /> {t("flashcards.backToDashboard")}
               </Button>
               <Button onClick={() => setShowQuitConfirm(false)} className="w-full h-11 bg-white/10 border border-white/20 text-white hover:bg-white/20 rounded-xl">
-                Keep Learning
+                {t("flashcards.keepLearning")}
               </Button>
             </div>
           </div>
@@ -333,7 +376,7 @@ export default function Flashcards() {
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-bounce">
           <div className="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full px-4 py-2 shadow-xl flex items-center gap-2">
             <Flame size={16} className="text-white" />
-            <span className="text-white font-bold text-sm">{comboCount}x Combo!</span>
+            <span className="text-white font-bold text-sm">{comboCount}x {t("flashcards.combo")}!</span>
           </div>
         </div>
       )}
@@ -358,10 +401,10 @@ export default function Flashcards() {
             <button
               onClick={() => setShowQuitConfirm(true)}
               className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
-              title="Back to Dashboard (ESC)"
+              title={t("flashcards.backToDashboard") + " (ESC)"}
             >
               <X size={16} />
-              <span className="text-xs hidden sm:inline">Exit</span>
+              <span className="text-xs hidden sm:inline">{t("flashcards.quit")}</span>
             </button>
 
             {/* Stats */}
@@ -390,6 +433,30 @@ export default function Flashcards() {
         </div>
       </div>
 
+      {/* Voice error banner — shows when ElevenLabs fails with cause */}
+      {tts.error && (
+        <div className="bg-red-500/10 border-b border-red-400/20 px-4 py-2 flex items-start gap-2">
+          <AlertTriangle size={14} className="text-red-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-red-300 font-medium">{t("flashcards.premiumVoiceError")}</p>
+            <p className="text-[10px] text-red-400/80">{tts.error}</p>
+            {tts.error?.includes("elevenlabs.io/pricing") && (
+              <a
+                href="https://elevenlabs.io/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-orange-400 underline mt-1 inline-block"
+              >
+                {t("flashcards.upgradeVoice")} →
+              </a>
+            )}
+          </div>
+          <button onClick={tts.clearError} className="text-red-400 hover:text-red-300 shrink-0">
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <main className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Category selector with lock indicators */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
@@ -397,7 +464,7 @@ export default function Flashcards() {
             onClick={() => { setSelectedCategory("all"); setCurrentIndex(0); }}
             className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCategory === "all" ? "bg-orange-500 text-white" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
           >
-            All
+            {t("flashcards.all")}
           </button>
           {categories.map((cat) => {
             const isLocked = subscription.tier === "free" && !BASIC_CATEGORIES.includes(cat);
@@ -406,7 +473,7 @@ export default function Flashcards() {
                 key={cat}
                 onClick={() => {
                   if (isLocked) {
-                    toast.info(`Upgrade to Pro to unlock "${cat}"`);
+                    toast.info(t("flashcards.upgradeToUnlock", { category: cat }));
                     return;
                   }
                   setSelectedCategory(cat);
@@ -419,7 +486,7 @@ export default function Flashcards() {
                     ? "bg-white/5 text-gray-600 opacity-60 cursor-not-allowed"
                     : "bg-white/5 text-gray-400 hover:bg-white/10"
                 }`}
-                title={isLocked ? "Pro only" : cat}
+                title={isLocked ? t("flashcards.proOnly") : cat}
               >
                 {isLocked && <Lock size={10} />}
                 {cat}
@@ -434,9 +501,9 @@ export default function Flashcards() {
             <Sparkles size={16} className="text-orange-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-orange-400 font-bold tracking-wide">ANGLOTEC AI MASTERCLASS</p>
+            <p className="text-xs text-orange-400 font-bold tracking-wide">{t("masterclass.title")}</p>
             <p className="text-[10px] text-gray-400 truncate">
-              Phrase {currentIndex + 1} of {phrases.length} &middot; 3,000 phrases total across 12 categories
+              {t("flashcards.phraseOf", { current: currentIndex + 1, total: phrases.length })} &middot; 3,000 {t("flashcards.phrasesTotal")}
             </p>
           </div>
         </div>
@@ -446,7 +513,7 @@ export default function Flashcards() {
           <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-3 mb-4 flex items-start gap-2 animate-in fade-in">
             <Brain size={16} className="text-blue-400 shrink-0 mt-0.5" />
             <p className="text-xs text-blue-300">
-              Tap Listen to hear the phrase, then tap "I Know This" when you remember it, or "Practice More" if you need more time. Press ESC to exit anytime.
+              {t("flashcards.hint")}
             </p>
           </div>
         )}
@@ -481,7 +548,7 @@ export default function Flashcards() {
                 <Button
                   onClick={() => {
                     if (isVoiceLocked) {
-                      toast.info("Voice pronunciation is a Pro feature. Upgrade to unlock!");
+                      toast.info(t("flashcards.voiceProFeature"));
                       return;
                     }
                     playAudio();
@@ -495,22 +562,22 @@ export default function Flashcards() {
                   size="lg"
                 >
                   {isVoiceLocked ? (
-                    <><Lock className="mr-2 h-5 w-5" /> Voice (Pro)</>
+                    <><Lock className="mr-2 h-5 w-5" /> {t("flashcards.voicePro")}</>
                   ) : tts.isSpeaking ? (
-                    <><RotateCcw className="mr-2 h-5 w-5 animate-spin" /> Playing...</>
+                    <><RotateCcw className="mr-2 h-5 w-5 animate-spin" /> {t("flashcards.playing")}</>
                   ) : (
-                    <><Volume2 className="mr-2 h-5 w-5" /> Listen</>
+                    <><Volume2 className="mr-2 h-5 w-5" /> {t("flashcards.listen")}</>
                   )}
                 </Button>
 
                 {!isVoiceLocked && tts.hasConfig && (
                   <Badge variant="secondary" className="mt-2 bg-amber-500/20 text-amber-300 text-[10px] border-0">
-                    <Sparkles size={10} className="mr-1" /> ElevenLabs AI Voice
+                    <Sparkles size={10} className="mr-1" /> {t("flashcards.premiumVoice")}
                   </Badge>
                 )}
 
                 <div className="flex items-center gap-2 mt-4">
-                  <p className="text-xs text-gray-500">Tap a button below after listening</p>
+                  <p className="text-xs text-gray-500">{t("flashcards.tapAfterListening")}</p>
                 </div>
               </div>
             </div>
@@ -523,12 +590,12 @@ export default function Flashcards() {
                 {feedback === "correct" ? (
                   <div className="flex items-center justify-center gap-2">
                     <CheckCircle size={20} className="text-green-400" />
-                    <span className="text-green-300 font-semibold">Great job! +10 XP</span>
+                    <span className="text-green-300 font-semibold">{t("flashcards.greatJobXp")}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <XCircle size={20} className="text-red-400" />
-                    <span className="text-red-300 font-semibold">No worries — keep practicing!</span>
+                    <span className="text-red-300 font-semibold">{t("flashcards.keepPracticing")}</span>
                   </div>
                 )}
               </div>
@@ -543,13 +610,13 @@ export default function Flashcards() {
               onClick={() => handleFeedback(false)}
               className="flex-1 h-14 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 font-semibold rounded-xl text-sm"
             >
-              <XCircle className="mr-2" size={18} /> Practice More
+              <XCircle className="mr-2" size={18} /> {t("flashcards.practiceMore")}
             </Button>
             <Button
               onClick={() => handleFeedback(true)}
               className="flex-1 h-14 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-sm"
             >
-              <CheckCircle className="mr-2" size={18} /> I Know This!
+              <CheckCircle className="mr-2" size={18} /> {t("flashcards.iKnowThis")}
             </Button>
           </div>
         )}
@@ -561,7 +628,7 @@ export default function Flashcards() {
             disabled={currentIndex >= phrases.length - 1 || flipped}
             className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-3 py-2 rounded-lg hover:bg-white/5"
           >
-            <SkipForward size={14} /> Skip Phrase
+            <SkipForward size={14} /> {t("flashcards.skip")}
           </button>
         </div>
 
@@ -572,7 +639,7 @@ export default function Flashcards() {
             disabled={currentIndex === 0 || flipped}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-300"
           >
-            <ChevronLeft size={18} /> <span className="text-sm">Previous</span>
+            <ChevronLeft size={18} /> <span className="text-sm">{t("flashcards.previous")}</span>
           </button>
           <span className="text-xs text-gray-500 font-mono">{currentIndex + 1} / {phrases.length}</span>
           <button
@@ -580,18 +647,18 @@ export default function Flashcards() {
             disabled={currentIndex >= phrases.length - 1 || flipped}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-300"
           >
-            <span className="text-sm">Next</span> <ChevronRight size={18} />
+            <span className="text-sm">{t("flashcards.next")}</span> <ChevronRight size={18} />
           </button>
         </div>
 
         {/* Keyboard shortcuts hint */}
         <p className="text-center text-gray-600 text-[10px] mt-6 hidden sm:block">
-          Shortcuts: Space = Listen | 1 = I Know This | 2 = Practice More | &larr; &rarr; = Navigate | ESC = Exit
+          {t("flashcards.shortcuts")}
         </p>
 
         {/* Footer */}
         <p className="text-center text-gray-600 text-xs mt-4">
-          Anglotec AI Master Class — Part of the Anglotec AI Apps Family
+          {t("app.family")}
         </p>
       </main>
     </div>

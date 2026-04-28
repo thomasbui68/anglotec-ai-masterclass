@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Anglotec AI Master Class</title>
+    <meta name="app-version" content="2.1.0-admin" />
     <meta name="description" content="Master 3,000+ AI prompting phrases with premium voice and gamification. Learn AI like a pro." />
 
     <!-- ===== PWA: Web App Manifest (Chrome, Edge, Firefox, Opera, Samsung) ===== -->
@@ -35,11 +39,17 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/app-icon.png" />
     <link rel="shortcut icon" href="/app-icon-64.png" />
 
-    <!-- ===== Open Graph / Social Sharing ===== -->
-    <meta property="og:title" content="Anglotec AI Master Class" />
-    <meta property="og:description" content="Master 3,000+ AI prompting phrases with premium voice and gamification" />
-    <meta property="og:image" content="/app-icon-192.png" />
-    <meta property="og:type" content="website" />
+    <!-- ===== Plausible Analytics (Privacy-friendly, GDPR compliant, no cookies) ===== -->
+    <script defer data-domain="masterclass.anglotec-ai.com" src="https://plausible.io/js/script.js"></script>
+
+    <!-- ===== Content Security Policy ===== -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://polyfill.io https://plausible.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.elevenlabs.io https://plausible.io; media-src 'self' blob:; worker-src 'self';">
+
+    <!-- ===== Twitter / X Cards ===== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Anglotec AI Master Class" />
+    <meta name="twitter:description" content="Master 3,000+ AI prompting phrases with premium voice and gamification" />
+    <meta name="twitter:image" content="/app-icon-192.png" />
 
     <!-- ===== Old Browser Polyfills (Safari <14, Firefox ESR on old macOS) ===== -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015,es2016,es2017,es2018,es2019,Promise.allSettled,Object.fromEntries,globalThis,Intl"></script>

@@ -3,6 +3,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { OnboardingProvider } from "@/components/Onboarding";
 import { InstallPrompt, StandaloneBadge } from "@/components/InstallPrompt";
+import { CookieConsent } from "@/components/CookieConsent";
+import { LegalFooter } from "@/components/LegalFooter";
+import { SelfAnnouncing } from "@/components/SelfAnnouncing";
+import { SelfReporting } from "@/components/SelfReporting";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -140,6 +144,10 @@ export default function App() {
       <Toaster position="top-center" richColors closeButton />
       <InstallPrompt />
       <StandaloneBadge />
+      <CookieConsent />
+      <LegalFooter />
+      <SelfAnnouncing />
+      <SelfReporting />
     </OnboardingProvider>
   );
 }

@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trophy, Flame, Brain, BookOpen, ArrowLeft, Award, TrendingUp, Calendar, Home, AlertCircle } from "lucide-react";
 import type { Progress as ProgressStats, Achievement } from "@/types";
+import { useTranslation } from "react-i18next";
 
 export default function ProgressPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const progressApi = useProgress(user?.id || 0);
@@ -43,9 +45,9 @@ export default function ProgressPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
-        <div className="text-[#1a365d] animate-pulse mb-4">Loading your progress...</div>
+        <div className="text-[#1a365d] animate-pulse mb-4">{t("progress.loading")}</div>
         <Button onClick={() => navigate("/")} variant="outline" className="mt-4">
-          <Home size={16} className="mr-2" /> Back to Dashboard
+          <Home size={16} className="mr-2" /> {t("flashcards.backToDashboard")}
         </Button>
       </div>
     );
@@ -55,13 +57,13 @@ export default function ProgressPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
         <AlertCircle size={48} className="text-orange-500 mb-4" />
-        <p className="text-gray-600 mb-4">Please sign in to view your progress.</p>
+        <p className="text-gray-600 mb-4">{t("progress.signInRequired")}</p>
         <div className="flex gap-3">
           <Button onClick={() => navigate("/login")} className="bg-orange-500 hover:bg-orange-600 text-white">
-            Sign In
+            {t("nav.login")}
           </Button>
           <Button onClick={() => navigate("/")} variant="outline">
-            <Home size={16} className="mr-2" /> Dashboard
+            <Home size={16} className="mr-2" /> {t("nav.dashboard")}
           </Button>
         </div>
       </div>
@@ -72,11 +74,11 @@ export default function ProgressPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
         <AlertCircle size={48} className="text-orange-500 mb-4" />
-        <p className="text-gray-600 mb-4">Couldn't load your progress right now. Please try again.</p>
+        <p className="text-gray-600 mb-4">{t("progress.loadError")}</p>
         <div className="flex gap-3">
-          <Button onClick={() => window.location.reload()} variant="outline">Retry</Button>
+          <Button onClick={() => window.location.reload()} variant="outline">{t("progress.retry")}</Button>
           <Button onClick={() => navigate("/")} className="bg-orange-500 hover:bg-orange-600 text-white">
-            <Home size={16} className="mr-2" /> Dashboard
+            <Home size={16} className="mr-2" /> {t("nav.dashboard")}
           </Button>
         </div>
       </div>
@@ -90,10 +92,10 @@ export default function ProgressPage() {
   const masteryPercent = Math.round((mastered / total) * 100);
 
   const masteryStages = [
-    { label: "Novice", min: 0, max: 33, color: "bg-gray-400" },
-    { label: "Intermediate", min: 33, max: 66, color: "bg-blue-400" },
-    { label: "Advanced", min: 66, max: 99, color: "bg-purple-500" },
-    { label: "AI Master", min: 99, max: 100, color: "bg-[#d4af37]" },
+    { label: t("progress.novice"), min: 0, max: 33, color: "bg-gray-400" },
+    { label: t("progress.intermediate"), min: 33, max: 66, color: "bg-blue-400" },
+    { label: t("progress.advanced"), min: 66, max: 99, color: "bg-purple-500" },
+    { label: t("progress.aiMaster"), min: 99, max: 100, color: "bg-[#d4af37]" },
   ];
 
   const currentStage = masteryStages.find((s) => masteryPercent >= s.min && masteryPercent < s.max) || masteryStages[3];
@@ -103,11 +105,11 @@ export default function ProgressPage() {
       <header className="bg-[#1a365d] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/app-icon.png" alt="Anglotec" className="h-8 w-8 object-contain rounded-lg" />
-            <span className="font-bold tracking-wider text-sm">PROGRESS & ANALYTICS</span>
+            <img src="/app-icon.png" alt={t("app.name")} className="h-8 w-8 object-contain rounded-lg" />
+            <span className="font-bold tracking-wider text-sm">{t("progress.title")}</span>
           </div>
           <Link to="/dashboard">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10"><ArrowLeft size={18} className="mr-1" />Dashboard</Button>
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10"><ArrowLeft size={18} className="mr-1" />{t("nav.dashboard")}</Button>
           </Link>
         </div>
       </header>
@@ -116,33 +118,33 @@ export default function ProgressPage() {
         <Card className={`mb-8 ${currentStage.color} text-white border-0`}>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-white/80 text-sm uppercase tracking-wider">Current Level</p>
+              <p className="text-white/80 text-sm uppercase tracking-wider">{t("progress.currentLevel")}</p>
               <h2 className="text-3xl font-bold">{currentStage.label}</h2>
-              <p className="text-white/90 mt-1">{masteryPercent}% complete towards AI Mastery</p>
+              <p className="text-white/90 mt-1">{masteryPercent}% {t("progress.completeTowards")}</p>
             </div>
             <Brain size={64} className="text-white/30" />
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><BookOpen className="text-[#1a365d]" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{mastered}</p><p className="text-xs text-gray-500">Mastered</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="text-blue-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{learning}</p><p className="text-xs text-gray-500">Learning</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Calendar className="text-orange-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.active_days || 0}</p><p className="text-xs text-gray-500">Active Days</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Flame className="text-red-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.total_practices || 0}</p><p className="text-xs text-gray-500">Total Practices</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><BookOpen className="text-[#1a365d]" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{mastered}</p><p className="text-xs text-gray-500">{t("progress.mastered")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="text-blue-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{learning}</p><p className="text-xs text-gray-500">{t("progress.learning")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Calendar className="text-orange-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.active_days || 0}</p><p className="text-xs text-gray-500">{t("progress.activeDays")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Flame className="text-red-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.total_practices || 0}</p><p className="text-xs text-gray-500">{t("progress.totalPractices")}</p></div></div></CardContent></Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
-            <CardHeader><CardTitle className="text-lg">Learning Distribution</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">{t("progress.learningDistribution")}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div><div className="flex justify-between text-sm mb-1"><span>Mastered</span><span className="font-semibold">{mastered} ({Math.round((mastered / total) * 100)}%)</span></div><Progress value={(mastered / total) * 100} className="h-2 bg-gray-100" /></div>
-              <div><div className="flex justify-between text-sm mb-1"><span>Learning</span><span className="font-semibold">{learning} ({Math.round((learning / total) * 100)}%)</span></div><Progress value={(learning / total) * 100} className="h-2 bg-gray-100" /></div>
-              <div><div className="flex justify-between text-sm mb-1"><span>New</span><span className="font-semibold">{newCount} ({Math.round((newCount / total) * 100)}%)</span></div><Progress value={(newCount / total) * 100} className="h-2 bg-gray-100" /></div>
+              <div><div className="flex justify-between text-sm mb-1"><span>{t("progress.mastered")}</span><span className="font-semibold">{mastered} ({Math.round((mastered / total) * 100)}%)</span></div><Progress value={(mastered / total) * 100} className="h-2 bg-gray-100" /></div>
+              <div><div className="flex justify-between text-sm mb-1"><span>{t("progress.learning")}</span><span className="font-semibold">{learning} ({Math.round((learning / total) * 100)}%)</span></div><Progress value={(learning / total) * 100} className="h-2 bg-gray-100" /></div>
+              <div><div className="flex justify-between text-sm mb-1"><span>{t("progress.new")}</span><span className="font-semibold">{newCount} ({Math.round((newCount / total) * 100)}%)</span></div><Progress value={(newCount / total) * 100} className="h-2 bg-gray-100" /></div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="text-lg">Mastery Roadmap</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">{t("progress.masteryRoadmap")}</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {masteryStages.map((stage) => (
                 <div key={stage.label} className={`flex items-center gap-3 p-2 rounded-lg ${currentStage.label === stage.label ? "bg-[#d4af37]/10 border border-[#d4af37]" : "bg-gray-50"}`}>
@@ -151,7 +153,7 @@ export default function ProgressPage() {
                     <p className={`font-semibold text-sm ${currentStage.label === stage.label ? "text-[#d4af37]" : "text-gray-700"}`}>{stage.label}</p>
                     <p className="text-xs text-gray-500">{stage.min}% - {stage.max}%</p>
                   </div>
-                  {currentStage.label === stage.label && <Badge className="bg-[#d4af37] text-white">Current</Badge>}
+                  {currentStage.label === stage.label && <Badge className="bg-[#d4af37] text-white">{t("common.current")}</Badge>}
                 </div>
               ))}
             </CardContent>
@@ -160,11 +162,11 @@ export default function ProgressPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2"><Trophy className="text-[#d4af37]" size={20} />Achievements</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2"><Trophy className="text-[#d4af37]" size={20} />{t("progress.achievements")}</CardTitle>
           </CardHeader>
           <CardContent>
             {achievements.length === 0 ? (
-              <div className="text-center py-8 text-gray-500"><Award size={48} className="mx-auto mb-2 text-gray-300" /><p>No achievements yet. Start learning to earn badges!</p></div>
+              <div className="text-center py-8 text-gray-500"><Award size={48} className="mx-auto mb-2 text-gray-300" /><p>{t("progress.noAchievements")}</p></div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {achievements.map((ach) => (
