@@ -380,7 +380,24 @@ const enResources = {
     "faq4A": "Yes! Classroom plans include special educational pricing. Contact us and we will set up a free evaluation for your school.",
     "faq5Q": "What payment methods do you accept?",
     "faq5A": "All major credit cards, PayPal, and Apple Pay. For Classroom plans, we can also send an invoice.",
-    "supportEmail": "Questions? Contact us at support@anglotec.ai"
+    "supportEmail": "Questions? Contact us at support@anglotec.ai",
+    "classroomRequestTitle": "Request Classroom Plan",
+    "classroomRequestDesc": "Tell us about your school or organization. We'll get back to you within 24 hours with a custom quote.",
+    "schoolName": "School / Organization Name",
+    "schoolNamePlaceholder": "e.g. London Academy",
+    "contactName": "Your Name",
+    "contactNamePlaceholder": "e.g. John Smith",
+    "contactEmail": "Email Address",
+    "emailPlaceholder": "you@school.edu",
+    "contactPhone": "Phone Number",
+    "phonePlaceholder": "+44 20 1234 5678",
+    "numberOfStudents": "Number of Students",
+    "additionalMessage": "Additional Message",
+    "messagePlaceholder": "Any specific requirements or questions...",
+    "pleaseFillRequired": "Please fill in all required fields",
+    "classroomRequestSent": "Request sent! Check your email client to send the message.",
+    "requestFailed": "Failed to send request. Please try again.",
+    "sendRequest": "Send Request"
   },
   "tiers": {
     "free": "Free",
@@ -428,7 +445,9 @@ const enResources = {
     "set": "Set",
     "next": "Next",
     "previous": "Previous",
-    "current": "Current"
+    "current": "Current",
+    "cancel": "Cancel",
+    "sending": "Sending..."
   },
   "help": {
     "title": "Help & Support",

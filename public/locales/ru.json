@@ -338,7 +338,24 @@
     "faq4A": "Да! Планы Класс включают образовательные цены. Свяжитесь с нами для бесплатной оценки.",
     "faq5Q": "Какие способы оплаты вы принимаете?",
     "faq5A": "Карты, PayPal и Apple Pay. Для планов Класс мы также выставляем счета.",
-    "supportEmail": "Вопросы? Напишите нам на support@anglotec.ai"
+    "supportEmail": "Вопросы? Напишите нам на support@anglotec.ai",
+    "classroomRequestTitle": "Запросить План Класса",
+    "classroomRequestDesc": "Расскажите нам о вашей школе или организации. Мы ответим в течение 24 часов с индивидуальным предложением.",
+    "schoolName": "Название Школы / Организации",
+    "schoolNamePlaceholder": "напр. Лондонская Академия",
+    "contactName": "Ваше Имя",
+    "contactNamePlaceholder": "напр. Иван Иванов",
+    "contactEmail": "Адрес Электронной Почты",
+    "emailPlaceholder": "вы@школа.edu",
+    "contactPhone": "Номер Телефона",
+    "phonePlaceholder": "+7 901 234 56 78",
+    "numberOfStudents": "Количество Учеников",
+    "additionalMessage": "Дополнительное Сообщение",
+    "messagePlaceholder": "Конкретные требования или вопросы...",
+    "pleaseFillRequired": "Пожалуйста, заполните все обязательные поля",
+    "classroomRequestSent": "Запрос отправлен! Проверьте ваш email-клиент для отправки сообщения.",
+    "requestFailed": "Не удалось отправить запрос. Пожалуйста, попробуйте ещё раз.",
+    "sendRequest": "Отправить Запрос"
   },
   "tiers": {
     "free": "Бесплатно",
@@ -386,7 +403,8 @@
     "set": "Установлено",
     "next": "Далее",
     "previous": "Назад",
-    "current": "Текущий"
+    "current": "Текущий",
+    "sending": "Отправка..."
   },
   "onboarding": {
     "title": "Добро пожаловать в Мастер-класс AI Anglotec",

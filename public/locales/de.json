@@ -338,7 +338,24 @@
     "faq4A": "Ja! Klassenzimmer-Pläne enthalten Bildungspreise. Kontaktiere uns für eine kostenlose Evaluierung.",
     "faq5Q": "Welche Zahlungsmethoden akzeptiert ihr?",
     "faq5A": "Alle gängigen Kreditkarten, PayPal und Apple Pay. Für Klassenzimmer-Pläne senden wir auch Rechnungen.",
-    "supportEmail": "Fragen? Schreib uns an support@anglotec.ai"
+    "supportEmail": "Fragen? Schreib uns an support@anglotec.ai",
+    "classroomRequestTitle": "Klassenraum-Plan Anfragen",
+    "classroomRequestDesc": "Erzählen Sie uns von Ihrer Schule oder Organisation. Wir melden uns innerhalb von 24 Stunden mit einem individuellen Angebot.",
+    "schoolName": "Name der Schule / Organisation",
+    "schoolNamePlaceholder": "z.B. London Academy",
+    "contactName": "Ihr Name",
+    "contactNamePlaceholder": "z.B. Max Mustermann",
+    "contactEmail": "E-Mail-Adresse",
+    "emailPlaceholder": "sie@schule.edu",
+    "contactPhone": "Telefonnummer",
+    "phonePlaceholder": "+49 151 23456789",
+    "numberOfStudents": "Anzahl der Schüler",
+    "additionalMessage": "Zusätzliche Nachricht",
+    "messagePlaceholder": "Spezifische Anforderungen oder Fragen...",
+    "pleaseFillRequired": "Bitte füllen Sie alle Pflichtfelder aus",
+    "classroomRequestSent": "Anfrage gesendet! Überprüfen Sie Ihren E-Mail-Client, um die Nachricht zu senden.",
+    "requestFailed": "Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "sendRequest": "Anfrage Senden"
   },
   "tiers": {
     "free": "Kostenlos",
@@ -386,7 +403,8 @@
     "set": "Gesetzt",
     "next": "Weiter",
     "previous": "Zurück",
-    "current": "Aktuell"
+    "current": "Aktuell",
+    "sending": "Senden..."
   },
   "onboarding": {
     "title": "Willkommen zur Anglotec AI Masterclass",

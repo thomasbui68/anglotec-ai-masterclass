@@ -338,7 +338,24 @@
     "faq4A": "はい！教室プランには教育価格が含まれています。無料評価のためにお問い合わせください。",
     "faq5Q": "どの支払い方法を利用できますか？",
     "faq5A": "主要なクレジットカード、PayPal、Apple Pay。教室プランの場合、請求書も発行できます。",
-    "supportEmail": "質問がありますか？support@anglotec.ai までお問い合わせ"
+    "supportEmail": "質問がありますか？support@anglotec.ai までお問い合わせ",
+    "classroomRequestTitle": "教室プランをリクエスト",
+    "classroomRequestDesc": "学校または組織についてお聞かせください。24時間以内にカスタム見積もりでご連絡いたします。",
+    "schoolName": "学校/組織名",
+    "schoolNamePlaceholder": "例：ロンドン・アカデミー",
+    "contactName": "お名前",
+    "contactNamePlaceholder": "例：山田太郎",
+    "contactEmail": "メールアドレス",
+    "emailPlaceholder": "you@school.edu",
+    "contactPhone": "電話番号",
+    "phonePlaceholder": "+81 90 1234 5678",
+    "numberOfStudents": "生徒数",
+    "additionalMessage": "追加メッセージ",
+    "messagePlaceholder": "特定の要件や質問があれば...",
+    "pleaseFillRequired": "必須項目をすべて入力してください",
+    "classroomRequestSent": "リクエストを送信しました！メールクライアントを確認してメッセージを送信してください。",
+    "requestFailed": "リクエストの送信に失敗しました。もう一度お試しください。",
+    "sendRequest": "リクエストを送信"
   },
   "tiers": {
     "free": "無料",
@@ -386,7 +403,8 @@
     "set": "設定済み",
     "next": "次へ",
     "previous": "前へ",
-    "current": "現在"
+    "current": "現在",
+    "sending": "送信中..."
   },
   "onboarding": {
     "title": "Anglotec AI マスタークラスへようこそ",

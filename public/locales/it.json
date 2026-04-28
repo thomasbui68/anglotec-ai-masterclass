@@ -338,7 +338,24 @@
     "faq4A": "Sì! I piani Classe includono prezzi educativi. Contattaci per una valutazione gratuita.",
     "faq5Q": "Quali metodi di pagamento accettate?",
     "faq5A": "Carte, PayPal e Apple Pay. Per piani Classe inviamo anche fatture.",
-    "supportEmail": "Domande? Scrivici a support@anglotec.ai"
+    "supportEmail": "Domande? Scrivici a support@anglotec.ai",
+    "classroomRequestTitle": "Richiedi Piano Aula",
+    "classroomRequestDesc": "Raccontaci della tua scuola o organizzazione. Ti risponderemo entro 24 ore con un preventivo personalizzato.",
+    "schoolName": "Nome della Scuola / Organizzazione",
+    "schoolNamePlaceholder": "es. Accademia di Londra",
+    "contactName": "Il Tuo Nome",
+    "contactNamePlaceholder": "es. Mario Rossi",
+    "contactEmail": "Indirizzo Email",
+    "emailPlaceholder": "tu@scuola.edu",
+    "contactPhone": "Numero di Telefono",
+    "phonePlaceholder": "+39 312 345 6789",
+    "numberOfStudents": "Numero di Studenti",
+    "additionalMessage": "Messaggio Aggiuntivo",
+    "messagePlaceholder": "Requisiti specifici o domande...",
+    "pleaseFillRequired": "Si prega di compilare tutti i campi obbligatori",
+    "classroomRequestSent": "Richiesta inviata! Controlla il tuo client email per inviare il messaggio.",
+    "requestFailed": "Impossibile inviare la richiesta. Riprova.",
+    "sendRequest": "Invia Richiesta"
   },
   "tiers": {
     "free": "Gratuito",
@@ -386,7 +403,8 @@
     "set": "Impostato",
     "next": "Avanti",
     "previous": "Indietro",
-    "current": "Attuale"
+    "current": "Attuale",
+    "sending": "Invio in corso..."
   },
   "onboarding": {
     "title": "Benvenuto al Masterclass AI Anglotec",

@@ -338,7 +338,24 @@
     "faq4A": "¡Sí! Los planes Aula incluyen precios educativos. Contáctanos para una evaluación.",
     "faq5Q": "¿Qué métodos de pago aceptáis?",
     "faq5A": "Tarjetas, PayPal y Apple Pay. Para planes Aula, también enviamos facturas.",
-    "supportEmail": "¿Preguntas? Escríbenos a support@anglotec.ai"
+    "supportEmail": "¿Preguntas? Escríbenos a support@anglotec.ai",
+    "classroomRequestTitle": "Solicitar Plan Aula",
+    "classroomRequestDesc": "Cuéntanos sobre tu escuela u organización. Te responderemos en 24 horas con una cotización personalizada.",
+    "schoolName": "Nombre de Escuela / Organización",
+    "schoolNamePlaceholder": "ej. Academia Londres",
+    "contactName": "Tu Nombre",
+    "contactNamePlaceholder": "ej. Juan Pérez",
+    "contactEmail": "Correo Electrónico",
+    "emailPlaceholder": "tu@escuela.edu",
+    "contactPhone": "Número de Teléfono",
+    "phonePlaceholder": "+34 612 345 678",
+    "numberOfStudents": "Número de Estudiantes",
+    "additionalMessage": "Mensaje Adicional",
+    "messagePlaceholder": "Cualquier requisito específico o preguntas...",
+    "pleaseFillRequired": "Por favor completa todos los campos obligatorios",
+    "classroomRequestSent": "¡Solicitud enviada! Revisa tu cliente de correo para enviar el mensaje.",
+    "requestFailed": "Error al enviar la solicitud. Inténtalo de nuevo.",
+    "sendRequest": "Enviar Solicitud"
   },
   "tiers": {
     "free": "Gratis",
@@ -386,7 +403,8 @@
     "set": "Configurado",
     "next": "Siguiente",
     "previous": "Anterior",
-    "current": "Actual"
+    "current": "Actual",
+    "sending": "Enviando..."
   },
   "onboarding": {
     "title": "Bienvenido al Masterclass de AI Anglotec",

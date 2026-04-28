@@ -338,7 +338,24 @@
     "faq4A": "Ja! Klaslokaal-plannen bevatten onderwijsprijzen. Neem contact op voor een evaluatie.",
     "faq5Q": "Welke betaalmethoden accepteren jullie?",
     "faq5A": "Alle creditcards, PayPal en Apple Pay. Voor Klaslokaal-plannen sturen we ook facturen.",
-    "supportEmail": "Vragen? Schrijf ons op support@anglotec.ai"
+    "supportEmail": "Vragen? Schrijf ons op support@anglotec.ai",
+    "classroomRequestTitle": "Vraag Klassenplan Aan",
+    "classroomRequestDesc": "Vertel ons over uw school of organisatie. We nemen binnen 24 uur contact op met een offerte op maat.",
+    "schoolName": "Naam van School / Organisatie",
+    "schoolNamePlaceholder": "bijv. Londen Academie",
+    "contactName": "Uw Naam",
+    "contactNamePlaceholder": "bijv. Jan Jansen",
+    "contactEmail": "E-mailadres",
+    "emailPlaceholder": "jij@school.edu",
+    "contactPhone": "Telefoonnummer",
+    "phonePlaceholder": "+31 6 12345678",
+    "numberOfStudents": "Aantal Studenten",
+    "additionalMessage": "Extra Bericht",
+    "messagePlaceholder": "Specifieke vereisten of vragen...",
+    "pleaseFillRequired": "Vul alle verplichte velden in",
+    "classroomRequestSent": "Verzoek verzonden! Controleer uw e-mailclient om het bericht te verzenden.",
+    "requestFailed": "Verzoek kon niet worden verzonden. Probeer het opnieuw.",
+    "sendRequest": "Verzoek Verzenden"
   },
   "tiers": {
     "free": "Gratis",
@@ -386,7 +403,8 @@
     "set": "Ingesteld",
     "next": "Volgende",
     "previous": "Vorige",
-    "current": "Huidig"
+    "current": "Huidig",
+    "sending": "Verzenden..."
   },
   "onboarding": {
     "title": "Welkom bij Anglotec AI Masterclass",

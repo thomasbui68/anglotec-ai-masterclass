@@ -338,7 +338,24 @@
     "faq4A": "是的！教室计划包含教育价格。联系我们安排免费评估。",
     "faq5Q": "你们接受哪些付款方式？",
     "faq5A": "所有主要信用卡、PayPal 和 Apple Pay。对于教室计划，我们也可以发送发票。",
-    "supportEmail": "有问题？联系我们 support@anglotec.ai"
+    "supportEmail": "有问题？联系我们 support@anglotec.ai",
+    "classroomRequestTitle": "申请教室计划",
+    "classroomRequestDesc": "告诉我们您的学校或组织信息。我们将在24小时内回复您并提供定制报价。",
+    "schoolName": "学校/组织名称",
+    "schoolNamePlaceholder": "例如：伦敦学院",
+    "contactName": "您的姓名",
+    "contactNamePlaceholder": "例如：张三",
+    "contactEmail": "电子邮箱",
+    "emailPlaceholder": "you@school.edu",
+    "contactPhone": "电话号码",
+    "phonePlaceholder": "+86 138 0000 0000",
+    "numberOfStudents": "学生人数",
+    "additionalMessage": "附加信息",
+    "messagePlaceholder": "任何具体要求或问题...",
+    "pleaseFillRequired": "请填写所有必填字段",
+    "classroomRequestSent": "请求已发送！请检查您的电子邮件客户端以发送消息。",
+    "requestFailed": "发送请求失败。请重试。",
+    "sendRequest": "发送请求"
   },
   "tiers": {
     "free": "免费",
@@ -386,7 +403,8 @@
     "set": "已设置",
     "next": "下一步",
     "previous": "上一步",
-    "current": "当前"
+    "current": "当前",
+    "sending": "发送中..."
   },
   "onboarding": {
     "title": "欢迎来到 Anglotec AI 大师班",

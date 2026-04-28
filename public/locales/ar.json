@@ -338,7 +338,24 @@
     "faq4A": "نعم! خطط الفصول تشمل أسعارًا تعليمية. تواصل معنا لتقييم مجاني.",
     "faq5Q": "ما طرق الدفع التي تقبلونها؟",
     "faq5A": "بطاقات، PayPal و Apple Pay. لخطط الفصول، نرسل أيضًا فواتير.",
-    "supportEmail": "أسئلة؟ تواصل معنا على support@anglotec.ai"
+    "supportEmail": "أسئلة؟ تواصل معنا على support@anglotec.ai",
+    "classroomRequestTitle": "طلب خطة الفصل",
+    "classroomRequestDesc": "أخبرنا عن مدرستك أو منظمتك. سنعود إليك خلال 24 ساعة بعرض سعر مخصص.",
+    "schoolName": "اسم المدرسة / المنظمة",
+    "schoolNamePlaceholder": "مثال: أكاديمية لندن",
+    "contactName": "اسمك",
+    "contactNamePlaceholder": "مثال: أحمد محمد",
+    "contactEmail": "عنوان البريد الإلكتروني",
+    "emailPlaceholder": "you@school.edu",
+    "contactPhone": "رقم الهاتف",
+    "phonePlaceholder": "+971 50 123 4567",
+    "numberOfStudents": "عدد الطلاب",
+    "additionalMessage": "رسالة إضافية",
+    "messagePlaceholder": "أي متطلبات محددة أو أسئلة...",
+    "pleaseFillRequired": "يرجى ملء جميع الحقول المطلوبة",
+    "classroomRequestSent": "تم إرسال الطلب! تحقق من عميل البريد الإلكتروني لإرسال الرسالة.",
+    "requestFailed": "فشل في إرسال الطلب. يرجى المحاولة مرة أخرى.",
+    "sendRequest": "إرسال الطلب"
   },
   "tiers": {
     "free": "مجاني",
@@ -386,7 +403,8 @@
     "set": "محدد",
     "next": "التالي",
     "previous": "السابق",
-    "current": "الحالي"
+    "current": "الحالي",
+    "sending": "جارٍ الإرسال..."
   },
   "onboarding": {
     "title": "مرحبًا بك في دورة Anglotec AI ماستر",

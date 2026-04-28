@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import {
   Check, Zap, Users, GraduationCap, Crown, ArrowLeft,
   Sparkles, Shield, TrendingUp, Volume2, Smartphone,
-  Star, Loader2, Clock
+  Star, Loader2, Clock, Mail, Building2, Phone, User, MessageSquare, X
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +20,18 @@ export default function Pricing() {
   const subscription = useSubscription();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
+  
+  // Classroom request modal state
+  const [showClassroomModal, setShowClassroomModal] = useState(false);
+  const [classroomForm, setClassroomForm] = useState({
+    schoolName: "",
+    contactName: "",
+    email: "",
+    phone: "",
+    students: "16",
+    message: "",
+  });
+  const [sendingRequest, setSendingRequest] = useState(false);
 
   const PLAN_DETAILS = [
     {
@@ -147,7 +159,7 @@ export default function Pricing() {
     }
 
     if (tier === "classroom") {
-      toast.info(t("pricing.classroomSetup"));
+      setShowClassroomModal(true);
       return;
     }
 
@@ -162,6 +174,37 @@ export default function Pricing() {
       toast.error(err.message || t("errors.generic"));
     } finally {
       setUpgradingTier(null);
+    }
+  };
+  
+  const submitClassroomRequest = async () => {
+    if (!classroomForm.schoolName || !classroomForm.contactName || !classroomForm.email) {
+      toast.error(t("pricing.pleaseFillRequired"));
+      return;
+    }
+    
+    setSendingRequest(true);
+    try {
+      // Send email via mailto as immediate action
+      const subject = encodeURIComponent(`Classroom Plan Request - ${classroomForm.schoolName}`);
+      const body = encodeURIComponent(
+        `School/Organization: ${classroomForm.schoolName}\n` +
+        `Contact Name: ${classroomForm.contactName}\n` +
+        `Email: ${classroomForm.email}\n` +
+        `Phone: ${classroomForm.phone}\n` +
+        `Number of Students: ${classroomForm.students}\n\n` +
+        `Message:\n${classroomForm.message || "No additional message"}`
+      );
+      
+      window.open(`mailto:support@anglotec-ai.com?subject=${subject}&body=${body}`, "_blank");
+      
+      toast.success(t("pricing.classroomRequestSent"));
+      setShowClassroomModal(false);
+      setClassroomForm({ schoolName: "", contactName: "", email: "", phone: "", students: "16", message: "" });
+    } catch {
+      toast.error(t("pricing.requestFailed"));
+    } finally {
+      setSendingRequest(false);
     }
   };
 
@@ -394,6 +437,129 @@ export default function Pricing() {
           <p className="mt-1">{t("pricing.supportEmail")}</p>
         </footer>
       </main>
+
+      {/* Classroom Request Modal */}
+      {showClassroomModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a365d] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">{t("pricing.classroomRequestTitle")}</h3>
+              <button onClick={() => setShowClassroomModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-400 mb-4">{t("pricing.classroomRequestDesc")}</p>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">{t("pricing.schoolName")} *</label>
+                <div className="relative">
+                  <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    value={classroomForm.schoolName}
+                    onChange={(e) => setClassroomForm({ ...classroomForm, schoolName: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    placeholder={t("pricing.schoolNamePlaceholder")}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">{t("pricing.contactName")} *</label>
+                <div className="relative">
+                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    value={classroomForm.contactName}
+                    onChange={(e) => setClassroomForm({ ...classroomForm, contactName: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    placeholder={t("pricing.contactNamePlaceholder")}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">{t("pricing.contactEmail")} *</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="email"
+                    value={classroomForm.email}
+                    onChange={(e) => setClassroomForm({ ...classroomForm, email: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    placeholder={t("pricing.emailPlaceholder")}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">{t("pricing.contactPhone")}</label>
+                <div className="relative">
+                  <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="tel"
+                    value={classroomForm.phone}
+                    onChange={(e) => setClassroomForm({ ...classroomForm, phone: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    placeholder={t("pricing.phonePlaceholder")}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">{t("pricing.numberOfStudents")}</label>
+                <select
+                  value={classroomForm.students}
+                  onChange={(e) => setClassroomForm({ ...classroomForm, students: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-orange-400/50"
+                >
+                  <option value="1-10">1-10 students</option>
+                  <option value="11-16">11-16 students</option>
+                  <option value="17-30">17-30 students</option>
+                  <option value="31-50">31-50 students</option>
+                  <option value="50+">50+ students</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">{t("pricing.additionalMessage")}</label>
+                <div className="relative">
+                  <MessageSquare size={16} className="absolute left-3 top-3 text-gray-500" />
+                  <textarea
+                    value={classroomForm.message}
+                    onChange={(e) => setClassroomForm({ ...classroomForm, message: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50 min-h-[80px] resize-none"
+                    placeholder={t("pricing.messagePlaceholder")}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-5">
+              <Button
+                onClick={() => setShowClassroomModal(false)}
+                className="flex-1 h-11 bg-white/10 text-white hover:bg-white/20"
+              >
+                {t("common.cancel")}
+              </Button>
+              <Button
+                onClick={submitClassroomRequest}
+                disabled={sendingRequest}
+                className="flex-1 h-11 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:opacity-90"
+              >
+                {sendingRequest ? (
+                  <Loader2 size={16} className="animate-spin mr-1" />
+                ) : (
+                  <Mail size={16} className="mr-1" />
+                )}
+                {sendingRequest ? t("common.sending") : t("pricing.sendRequest")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
