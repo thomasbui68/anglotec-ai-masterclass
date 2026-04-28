@@ -67,44 +67,47 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
-            <div>
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <img src="/app-icon.png" alt="" className="h-9 w-9 sm:h-10 sm:w-10 object-contain drop-shadow-lg rounded-xl" />
+            <div className="hidden sm:block">
               <h1 className="text-lg font-bold text-white leading-tight">{t("app.name")}</h1>
               <p className="text-[10px] text-gray-400">{t("app.tagline")}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {(user?.isAdmin || user?.email?.toLowerCase() === "thomasb@anglotec.com") && (
-              <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-1 rounded-full border border-purple-500/30">
-                <ShieldCheck size={12} /> {t("tiers.admin")}
+              <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-1.5 sm:px-2 py-1 rounded-full border border-purple-500/30">
+                <ShieldCheck size={12} />
+                <span className="hidden sm:inline">{t("tiers.admin")}</span>
               </span>
             )}
             {subscription.tier === "free" && !(user?.isAdmin || user?.email?.toLowerCase() === "thomasb@anglotec.com") && (
               <button
                 onClick={() => navigate("/pricing")}
-                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
+                className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
               >
-                <Gem size={14} /> {t("settings.upgradePro")}
+                <Gem size={12} className="sm:w-[14px] sm:h-[14px]" />
+                <span className="hidden sm:inline">{t("settings.upgradePro")}</span>
               </button>
             )}
-            <Link to="/help" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
-              <HelpCircle size={20} />
+            <Link to="/help" className="p-1.5 sm:p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white" title={t("nav.help")}>
+              <HelpCircle size={18} className="sm:w-5 sm:h-5" />
             </Link>
             <LanguageSelector />
-            <Link to="/settings" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
-              <Settings size={20} />
+            <Link to="/settings" className="p-1.5 sm:p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white" title={t("nav.settings")}>
+              <Settings size={18} className="sm:w-5 sm:h-5" />
             </Link>
             <button
               onClick={() => {
                 logout();
                 navigate("/login");
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-colors text-xs font-bold"
-              title="Exit / Log Out"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-colors text-xs font-bold"
+              title={t("nav.exit")}
             >
-              <LogOut size={16} /> {t("nav.exit")}
+              <LogOut size={16} />
+              <span className="hidden sm:inline">{t("nav.exit")}</span>
             </button>
           </div>
         </div>

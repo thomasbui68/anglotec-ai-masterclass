@@ -31,12 +31,12 @@ export function LanguageSelector() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-white/80 hover:text-white text-xs"
+        className="flex items-center gap-1 px-1.5 sm:px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-white/80 hover:text-white text-xs"
         title="Change language"
       >
         <span className="text-base leading-none">{current.flag}</span>
-        <span className="font-bold uppercase tracking-wider">{current.code}</span>
-        <Globe size={13} className="ml-0.5 opacity-60" />
+        <span className="font-bold uppercase tracking-wider hidden sm:inline">{current.code}</span>
+        <Globe size={13} className="ml-0.5 opacity-60 hidden sm:inline" />
       </button>
 
       {open && (
