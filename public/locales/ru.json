@@ -84,7 +84,7 @@
   "dashboard": {
     "welcome": "С возвращением",
     "level": "Уровень",
-    "xp": "XP",
+    "xp": "Опыт",
     "streak": "Серия",
     "bestStreak": "Лучшая серия",
     "todayProgress": "Прогресс сегодня",
@@ -95,7 +95,15 @@
     "categories": "12 Категорий — 3,000 Фраз",
     "overallProgress": "Общий прогресс",
     "quickStart": "Начните ваш Мастер-класс AI!",
-    "quickStartDesc": "3,000 фраз в 12 категориях ждут вас."
+    "quickStartDesc": "3,000 фраз в 12 категориях ждут вас.",
+    "streakMessage": "Серия {{count}} дней! Так держать!",
+    "learned": "Изучено",
+    "practicing": "На Практике",
+    "dailyGoalComplete": "Дневная цель достигнута!",
+    "practiceMore": "Попрактикуйтесь ещё {{count}} раз, чтобы достичь дневной цели",
+    "keepMastering": "Продолжайте Осваивать AI!",
+    "masteredCount": "Вы освоили {{count}} из 3 000 фраз. Вы на пути к экспертности в AI!",
+    "total": "всего"
   },
   "flashcards": {
     "listen": "Слушать",
@@ -290,7 +298,8 @@
       "classAnalytics": "Аналитика класса",
       "assignmentBuilder": "Конструктор заданий",
       "gradebookExport": "Экспорт оценок",
-      "customOnboarding": "Пользовательский онбординг"
+      "customOnboarding": "Пользовательский онбординг",
+      "moreWithPro": "еще с Pro"
     },
     "seePlans": "Посмотреть планы",
     "freeDesc": "Начните с базового доступа",

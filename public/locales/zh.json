@@ -84,7 +84,7 @@
   "dashboard": {
     "welcome": "欢迎回来",
     "level": "等级",
-    "xp": "XP",
+    "xp": "经验值",
     "streak": "连胜",
     "bestStreak": "最佳连胜",
     "todayProgress": "今日进度",
@@ -95,7 +95,15 @@
     "categories": "12 个类别 — 3,000 个短语",
     "overallProgress": "总体进度",
     "quickStart": "开始你的 AI 大师班！",
-    "quickStartDesc": "12 个类别中的 3,000 个短语正在等待你。"
+    "quickStartDesc": "12 个类别中的 3,000 个短语正在等待你。",
+    "streakMessage": "连续 {{count}} 天！继续保持！",
+    "learned": "已学习",
+    "practicing": "练习中",
+    "dailyGoalComplete": "每日目标完成！",
+    "practiceMore": "再练习 {{count}} 个即可达到每日目标",
+    "keepMastering": "继续精通 AI！",
+    "masteredCount": "您已掌握 3,000 个短语中的 {{count}} 个。您正在成为 AI 专家的路上！",
+    "total": "总计"
   },
   "flashcards": {
     "listen": "听",
@@ -290,7 +298,8 @@
       "classAnalytics": "班级分析",
       "assignmentBuilder": "作业构建器",
       "gradebookExport": "成绩簿导出",
-      "customOnboarding": "自定义入职流程"
+      "customOnboarding": "自定义入职流程",
+      "moreWithPro": "更多专业版功能"
     },
     "seePlans": "查看计划",
     "freeDesc": "从基本访问开始",

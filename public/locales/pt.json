@@ -95,7 +95,15 @@
     "categories": "12 Categorias — 3.000 Frases",
     "overallProgress": "Progresso Geral",
     "quickStart": "Inicie sua Masterclass de IA!",
-    "quickStartDesc": "3.000 frases em 12 categorias esperam por você."
+    "quickStartDesc": "3.000 frases em 12 categorias esperam por você.",
+    "streakMessage": "Sequência de {{count}} dias! Continue assim!",
+    "learned": "Aprendidas",
+    "practicing": "Praticando",
+    "dailyGoalComplete": "Meta diária completa!",
+    "practiceMore": "Pratique mais {{count}} para atingir sua meta diária",
+    "keepMastering": "Continue Dominando a IA!",
+    "masteredCount": "Você dominou {{count}} de 3.000 frases. Está a caminho de se tornar um especialista em IA!",
+    "total": "total"
   },
   "flashcards": {
     "listen": "Ouvir",
@@ -290,7 +298,8 @@
       "classAnalytics": "Análises de turma",
       "assignmentBuilder": "Construtor de tarefas",
       "gradebookExport": "Exportação de notas",
-      "customOnboarding": "Onboarding personalizado"
+      "customOnboarding": "Onboarding personalizado",
+      "moreWithPro": "mais com Pro"
     },
     "seePlans": "Ver Planos",
     "freeDesc": "Comece com acesso básico",

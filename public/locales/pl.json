@@ -95,7 +95,15 @@
     "categories": "12 Kategorii — 3.000 Zwrotów",
     "overallProgress": "Ogólny Postęp",
     "quickStart": "Rozpocznij swój Masterclass AI!",
-    "quickStartDesc": "3.000 zwrotów w 12 kategoriach czeka na Ciebie."
+    "quickStartDesc": "3.000 zwrotów w 12 kategoriach czeka na Ciebie.",
+    "streakMessage": "Seria {{count}} dni! Tak trzymaj!",
+    "learned": "Nauczone",
+    "practicing": "W Praktyce",
+    "dailyGoalComplete": "Cel dzienny osiągnięty!",
+    "practiceMore": "Ćwicz jeszcze {{count}}, aby osiągnąć cel dzienny",
+    "keepMastering": "Kontynuuj Opanowywanie AI!",
+    "masteredCount": "Opanowałeś {{count}} z 3 000 fraz. Jesteś na drodze do zostania ekspertem AI!",
+    "total": "razem"
   },
   "flashcards": {
     "listen": "Słuchaj",
@@ -290,7 +298,8 @@
       "classAnalytics": "Analizy klasy",
       "assignmentBuilder": "Kreator zadań",
       "gradebookExport": "Eksport dziennika",
-      "customOnboarding": "Własny onboarding"
+      "customOnboarding": "Własny onboarding",
+      "moreWithPro": "więcej z Pro"
     },
     "seePlans": "Zobacz Plany",
     "freeDesc": "Zacznij z podstawowym dostępem",

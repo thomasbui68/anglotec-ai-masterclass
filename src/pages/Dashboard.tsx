@@ -71,14 +71,14 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
-              <h1 className="text-lg font-bold text-white leading-tight">Anglotec AI</h1>
-              <p className="text-[10px] text-gray-400">AI Master Class</p>
+              <h1 className="text-lg font-bold text-white leading-tight">{t("app.name")}</h1>
+              <p className="text-[10px] text-gray-400">{t("app.tagline")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {(user?.isAdmin || user?.email?.toLowerCase() === "thomasb@anglotec.com") && (
               <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-1 rounded-full border border-purple-500/30">
-                <ShieldCheck size={12} /> ADMIN
+                <ShieldCheck size={12} /> {t("tiers.admin")}
               </span>
             )}
             {subscription.tier === "free" && !(user?.isAdmin || user?.email?.toLowerCase() === "thomasb@anglotec.com") && (
@@ -86,7 +86,7 @@ export default function Dashboard() {
                 onClick={() => navigate("/pricing")}
                 className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
               >
-                <Gem size={14} /> Upgrade
+                <Gem size={14} /> {t("settings.upgradePro")}
               </button>
             )}
             <Link to="/help" className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white">
@@ -104,7 +104,7 @@ export default function Dashboard() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-colors text-xs font-bold"
               title="Exit / Log Out"
             >
-              <LogOut size={16} /> Exit
+              <LogOut size={16} /> {t("nav.exit")}
             </button>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function Dashboard() {
             </h2>
             <p className="text-gray-400 text-sm mt-1">
               {game.streak > 0
-                ? `${game.streak}-day streak! ${t("common.continue")}`
+                ? t("dashboard.streakMessage", { count: game.streak })
                 : t("dashboard.startLearning")}
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function Dashboard() {
             {user?.email?.toLowerCase() === "thomasb@anglotec.com" ? (
               <div className="flex items-center gap-1.5">
                 <ShieldCheck size={14} className="text-purple-400" />
-                <span className="text-xs font-bold text-purple-400">ADMIN</span>
+                <span className="text-xs font-bold text-purple-400">{t("tiers.admin")}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
@@ -148,7 +148,7 @@ export default function Dashboard() {
                 <span className="text-xs font-bold" style={{ color: game.rankInfo.color }}>{game.rankInfo.name}</span>
               </div>
             )}
-            <p className="text-[10px] text-gray-400">Level {game.level}</p>
+            <p className="text-[10px] text-gray-400">{t("dashboard.level")} {game.level}</p>
             {subscription.isPaid && (
               <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 text-[10px] mt-1">
                 <Crown size={10} className="mr-0.5" /> {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
@@ -167,23 +167,23 @@ export default function Dashboard() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles size={14} className="text-orange-400" />
-                <p className="text-orange-400 font-bold text-xs tracking-widest uppercase">Anglotec AI Masterclass</p>
+                <p className="text-orange-400 font-bold text-xs tracking-widest uppercase">{t("masterclass.title")}</p>
                 <Sparkles size={14} className="text-orange-400" />
               </div>
               <p className="text-white font-bold text-lg leading-tight">
-                Master All <span className="text-orange-400">3,000 AI Prompting Phrases</span>
+                {t("masterclass.headline")}
               </p>
               <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-                12 expert categories — from beginner to AI power-user. Your complete AI training curriculum starts here.
+                {t("masterclass.subtitle")}
               </p>
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center gap-1 text-xs text-gray-300">
                   <BookOpen size={12} className="text-blue-400" />
-                  <span>{stats.mastered} / 3,000 learned</span>
+                  <span>{stats.mastered.toLocaleString()} / 3,000 {t("masterclass.learned")}</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-gray-300">
                   <Target size={12} className="text-green-400" />
-                  <span>{Math.max(0, 3000 - stats.mastered)} remaining</span>
+                  <span>{Math.max(0, 3000 - stats.mastered).toLocaleString()} {t("masterclass.remaining")}</span>
                 </div>
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Zap size={16} className="text-yellow-400" />
-                <span className="text-sm font-semibold text-white">Level {game.level}</span>
+                <span className="text-sm font-semibold text-white">{t("dashboard.level")} {game.level}</span>
               </div>
               <span className="text-xs text-gray-400">{game.xp} / {game.xpForNextLevel || 100} XP</span>
             </div>
@@ -204,7 +204,7 @@ export default function Dashboard() {
               <div className="h-full bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full transition-all duration-1000" style={{ width: animated ? `${game.xpPercent}%` : "0%" }} />
             </div>
             {game.nextRank && (
-              <p className="text-[10px] text-gray-500 mt-1 text-right">Next: {game.nextRank.name} at Level {game.nextRank.level}</p>
+              <p className="text-[10px] text-gray-500 mt-1 text-right">{t("dashboard.nextRank", { rank: game.nextRank.name, level: game.nextRank.level })}</p>
             )}
           </CardContent>
         </Card>
@@ -212,10 +212,10 @@ export default function Dashboard() {
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Learned", value: stats.mastered, icon: BookOpen, color: "text-green-400", bg: "bg-green-400/10" },
-            { label: "Practicing", value: stats.learning, icon: Flame, color: "text-orange-400", bg: "bg-orange-400/10" },
-            { label: "Streak", value: game.streak, icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-400/10" },
-            { label: "XP", value: `${game.xp}/${game.xpForNextLevel || 100}`, icon: Star, color: "text-yellow-400", bg: "bg-yellow-400/10" },
+            { label: t("dashboard.learned"), value: stats.mastered, icon: BookOpen, color: "text-green-400", bg: "bg-green-400/10" },
+            { label: t("dashboard.practicing"), value: stats.learning, icon: Flame, color: "text-orange-400", bg: "bg-orange-400/10" },
+            { label: t("dashboard.streak"), value: game.streak, icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-400/10" },
+            { label: t("dashboard.xp"), value: `${game.xp}/${game.xpForNextLevel || 100}`, icon: Star, color: "text-yellow-400", bg: "bg-yellow-400/10" },
           ].map((s, i) => (
             <Card key={s.label} className="bg-white/5 border-white/10 backdrop-blur hover:bg-white/10 transition-all duration-300 hover:scale-105">
               <CardContent className="p-3 text-center" style={{ opacity: animated ? 1 : 0, transform: animated ? "translateY(0)" : "translateY(10px)", transition: `all 0.5s ease ${i * 100}ms` }}>
@@ -235,7 +235,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Target size={16} className="text-orange-400" />
-                <span className="text-sm font-semibold text-white">Daily Goal</span>
+                <span className="text-sm font-semibold text-white">{t("settings.dailyGoal")}</span>
               </div>
               <span className="text-xs text-orange-300">{game.dailyProgress} / {game.dailyGoal || 10}</span>
             </div>
@@ -243,9 +243,9 @@ export default function Dashboard() {
               <div className="h-full bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full transition-all duration-1000" style={{ width: animated ? `${dailyPercent}%` : "0%" }} />
             </div>
             {dailyPercent >= 100 ? (
-              <p className="text-xs text-green-400 mt-2 flex items-center gap-1"><Star size={12} /> Daily goal complete!</p>
+              <p className="text-xs text-green-400 mt-2 flex items-center gap-1"><Star size={12} /> {t("dashboard.dailyGoalComplete")}</p>
             ) : (
-              <p className="text-xs text-gray-400 mt-2">Practice {Math.max(0, (game.dailyGoal || 10) - game.dailyProgress)} more to reach your daily goal</p>
+              <p className="text-xs text-gray-400 mt-2">{t("dashboard.practiceMore", { count: Math.max(0, (game.dailyGoal || 10) - game.dailyProgress) })}</p>
             )}
           </CardContent>
         </Card>
@@ -261,15 +261,15 @@ export default function Dashboard() {
               </div>
             </div>
             <h3 className="text-xl font-bold text-white mb-1">
-              {stats.mastered > 0 ? "Keep Mastering AI!" : "Start Your AI Masterclass!"}
+              {stats.mastered > 0 ? t("dashboard.keepMastering") : t("dashboard.quickStart")}
             </h3>
             <p className="text-white/80 text-sm mb-4">
               {stats.mastered > 0
-                ? `You've mastered ${stats.mastered} of 3,000 phrases. You're on your way to becoming an AI expert!`
-                : "3,000 AI prompting phrases across 12 categories await. Your journey to AI mastery begins now!"}
+                ? t("dashboard.masteredCount", { count: stats.mastered })
+                : t("dashboard.quickStartDesc")}
             </p>
             <Button onClick={() => navigate("/flashcards")} className="h-14 px-8 bg-white text-orange-600 hover:bg-orange-50 font-bold text-lg rounded-xl shadow-lg">
-              Start Learning <ChevronRight size={20} className="ml-1" />
+              {t("dashboard.startLearning")} <ChevronRight size={20} className="ml-1" />
             </Button>
           </div>
         </div>
@@ -277,10 +277,10 @@ export default function Dashboard() {
         {/* Categories */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-            <BrainCircuit size={18} className="text-orange-400" /> 12 Categories — 3,000 Phrases Total
+            <BrainCircuit size={18} className="text-orange-400" /> {t("dashboard.categories")}
             {subscription.tier === "free" && categories.length > 6 && (
               <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-400/30 text-[10px] ml-2">
-                {categories.length - 6} more with Pro
+                {categories.length - 6} {t("pricing.features.moreWithPro")}
               </Badge>
             )}
           </h3>
@@ -330,7 +330,7 @@ export default function Dashboard() {
                     </div>
                     <p className="text-sm font-semibold text-white leading-tight">{cat}</p>
                     <p className="text-[10px] text-gray-400 mt-1">
-                      {isLocked ? "Pro only" : "250 phrases"}
+                      {isLocked ? t("flashcards.proOnly") : `250 ${t("flashcards.phrases")}`}
                     </p>
                   </button>
                 );
@@ -348,7 +348,7 @@ export default function Dashboard() {
         <Card className="bg-white/5 border-white/10 backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-300">Overall Progress</span>
+              <span className="text-sm font-medium text-gray-300">{t("dashboard.overallProgress")}</span>
               <span className="text-sm font-bold text-white">{masteredPercent}%</span>
             </div>
             <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
@@ -356,15 +356,15 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between text-xs text-gray-500 mt-2">
               <span>0</span>
-              <span>{stats.mastered} learned</span>
-              <span>{stats.total_phrases} total</span>
+              <span>{stats.mastered} {t("masterclass.learned")}</span>
+              <span>{stats.total_phrases} {t("dashboard.total")}</span>
             </div>
           </CardContent>
         </Card>
 
         {/* Footer */}
         <footer className="text-center text-gray-600 text-xs pb-4 pt-2">
-          <p>Anglotec Academy — Part of the Anglotec AI Apps Family</p>
+          <p>{t("app.family")}</p>
         </footer>
       </main>
     </div>

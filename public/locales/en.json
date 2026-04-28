@@ -95,7 +95,15 @@
     "categories": "12 Categories — 3,000 Phrases Total",
     "overallProgress": "Overall Progress",
     "quickStart": "Start Your AI Masterclass!",
-    "quickStartDesc": "3,000 AI prompting phrases across 12 categories await. Your journey to AI mastery begins now!"
+    "quickStartDesc": "3,000 AI prompting phrases across 12 categories await. Your journey to AI mastery begins now!",
+    "streakMessage": "{{count}}-day streak! Keep it up!",
+    "learned": "Learned",
+    "practicing": "Practicing",
+    "dailyGoalComplete": "Daily goal complete!",
+    "practiceMore": "Practice {{count}} more to reach your daily goal",
+    "keepMastering": "Keep Mastering AI!",
+    "masteredCount": "You've mastered {{count}} of 3,000 phrases. You're on your way to becoming an AI expert!",
+    "total": "total"
   },
   "flashcards": {
     "listen": "Listen",
@@ -294,7 +302,8 @@
       "classAnalytics": "Class analytics",
       "assignmentBuilder": "Assignment builder",
       "gradebookExport": "Gradebook export",
-      "customOnboarding": "Custom onboarding"
+      "customOnboarding": "Custom onboarding",
+      "moreWithPro": "more with Pro"
     },
     "seePlans": "See Plans",
     "freeDesc": "Start learning with basic access",

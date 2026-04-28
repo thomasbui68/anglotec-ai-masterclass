@@ -95,7 +95,15 @@
     "categories": "12カテゴリ — 3,000フレーズ",
     "overallProgress": "全体の進捗",
     "quickStart": "AIマスタークラスを開始！",
-    "quickStartDesc": "12カテゴリの3,000フレーズがあなたを待っています。"
+    "quickStartDesc": "12カテゴリの3,000フレーズがあなたを待っています。",
+    "streakMessage": "{{count}}日連続！その調子！",
+    "learned": "習得済み",
+    "practicing": "練習中",
+    "dailyGoalComplete": "毎日の目標達成！",
+    "practiceMore": "あと{{count}}回練習すると毎日の目標達成です",
+    "keepMastering": "AIマスターを続けましょう！",
+    "masteredCount": "3,000フレーズのうち{{count}}フレーズを習得しました。AIエキスパートへの道を歩んでいます！",
+    "total": "合計"
   },
   "flashcards": {
     "listen": "聴く",
@@ -290,7 +298,8 @@
       "classAnalytics": "クラス分析",
       "assignmentBuilder": "課題ビルダー",
       "gradebookExport": "成績簿エクスポート",
-      "customOnboarding": "カスタムオンボーディング"
+      "customOnboarding": "カスタムオンボーディング",
+      "moreWithPro": "Proでさらに多く"
     },
     "seePlans": "プランを見る",
     "freeDesc": "基本アクセスから開始",

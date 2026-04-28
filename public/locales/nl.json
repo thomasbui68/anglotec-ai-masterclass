@@ -95,7 +95,15 @@
     "categories": "12 Categorieën — 3.000 Zinnen",
     "overallProgress": "Algehele Voortgang",
     "quickStart": "Start je AI Masterclass!",
-    "quickStartDesc": "3.000 zinnen in 12 categorieën wachten op je."
+    "quickStartDesc": "3.000 zinnen in 12 categorieën wachten op je.",
+    "streakMessage": "{{count}}-dag streak! Ga zo door!",
+    "learned": "Geleerd",
+    "practicing": "Oefenend",
+    "dailyGoalComplete": "Dagelijks doel behaald!",
+    "practiceMore": "Oefen nog {{count}} meer om je dagelijkse doel te bereiken",
+    "keepMastering": "Blijf AI Beheersen!",
+    "masteredCount": "Je hebt {{count}} van 3.000 zinnen beheerst. Je wordt een AI-expert!",
+    "total": "totaal"
   },
   "flashcards": {
     "listen": "Luisteren",
@@ -290,7 +298,8 @@
       "classAnalytics": "Klas-analyses",
       "assignmentBuilder": "Opdrachtbouwer",
       "gradebookExport": "Cijferlijst-export",
-      "customOnboarding": "Aangepast onboarding"
+      "customOnboarding": "Aangepast onboarding",
+      "moreWithPro": "meer met Pro"
     },
     "seePlans": "Plannen bekijken",
     "freeDesc": "Start met basis-toegang",

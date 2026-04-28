@@ -84,7 +84,7 @@
   "dashboard": {
     "welcome": "مرحبًا بعودتك",
     "level": "المستوى",
-    "xp": "XP",
+    "xp": "نقاط خبرة",
     "streak": "السلسلة",
     "bestStreak": "أفضل سلسلة",
     "todayProgress": "تقدم اليوم",
@@ -95,7 +95,15 @@
     "categories": "12 فئة — 3,000 عبارة",
     "overallProgress": "التقدم العام",
     "quickStart": "ابدأ دورة AI الخاصة بك!",
-    "quickStartDesc": "3,000 عبارة في 12 فئة تنتظرك."
+    "quickStartDesc": "3,000 عبارة في 12 فئة تنتظرك.",
+    "streakMessage": "سلسلة {{count}} أيام! استمر هكذا!",
+    "learned": "تم تعلمها",
+    "practicing": "قيد الممارسة",
+    "dailyGoalComplete": "تم تحقيق الهدف اليومي!",
+    "practiceMore": "تدرب على {{count}} أخرى للوصول إلى هدفك اليومي",
+    "keepMastering": "استمر في إتقان الذكاء الاصطناعي!",
+    "masteredCount": "لقد أتقنت {{count}} من 3,000 عبارة. أنت في طريقك لتصبح خبيرًا في الذكاء الاصطناعي!",
+    "total": "الإجمالي"
   },
   "flashcards": {
     "listen": "استمع",
@@ -290,7 +298,8 @@
       "classAnalytics": "تحليلات الفصل",
       "assignmentBuilder": "منشئ الواجبات",
       "gradebookExport": "تصدير دفتر الدرجات",
-      "customOnboarding": "توجيه مخصص"
+      "customOnboarding": "توجيه مخصص",
+      "moreWithPro": "المزيد مع Pro"
     },
     "seePlans": "عرض الخطط",
     "freeDesc": "ابدأ بوصول أساسي",

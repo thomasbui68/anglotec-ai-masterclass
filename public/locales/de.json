@@ -95,7 +95,15 @@
     "categories": "12 Kategorien — 3.000 Phrasen",
     "overallProgress": "Gesamtfortschritt",
     "quickStart": "Starte deine KI-Masterclass!",
-    "quickStartDesc": "3.000 Phrasen in 12 Kategorien warten auf dich."
+    "quickStartDesc": "3.000 Phrasen in 12 Kategorien warten auf dich.",
+    "streakMessage": "{{count}}-Tage-Streak! Mach weiter so!",
+    "learned": "Gelernt",
+    "practicing": "Übend",
+    "dailyGoalComplete": "Tagesziel erreicht!",
+    "practiceMore": "Übe noch {{count}} mehr, um dein Tagesziel zu erreichen",
+    "keepMastering": "Bleib dran bei KI!",
+    "masteredCount": "Du hast {{count}} von 3.000 Phrasen gemeistert. Du wirst zum KI-Experten!",
+    "total": "gesamt"
   },
   "flashcards": {
     "listen": "Anhören",
@@ -290,7 +298,8 @@
       "classAnalytics": "Klassen-Analysen",
       "assignmentBuilder": "Aufgabenersteller",
       "gradebookExport": "Notenbuch-Export",
-      "customOnboarding": "Benutzerdefiniertes Onboarding"
+      "customOnboarding": "Benutzerdefiniertes Onboarding",
+      "moreWithPro": "mehr mit Pro"
     },
     "seePlans": "Pläne anzeigen",
     "freeDesc": "Starte mit Basis-Zugriff",
