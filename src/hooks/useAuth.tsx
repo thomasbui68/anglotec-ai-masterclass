@@ -171,10 +171,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(async (data: RegisterData) => {
     if (!isSupabaseReady) throw new Error("Supabase is not configured. Please set up your project credentials.");
 
+    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/#/login` : "https://masterclass.anglotec-ai.com/#/login";
+
     const { data: authData, error } = await supabase.auth.signUp({
       email: data.email.trim(),
       password: data.password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           display_name: data.displayName || data.email.split("@")[0],
           phone: data.phone,
