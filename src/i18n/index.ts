@@ -346,6 +346,7 @@ const enResources = {
       "gradebookExport": "Gradebook export",
       "customOnboarding": "Custom onboarding",
       "moreWithPro": "more with Pro",
+      "students": "students",
       "team50": "Up to 50 team members",
       "ssoSaml": "SSO & SAML integration",
       "managerDashboard": "Manager analytics dashboard",

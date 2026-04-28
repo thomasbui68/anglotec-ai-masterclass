@@ -374,7 +374,8 @@
     "government": "Rząd",
     "governmentDesc": "Niestandardowe warunki dla sektora publicznego. Rezydencja danych, gotowość do zamówień, nieograniczeni użytkownicy, dedykowany opiekun.",
     "forOrganizations": "Dla Organizacji",
-    "forGovernment": "Dla Rządu"
+    "forGovernment": "Dla Rządu",
+    "students": "uczniowie"
   },
   "tiers": {
     "free": "Darmowy",

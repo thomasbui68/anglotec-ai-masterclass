@@ -374,7 +374,8 @@
     "government": "Overheid",
     "governmentDesc": "Aangepaste voorwaarden voor de publieke sector. Dataresidentie, inkoopklaar, onbeperkte gebruikers, dedicated account manager.",
     "forOrganizations": "Voor Organisaties",
-    "forGovernment": "Voor Overheid"
+    "forGovernment": "Voor Overheid",
+    "students": "studenten"
   },
   "tiers": {
     "free": "Gratis",

@@ -320,7 +320,7 @@ export default function Pricing() {
         </div>
 
         {/* Plan Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           {PLAN_DETAILS.map((plan) => {
             const Icon = plan.icon;
             const isCurrentPlan = subscription.tier === plan.tier && !inTrial;
@@ -561,11 +561,11 @@ export default function Pricing() {
                   onChange={(e) => setClassroomForm({ ...classroomForm, students: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-orange-400/50"
                 >
-                  <option value="1-10">1-10 students</option>
-                  <option value="11-16">11-16 students</option>
-                  <option value="17-30">17-30 students</option>
-                  <option value="31-50">31-50 students</option>
-                  <option value="50+">50+ students</option>
+                  <option value="1-10">1-10 {t("pricing.students")}</option>
+                  <option value="11-16">11-16 {t("pricing.students")}</option>
+                  <option value="17-30">17-30 {t("pricing.students")}</option>
+                  <option value="31-50">31-50 {t("pricing.students")}</option>
+                  <option value="50+">50+ {t("pricing.students")}</option>
                 </select>
               </div>
               

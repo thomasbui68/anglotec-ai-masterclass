@@ -374,7 +374,8 @@
     "government": "Governo",
     "governmentDesc": "Termos personalizados para o setor público. Residência de dados, pronto para aquisições, usuários ilimitados, gerente de conta dedicado.",
     "forOrganizations": "Para Organizações",
-    "forGovernment": "Para Governo"
+    "forGovernment": "Para Governo",
+    "students": "estudantes"
   },
   "tiers": {
     "free": "Grátis",

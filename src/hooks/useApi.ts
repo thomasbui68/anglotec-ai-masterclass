@@ -49,7 +49,15 @@ export function usePhrases() {
   }, [isReady]);
 
   // Cloud error fallback — if tRPC errors, use local data
-  const cloudError = categoriesQuery.isError || listQuery.isError;
+  const [trpcTimeout, setTrpcTimeout] = useState(false);
+  useEffect(() => {
+    if (categoriesQuery.isLoading || listQuery.isLoading) {
+      const timer = setTimeout(() => setTrpcTimeout(true), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [categoriesQuery.isLoading, listQuery.isLoading]);
+
+  const cloudError = categoriesQuery.isError || listQuery.isError || trpcTimeout;
   const useLocalData = isLocal || !isAuthenticated || cloudError;
 
   const categories = useMemo(() => {
