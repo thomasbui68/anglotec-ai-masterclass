@@ -36,9 +36,9 @@ export function usePhrases() {
     limit: 50,
   });
 
-  // Populate local data when mode is local or not authenticated
+  // Populate local data — ALWAYS load as fallback, regardless of mode
   useEffect(() => {
-    if ((isLocal || !isAuthenticated) && isReady) {
+    if (isReady) {
       try {
         setLocalCategories(localPhrases.getCategories());
         setLocalPhrasesData(localPhrases.getAll(undefined, undefined, 1, 50));
@@ -46,7 +46,7 @@ export function usePhrases() {
         console.error("Failed to load local phrases:", e);
       }
     }
-  }, [isLocal, isReady, isAuthenticated]);
+  }, [isReady]);
 
   // Cloud error fallback — if tRPC errors, use local data
   const cloudError = categoriesQuery.isError || listQuery.isError;
@@ -54,12 +54,16 @@ export function usePhrases() {
 
   const categories = useMemo(() => {
     if (useLocalData) return localCategories;
-    return categoriesQuery.data ?? [];
+    return (categoriesQuery.data && (categoriesQuery.data as string[]).length > 0)
+      ? categoriesQuery.data
+      : localCategories;
   }, [useLocalData, localCategories, categoriesQuery.data]);
 
   const phrases = useMemo(() => {
     if (useLocalData) return localPhrasesData;
-    return listQuery.data ?? { phrases: [] as any[], total: 0, page: 1, limit: 50 };
+    const cloud = listQuery.data;
+    if (cloud && cloud.phrases && cloud.phrases.length > 0) return cloud;
+    return localPhrasesData;
   }, [useLocalData, localPhrasesData, listQuery.data]);
 
   const isLoading = isReady && !isLocal && !cloudError && categoriesQuery.isLoading;
