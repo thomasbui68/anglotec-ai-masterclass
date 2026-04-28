@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { TRPCProvider } from "@/providers/trpc";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -15,27 +14,25 @@ import App from "./App";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <SelfTestingProvider>
-        <SelfDiagnosticProvider>
-          <SelfProtectingProvider>
-            <SelfCleaningProvider>
-              <SelfResilientProvider>
-                <TRPCProvider>
-                  <AuthProvider>
-                    <SelfSavingProvider>
-                      <SelfDegradingProvider>
-                        <App />
-                      </SelfDegradingProvider>
-                    </SelfSavingProvider>
-                  </AuthProvider>
-                </TRPCProvider>
-              </SelfResilientProvider>
-            </SelfCleaningProvider>
-          </SelfProtectingProvider>
-        </SelfDiagnosticProvider>
-      </SelfTestingProvider>
-    </ErrorBoundary>
-  </StrictMode>
+  <ErrorBoundary>
+    <SelfTestingProvider>
+      <SelfDiagnosticProvider>
+        <SelfProtectingProvider>
+          <SelfCleaningProvider>
+            <SelfResilientProvider>
+              <TRPCProvider>
+                <AuthProvider>
+                  <SelfSavingProvider>
+                    <SelfDegradingProvider>
+                      <App />
+                    </SelfDegradingProvider>
+                  </SelfSavingProvider>
+                </AuthProvider>
+              </TRPCProvider>
+            </SelfResilientProvider>
+          </SelfCleaningProvider>
+        </SelfProtectingProvider>
+      </SelfDiagnosticProvider>
+    </SelfTestingProvider>
+  </ErrorBoundary>
 );
