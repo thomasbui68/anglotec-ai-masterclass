@@ -51,7 +51,7 @@ export default function Help() {
         <div className="text-center mb-8">
           <HelpCircle size={48} className="mx-auto text-orange-500 mb-3" />
           <h2 className="text-2xl font-bold text-[#1a365d]">{t("help.heading")}</h2>
-          <p className="text-gray-500 mt-1">{t("help.subheading")}</p>
+          <p className="text-gray-300 mt-1">{t("help.subheading")}</p>
         </div>
 
         <Card className="mb-6 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
@@ -60,7 +60,7 @@ export default function Help() {
               <Mail size={20} className="text-orange-600 shrink-0 mt-1" />
               <div>
                 <p className="font-semibold text-[#1a365d]">{t("help.contactTitle")}</p>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-gray-300 mt-1">
                   {t("help.contactDesc")}{" "}
                   <a href="mailto:support@anglotec-ai.com" className="text-orange-600 hover:text-orange-700 font-medium underline">support@anglotec-ai.com</a>
                 </p>
@@ -79,7 +79,7 @@ export default function Help() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm text-gray-600 leading-relaxed">{faq.a}</p>
+                <p className="text-sm text-gray-300 leading-relaxed">{faq.a}</p>
               </CardContent>
             </Card>
           ))}

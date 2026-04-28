@@ -42,7 +42,7 @@ export default function Settings() {
         <div className="text-white text-center max-w-sm">
           <Info size={48} className="mx-auto mb-4 text-orange-400" />
           <h2 className="text-xl font-bold mb-2">{t("settings.pleaseSignIn")}</h2>
-          <p className="text-gray-400 mb-6">{t("settings.signInRequired")}</p>
+          <p className="text-gray-300 mb-6">{t("settings.signInRequired")}</p>
           <Button onClick={() => navigate("/login")} className="bg-orange-500 hover:bg-orange-600 h-12 px-6">
             {t("settings.goToSignIn")}
           </Button>
@@ -146,35 +146,35 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-gray-500 text-sm">{t("auth.email")}</span>
+              <span className="text-gray-300 text-sm">{t("auth.email")}</span>
               <span className="font-semibold text-[#1a365d]">{user.email}</span>
             </div>
             {user?.backupEmail && (
               <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-500 text-sm">{t("settings.backupEmail")}</span>
+                <span className="text-gray-300 text-sm">{t("settings.backupEmail")}</span>
                 <span className="font-semibold text-[#1a365d]">{user.backupEmail}</span>
               </div>
             )}
             {user?.phoneNumber && (
               <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-500 text-sm">{t("auth.phone")}</span>
+                <span className="text-gray-300 text-sm">{t("auth.phone")}</span>
                 <span className="font-semibold text-[#1a365d]">{user.phoneNumber}</span>
               </div>
             )}
             <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-gray-500 text-sm">{t("settings.emailStatus")}</span>
+              <span className="text-gray-300 text-sm">{t("settings.emailStatus")}</span>
               <Badge className={user?.emailVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
                 {user?.emailVerified ? <><CheckCircle size={12} className="mr-1" /> {t("settings.verified")}</> : t("settings.unverified")}
               </Badge>
             </div>
             {user?.securityQuestion && (
               <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-500 text-sm">{t("settings.recoveryQuestion")}</span>
+                <span className="text-gray-300 text-sm">{t("settings.recoveryQuestion")}</span>
                 <Badge className="bg-green-100 text-green-700"><CheckCircle size={12} className="mr-1" /> {t("common.set")}</Badge>
               </div>
             )}
             <div className="flex justify-between items-center py-2">
-              <span className="text-gray-500 text-sm">{t("settings.accountType")}</span>
+              <span className="text-gray-300 text-sm">{t("settings.accountType")}</span>
               <span className={`font-semibold ${user?.email?.toLowerCase() === "thomasb@anglotec.com" ? "text-purple-600" : "text-[#1a365d]"}`}>
                 {user?.email?.toLowerCase() === "thomasb@anglotec.com" ? t("tiers.admin") : t("tiers.learner")}
               </span>
@@ -218,7 +218,7 @@ export default function Settings() {
                       </Badge>
                     )}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-300">
                     {subscription.isPaid
                       ? t("settings.unlimitedAccess")
                       : inTrial
@@ -296,12 +296,12 @@ export default function Settings() {
                 ? "bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200"
                 : "bg-gray-50 border-gray-200"
             }`}>
-              <Sparkles size={18} className={`shrink-0 mt-0.5 ${tts.hasConfig ? "text-amber-600" : "text-gray-400"}`} />
+              <Sparkles size={18} className={`shrink-0 mt-0.5 ${tts.hasConfig ? "text-amber-600" : "text-gray-300"}`} />
               <div>
                 <p className="text-sm font-semibold text-gray-800">
                   {tts.hasConfig ? t("settings.premiumVoiceActive") : t("settings.premiumVoiceSoon")}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-300 mt-0.5">
                   {tts.hasConfig
                     ? t("settings.usingVoice", { voice: tts.voices.find(v => v.key === tts.currentVoice)?.name || "Rachel" })
                     : t("settings.addVoiceKey")}
@@ -324,7 +324,7 @@ export default function Settings() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-gray-400">
+                <p className="text-[10px] text-gray-300">
                   {t("settings.voiceTrained")}
                 </p>
               </div>
@@ -484,8 +484,8 @@ export default function Settings() {
                 {t("settings.adminDesc")}
               </p>
               <div className="bg-white rounded-lg p-3 space-y-2">
-                <p className="text-xs font-bold text-gray-500 uppercase">{t("settings.viewAs")}</p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs font-bold text-gray-300 uppercase">{t("settings.viewAs")}</p>
+                <p className="text-xs text-gray-300">
                   {t("settings.viewAsDesc")}
                 </p>
                 <div className="flex gap-2">

@@ -375,7 +375,8 @@
     "governmentDesc": "Conditions personnalisées pour le secteur public. Résidence des données, prêt pour les achats, utilisateurs illimités, responsable de compte dédié.",
     "forOrganizations": "Pour Organisations",
     "forGovernment": "Pour Gouvernement",
-    "students": "étudiants"
+    "students": "étudiants",
+    "customPricing": "Tarification Sur Mesure"
   },
   "tiers": {
     "free": "Gratuit",

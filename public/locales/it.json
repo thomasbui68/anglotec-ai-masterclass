@@ -375,7 +375,8 @@
     "governmentDesc": "Termini personalizzati per il settore pubblico. Residenza dati, pronto per gli acquisti, utenti illimitati, account manager dedicato.",
     "forOrganizations": "Per Organizzazioni",
     "forGovernment": "Per Governo",
-    "students": "studenti"
+    "students": "studenti",
+    "customPricing": "Prezzo Personalizzato"
   },
   "tiers": {
     "free": "Gratuito",

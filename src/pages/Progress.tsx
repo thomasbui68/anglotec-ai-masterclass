@@ -57,7 +57,7 @@ export default function ProgressPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
         <AlertCircle size={48} className="text-orange-500 mb-4" />
-        <p className="text-gray-600 mb-4">{t("progress.signInRequired")}</p>
+        <p className="text-gray-300 mb-4">{t("progress.signInRequired")}</p>
         <div className="flex gap-3">
           <Button onClick={() => navigate("/login")} className="bg-orange-500 hover:bg-orange-600 text-white">
             {t("nav.login")}
@@ -74,7 +74,7 @@ export default function ProgressPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white flex flex-col items-center justify-center p-4">
         <AlertCircle size={48} className="text-orange-500 mb-4" />
-        <p className="text-gray-600 mb-4">{t("progress.loadError")}</p>
+        <p className="text-gray-300 mb-4">{t("progress.loadError")}</p>
         <div className="flex gap-3">
           <Button onClick={() => window.location.reload()} variant="outline">{t("progress.retry")}</Button>
           <Button onClick={() => navigate("/")} className="bg-orange-500 hover:bg-orange-600 text-white">
@@ -127,10 +127,10 @@ export default function ProgressPage() {
         </Card>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><BookOpen className="text-[#1a365d]" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{mastered}</p><p className="text-xs text-gray-500">{t("progress.mastered")}</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="text-blue-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{learning}</p><p className="text-xs text-gray-500">{t("progress.learning")}</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Calendar className="text-orange-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.active_days || 0}</p><p className="text-xs text-gray-500">{t("progress.activeDays")}</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Flame className="text-red-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.total_practices || 0}</p><p className="text-xs text-gray-500">{t("progress.totalPractices")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><BookOpen className="text-[#1a365d]" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{mastered}</p><p className="text-xs text-gray-300">{t("progress.mastered")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="text-blue-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{learning}</p><p className="text-xs text-gray-300">{t("progress.learning")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Calendar className="text-orange-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.active_days || 0}</p><p className="text-xs text-gray-300">{t("progress.activeDays")}</p></div></div></CardContent></Card>
+          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Flame className="text-red-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.total_practices || 0}</p><p className="text-xs text-gray-300">{t("progress.totalPractices")}</p></div></div></CardContent></Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -151,7 +151,7 @@ export default function ProgressPage() {
                   <div className={`w-4 h-4 rounded-full ${stage.color}`} />
                   <div className="flex-1">
                     <p className={`font-semibold text-sm ${currentStage.label === stage.label ? "text-[#d4af37]" : "text-gray-700"}`}>{stage.label}</p>
-                    <p className="text-xs text-gray-500">{stage.min}% - {stage.max}%</p>
+                    <p className="text-xs text-gray-300">{stage.min}% - {stage.max}%</p>
                   </div>
                   {currentStage.label === stage.label && <Badge className="bg-[#d4af37] text-white">{t("common.current")}</Badge>}
                 </div>
@@ -166,7 +166,7 @@ export default function ProgressPage() {
           </CardHeader>
           <CardContent>
             {achievements.length === 0 ? (
-              <div className="text-center py-8 text-gray-500"><Award size={48} className="mx-auto mb-2 text-gray-300" /><p>{t("progress.noAchievements")}</p></div>
+              <div className="text-center py-8 text-gray-300"><Award size={48} className="mx-auto mb-2 text-gray-300" /><p>{t("progress.noAchievements")}</p></div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {achievements.map((ach) => (
@@ -174,7 +174,7 @@ export default function ProgressPage() {
                     <div className="w-10 h-10 rounded-full bg-[#d4af37]/20 flex items-center justify-center"><Award size={20} className="text-[#d4af37]" /></div>
                     <div>
                       <p className="font-semibold text-sm text-[#1a365d]">{ach.badgeName}</p>
-                      <p className="text-xs text-gray-500">{new Date(ach.earnedAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-300">{new Date(ach.earnedAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))}

@@ -95,7 +95,7 @@ export default function Register() {
         <div className="text-center mb-6">
           <img src="/app-icon.png" alt={t("app.name")} className="h-16 w-16 object-contain mx-auto mb-3 drop-shadow-lg rounded-2xl" />
           <h1 className="text-2xl font-bold text-white">{t("auth.createAccount")}</h1>
-          <p className="text-gray-400 text-sm">{t("auth.joinMasterclass")}</p>
+          <p className="text-gray-300 text-sm">{t("auth.joinMasterclass")}</p>
         </div>
 
         {/* Masterclass Banner */}
@@ -117,7 +117,7 @@ export default function Register() {
               <div key={s.num} className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                   step === s.num ? "bg-orange-500 text-white" :
-                  step > s.num ? "bg-green-500 text-white" : "bg-white/10 text-gray-400"
+                  step > s.num ? "bg-green-500 text-white" : "bg-white/10 text-gray-300"
                 }`}>
                   {step > s.num ? <CheckCircle size={16} /> : s.num}
                 </div>
@@ -140,10 +140,10 @@ export default function Register() {
         {/* Back / Cancel */}
         {!registrationComplete && (
           <div className="flex items-center justify-between mb-4">
-            <button onClick={handleBack} className={`text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors ${step === 1 ? "invisible" : ""}`}>
+            <button onClick={handleBack} className={`text-sm text-gray-300 hover:text-white flex items-center gap-1 transition-colors ${step === 1 ? "invisible" : ""}`}>
               <ArrowLeft size={16} /> {t("common.back")}
             </button>
-            <button onClick={() => navigate("/login")} className="text-sm text-gray-400 hover:text-white transition-colors">
+            <button onClick={() => navigate("/login")} className="text-sm text-gray-300 hover:text-white transition-colors">
               {t("common.cancel")}
             </button>
           </div>
@@ -158,7 +158,7 @@ export default function Register() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-800">{t("auth.verifyEmail")}</h3>
-                <p className="text-gray-500 text-sm mt-2">
+                <p className="text-gray-300 text-sm mt-2">
                   {t("auth.verificationSent")} <strong>{email}</strong>
                 </p>
               </div>
@@ -178,7 +178,7 @@ export default function Register() {
                   {t("nav.login")}
                 </Button>
               </div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-300">
                 {t("auth.checkSpam")}
               </p>
             </CardContent>
@@ -193,10 +193,10 @@ export default function Register() {
                   <div className="space-y-2">
                     <Label>{t("auth.email")}</Label>
                     <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" required />
-                    <p className="text-xs text-gray-500">{t("auth.verificationLinkSent")}</p>
+                    <p className="text-xs text-gray-300">{t("auth.verificationLinkSent")}</p>
                   </div>
                   <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">{t("common.continue")} <ArrowRight size={18} className="ml-2" /></Button>
-                  <p className="text-center text-sm text-gray-500">
+                  <p className="text-center text-sm text-gray-300">
                     {t("auth.hasAccount")} <Link to="/login" className="text-orange-600 font-bold">{t("nav.login")}</Link>
                   </p>
                 </CardContent>
@@ -212,14 +212,14 @@ export default function Register() {
                     <Label>{t("auth.password")}</Label>
                     <div className="relative">
                       <Input type={showPassword ? "text" : "password"} placeholder={t("auth.passwordRequirements")} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pr-10" />
-                      <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" type="button">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                      <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-300" type="button">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                     </div>
                     {password && (
                       <div className="space-y-1 text-xs">
-                        <p className={password.length >= 8 ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.req8Chars")}</p>
-                        <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.reqUppercase")}</p>
-                        <p className={/[a-z]/.test(password) ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.reqLowercase")}</p>
-                        <p className={/[0-9]/.test(password) ? "text-green-600" : "text-gray-400"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.reqNumber")}</p>
+                        <p className={password.length >= 8 ? "text-green-600" : "text-gray-300"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.req8Chars")}</p>
+                        <p className={/[A-Z]/.test(password) ? "text-green-600" : "text-gray-300"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.reqUppercase")}</p>
+                        <p className={/[a-z]/.test(password) ? "text-green-600" : "text-gray-300"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.reqLowercase")}</p>
+                        <p className={/[0-9]/.test(password) ? "text-green-600" : "text-gray-300"}><CheckCircle size={12} className="inline mr-1" /> {t("auth.reqNumber")}</p>
                       </div>
                     )}
                   </div>
@@ -227,7 +227,7 @@ export default function Register() {
                     <Label>{t("auth.confirmPassword")}</Label>
                     <div className="relative">
                       <Input type={showConfirmPassword ? "text" : "password"} placeholder={t("auth.reEnterPassword")} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="h-12 pr-10" />
-                      <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" type="button">{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                      <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-300" type="button">{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                     </div>
                     {confirmPassword && (passwordsMatch ? <p className="text-xs text-green-600">{t("auth.passwordsMatch")}</p> : <p className="text-xs text-red-500">{t("auth.passwordsNoMatch")}</p>)}
                   </div>
@@ -247,13 +247,13 @@ export default function Register() {
                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User size={20} className="text-orange-500" /> {t("auth.yourProfile")}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>{t("auth.displayName")} <span className="text-gray-400">({t("common.optional")})</span></Label>
+                    <Label>{t("auth.displayName")} <span className="text-gray-300">({t("common.optional")})</span></Label>
                     <Input placeholder={t("auth.displayName")} value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="h-12" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="flex items-center gap-1"><Phone size={14} /> {t("auth.phone")} <span className="text-gray-400">({t("common.optional")})</span></Label>
+                    <Label className="flex items-center gap-1"><Phone size={14} /> {t("auth.phone")} <span className="text-gray-300">({t("common.optional")})</span></Label>
                     <Input type="tel" placeholder="+1 234 567 8900" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" />
-                    <p className="text-xs text-gray-500">{t("auth.phoneDesc")}</p>
+                    <p className="text-xs text-gray-300">{t("auth.phoneDesc")}</p>
                   </div>
                   <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">{t("common.continue")} <ArrowRight size={18} className="ml-2" /></Button>
                 </CardContent>
@@ -266,12 +266,12 @@ export default function Register() {
                 <CardHeader><CardTitle className="text-lg">{t("common.confirm")}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <div className="bg-gray-50 rounded-xl p-4 space-y-3 text-sm">
-                    <div className="flex justify-between"><span className="text-gray-500">{t("auth.email")}</span><span className="font-medium">{email}</span></div>
-                    {displayName && <div className="flex justify-between"><span className="text-gray-500">{t("auth.displayName")}</span><span className="font-medium">{displayName}</span></div>}
-                    {phone && <div className="flex justify-between"><span className="text-gray-500">{t("auth.phone")}</span><span className="font-medium">{phone}</span></div>}
-                    <div className="flex justify-between"><span className="text-gray-500">{t("auth.securityQuestion")}</span><span className="font-medium">{securityQuestion ? t("common.set") : t("common.notSet")}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-300">{t("auth.email")}</span><span className="font-medium">{email}</span></div>
+                    {displayName && <div className="flex justify-between"><span className="text-gray-300">{t("auth.displayName")}</span><span className="font-medium">{displayName}</span></div>}
+                    {phone && <div className="flex justify-between"><span className="text-gray-300">{t("auth.phone")}</span><span className="font-medium">{phone}</span></div>}
+                    <div className="flex justify-between"><span className="text-gray-300">{t("auth.securityQuestion")}</span><span className="font-medium">{securityQuestion ? t("common.set") : t("common.notSet")}</span></div>
                   </div>
-                  <p className="text-xs text-gray-500">{t("pricing.terms")}</p>
+                  <p className="text-xs text-gray-300">{t("pricing.terms")}</p>
                   <Button onClick={handleRegister} disabled={isLoading} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-xl shadow-lg">
                     {isLoading ? t("common.loading") : t("auth.createAccount")}
                   </Button>

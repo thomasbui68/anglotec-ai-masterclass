@@ -101,7 +101,7 @@ export default function Login() {
           <img src="/app-icon.png" alt={t("app.name")} className="h-20 w-20 object-contain mx-auto mb-4 drop-shadow-lg rounded-2xl" />
           <h1 className="text-3xl font-bold text-white tracking-wide">{t("app.name")}</h1>
           <p className="text-orange-400 text-lg font-medium mt-1">{t("app.tagline")}</p>
-          <p className="text-gray-400 text-sm mt-2">{t("app.family")}</p>
+          <p className="text-gray-300 text-sm mt-2">{t("app.family")}</p>
         </div>
 
         {/* Masterclass Value Proposition */}
@@ -113,7 +113,7 @@ export default function Login() {
           <p className="text-white text-sm font-semibold leading-relaxed">
             {t("masterclass.headline")}
           </p>
-          <p className="text-gray-400 text-xs mt-1">
+          <p className="text-gray-300 text-xs mt-1">
             {t("masterclass.subtitle")}
           </p>
         </div>
@@ -190,7 +190,7 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-300"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -230,7 +230,7 @@ export default function Login() {
                       onChange={(e) => setEmail(e.target.value)}
                       className="h-12 rounded-xl border-gray-200"
                     />
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-300">
                       {t("auth.faceIdDesc")}
                     </p>
                   </div>
@@ -246,7 +246,7 @@ export default function Login() {
             </Tabs>
 
             <div className="text-center pt-2 border-t">
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-300 text-sm">
                 {t("auth.noAccount")}{" "}
                 <Link to="/register" className="text-orange-600 hover:text-orange-700 font-bold">
                   {t("auth.createAccount")} →

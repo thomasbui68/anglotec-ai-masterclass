@@ -375,7 +375,8 @@
     "governmentDesc": "公共部門向けカスタム条件。データレジデンシー、調達対応、無制限ユーザー、専任アカウントマネージャー。",
     "forOrganizations": "組織向け",
     "forGovernment": "政府向け",
-    "students": "生徒"
+    "students": "生徒",
+    "customPricing": "カスタム価格"
   },
   "tiers": {
     "free": "無料",

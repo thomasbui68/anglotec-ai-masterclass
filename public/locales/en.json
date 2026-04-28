@@ -379,7 +379,8 @@
     "governmentDesc": "Custom terms for public sector. Data residency, procurement-ready, unlimited users, dedicated account manager.",
     "forOrganizations": "For Organizations",
     "forGovernment": "For Government",
-    "students": "students"
+    "students": "students",
+    "customPricing": "Custom Pricing"
   },
   "tiers": {
     "free": "Free",

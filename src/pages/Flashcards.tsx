@@ -249,10 +249,10 @@ export default function Flashcards() {
   if (subscription.tier === "free" && quota.remaining <= 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-2xl">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 text-sm transition-colors bg-white/5 px-4 py-2 rounded-xl hover:bg-white/10"
+            className="flex items-center gap-2 text-gray-300 hover:text-white mb-6 text-sm transition-colors bg-white/5 px-4 py-2 rounded-xl hover:bg-white/10"
           >
             <ArrowLeft size={18} /> {t("flashcards.backToDashboard")}
           </button>
@@ -281,26 +281,26 @@ export default function Flashcards() {
           <CardContent className="p-8 text-center">
             <div className="flex justify-center gap-2 mb-4">
               {[1, 2, 3].map((s) => (
-                <Star key={s} size={40} className={s <= stars ? "text-yellow-400 fill-yellow-400" : "text-gray-600"} />
+                <Star key={s} size={40} className={s <= stars ? "text-yellow-400 fill-yellow-400" : "text-gray-300"} />
               ))}
             </div>
             <h2 className="text-2xl font-bold text-white mb-1">
               {accuracy >= 90 ? t("flashcards.outstanding") : accuracy >= 60 ? t("flashcards.greatJob") : t("flashcards.keepPracticing")}
             </h2>
-            <p className="text-gray-400 text-sm mb-6">{t("flashcards.sessionComplete")}</p>
+            <p className="text-gray-300 text-sm mb-6">{t("flashcards.sessionComplete")}</p>
 
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="bg-white/5 rounded-xl p-3">
                 <p className="text-2xl font-bold text-green-400">{sessionStats.correct}</p>
-                <p className="text-xs text-gray-400">{t("flashcards.correct")}</p>
+                <p className="text-xs text-gray-300">{t("flashcards.correct")}</p>
               </div>
               <div className="bg-white/5 rounded-xl p-3">
                 <p className="text-2xl font-bold text-blue-400">{accuracy}%</p>
-                <p className="text-xs text-gray-400">{t("flashcards.accuracy")}</p>
+                <p className="text-xs text-gray-300">{t("flashcards.accuracy")}</p>
               </div>
               <div className="bg-white/5 rounded-xl p-3">
                 <p className="text-2xl font-bold text-orange-400">{sessionStats.bestStreak}</p>
-                <p className="text-xs text-gray-400">{t("flashcards.bestStreak")}</p>
+                <p className="text-xs text-gray-300">{t("flashcards.bestStreak")}</p>
               </div>
             </div>
 
@@ -317,7 +317,7 @@ export default function Flashcards() {
                 <Sparkles size={14} className="text-orange-400" />
                 <span className="text-xs text-orange-400 font-bold tracking-wide">{t("masterclass.title")}</span>
               </div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-300">
                 {sessionStats.correct} {t("flashcards.masteredCount")}
               </p>
             </div>
@@ -343,8 +343,8 @@ export default function Flashcards() {
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={40} className="text-orange-400 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">{t("flashcards.loadingPhrases")}</p>
-          <p className="text-gray-500 text-xs mt-2">{t("masterclass.title")} — 3,000 {t("flashcards.phrases")}</p>
+          <p className="text-gray-300">{t("flashcards.loadingPhrases")}</p>
+          <p className="text-gray-300 text-xs mt-2">{t("masterclass.title")} — 3,000 {t("flashcards.phrases")}</p>
         </div>
       </div>
     );
@@ -356,9 +356,9 @@ export default function Flashcards() {
       {/* Quit confirmation modal */}
       {showQuitConfirm && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowQuitConfirm(false)}>
-          <div className="bg-[#1a2332] border border-white/10 rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#1a2332] border border-white/10 rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-white mb-2">{t("flashcards.endSession")}</h3>
-            <p className="text-sm text-gray-400 mb-6">{t("flashcards.progressSaved")}</p>
+            <p className="text-sm text-gray-300 mb-6">{t("flashcards.progressSaved")}</p>
             <div className="space-y-2">
               <Button onClick={quitSession} className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl">
                 <Home size={16} className="mr-2" /> {t("flashcards.backToDashboard")}
@@ -400,7 +400,7 @@ export default function Flashcards() {
             {/* Back to Dashboard */}
             <button
               onClick={() => setShowQuitConfirm(true)}
-              className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+              className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
               title={t("flashcards.backToDashboard") + " (ESC)"}
             >
               <X size={16} />
@@ -420,7 +420,7 @@ export default function Flashcards() {
             </div>
 
             {/* Progress */}
-            <span className="text-xs text-gray-500 font-mono">{currentIndex + 1}/{phrases.length}</span>
+            <span className="text-xs text-gray-300 font-mono">{currentIndex + 1}/{phrases.length}</span>
           </div>
 
           {/* Progress bar */}
@@ -457,12 +457,12 @@ export default function Flashcards() {
         </div>
       )}
 
-      <main className="max-w-lg mx-auto px-4 py-6 pb-24">
+      <main className="max-w-3xl mx-auto px-4 py-6 pb-24">
         {/* Category selector with lock indicators */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           <button
             onClick={() => { setSelectedCategory("all"); setCurrentIndex(0); }}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCategory === "all" ? "bg-orange-500 text-white" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCategory === "all" ? "bg-orange-500 text-white" : "bg-white/5 text-gray-300 hover:bg-white/10"}`}
           >
             {t("flashcards.all")}
           </button>
@@ -483,8 +483,8 @@ export default function Flashcards() {
                   selectedCategory === cat
                     ? "bg-orange-500 text-white"
                     : isLocked
-                    ? "bg-white/5 text-gray-600 opacity-60 cursor-not-allowed"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10"
+                    ? "bg-white/5 text-gray-300 opacity-60 cursor-not-allowed"
+                    : "bg-white/5 text-gray-300 hover:bg-white/10"
                 }`}
                 title={isLocked ? t("flashcards.proOnly") : cat}
               >
@@ -502,7 +502,7 @@ export default function Flashcards() {
           </div>
           <div className="min-w-0">
             <p className="text-xs text-orange-400 font-bold tracking-wide">{t("masterclass.title")}</p>
-            <p className="text-[10px] text-gray-400 truncate">
+            <p className="text-[10px] text-gray-300 truncate">
               {t("flashcards.phraseOf", { current: currentIndex + 1, total: phrases.length })} &middot; 3,000 {t("flashcards.phrasesTotal")}
             </p>
           </div>
@@ -577,7 +577,7 @@ export default function Flashcards() {
                 )}
 
                 <div className="flex items-center gap-2 mt-4">
-                  <p className="text-xs text-gray-500">{t("flashcards.tapAfterListening")}</p>
+                  <p className="text-xs text-gray-300">{t("flashcards.tapAfterListening")}</p>
                 </div>
               </div>
             </div>
@@ -626,7 +626,7 @@ export default function Flashcards() {
           <button
             onClick={nextCard}
             disabled={currentIndex >= phrases.length - 1 || flipped}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-3 py-2 rounded-lg hover:bg-white/5"
+            className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-3 py-2 rounded-lg hover:bg-white/5"
           >
             <SkipForward size={14} /> {t("flashcards.skip")}
           </button>
@@ -641,7 +641,7 @@ export default function Flashcards() {
           >
             <ChevronLeft size={18} /> <span className="text-sm">{t("flashcards.previous")}</span>
           </button>
-          <span className="text-xs text-gray-500 font-mono">{currentIndex + 1} / {phrases.length}</span>
+          <span className="text-xs text-gray-300 font-mono">{currentIndex + 1} / {phrases.length}</span>
           <button
             onClick={nextCard}
             disabled={currentIndex >= phrases.length - 1 || flipped}
@@ -652,12 +652,12 @@ export default function Flashcards() {
         </div>
 
         {/* Keyboard shortcuts hint */}
-        <p className="text-center text-gray-600 text-[10px] mt-6 hidden sm:block">
+        <p className="text-center text-gray-300 text-[10px] mt-6 hidden sm:block">
           {t("flashcards.shortcuts")}
         </p>
 
         {/* Footer */}
-        <p className="text-center text-gray-600 text-xs mt-4">
+        <p className="text-center text-gray-300 text-xs mt-4">
           {t("app.family")}
         </p>
       </main>

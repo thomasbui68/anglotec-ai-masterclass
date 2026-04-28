@@ -284,6 +284,7 @@ const enResources = {
     "perMonth": "/mo",
     "perYear": "/year",
     "free": "Free",
+    "customPricing": "Custom Pricing",
     "pro": "Pro",
     "family": "Family",
     "classroom": "Classroom",

@@ -263,7 +263,7 @@ export default function Pricing() {
             <img src="/app-icon.png" alt="" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
               <h1 className="text-lg font-bold text-white leading-tight">{t("app.name")}</h1>
-              <p className="text-[10px] text-gray-400">{t("pricing.title")}</p>
+              <p className="text-[10px] text-gray-300">{t("pricing.title")}</p>
             </div>
           </div>
           <Link to="/">
@@ -289,7 +289,7 @@ export default function Pricing() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
             {inTrial ? t("pricing.keepProAccess") : t("pricing.choosePath")}
           </h2>
-          <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
+          <p className="text-gray-300 max-w-xl mx-auto text-sm sm:text-base">
             {inTrial
               ? t("pricing.trialActiveDesc")
               : t("pricing.startFreeDesc")}
@@ -297,7 +297,7 @@ export default function Pricing() {
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-3 mt-6">
-            <span className={`text-sm ${billingCycle === "monthly" ? "text-white font-semibold" : "text-gray-400"}`}>
+            <span className={`text-sm ${billingCycle === "monthly" ? "text-white font-semibold" : "text-gray-300"}`}>
               {t("pricing.monthly")}
             </span>
             <button
@@ -310,7 +310,7 @@ export default function Pricing() {
                 }`}
               />
             </button>
-            <span className={`text-sm ${billingCycle === "yearly" ? "text-white font-semibold" : "text-gray-400"}`}>
+            <span className={`text-sm ${billingCycle === "yearly" ? "text-white font-semibold" : "text-gray-300"}`}>
               {t("pricing.yearly")}
             </span>
             <Badge className="bg-green-500/20 text-green-300 border-green-400/30 text-[10px]">
@@ -348,13 +348,15 @@ export default function Pricing() {
                     <Icon size={24} className="text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-                  <p className="text-xs text-gray-400">{plan.description}</p>
+                  <p className="text-xs text-gray-300">{plan.description}</p>
                 </CardHeader>
 
                 <CardContent className="pt-0">
                   {/* Price */}
                   <div className="mb-4">
-                    {plan.monthlyPrice === 0 ? (
+                    {plan.tier === "government" ? (
+                      <span className="text-3xl font-bold text-white">{t("pricing.customPricing")}</span>
+                    ) : plan.monthlyPrice === 0 ? (
                       <span className="text-3xl font-bold text-white">{t("pricing.free")}</span>
                     ) : (
                       <>
@@ -363,7 +365,7 @@ export default function Pricing() {
                             ? formatPriceMonthly(plan.monthlyPrice)
                             : formatPriceMonthly(plan.yearlyPrice / 12)}
                         </span>
-                        <span className="text-gray-400 text-sm">{t("pricing.perMonth")}</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.perMonth")}</span>
                         {billingCycle === "yearly" && (
                           <p className="text-xs text-green-400 mt-1">
                             {formatPrice(plan.yearlyPrice)} {t("pricing.billedYearly")}
@@ -406,8 +408,8 @@ export default function Pricing() {
                     ))}
                     {plan.notIncluded.map((feature) => (
                       <div key={feature} className="flex items-start gap-2 text-xs opacity-40">
-                        <span className="text-gray-500 text-[10px] shrink-0 mt-0.5">-</span>
-                        <span className="text-gray-500">{feature}</span>
+                        <span className="text-gray-300 text-[10px] shrink-0 mt-0.5">-</span>
+                        <span className="text-gray-300">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -418,7 +420,7 @@ export default function Pricing() {
         </div>
 
         {/* Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-500 mb-10">
+        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-300 mb-10">
           <div className="flex items-center gap-1.5">
             <Shield size={14} className="text-green-400" />
             <span>{t("pricing.securePrivate")}</span>
@@ -469,16 +471,16 @@ export default function Pricing() {
               >
                 <summary className="flex items-center justify-between p-4 cursor-pointer text-sm text-white font-medium hover:bg-white/5 transition-colors">
                   {faq.q}
-                  <span className="text-gray-500 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
+                  <span className="text-gray-300 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
                 </summary>
-                <p className="px-4 pb-4 text-xs text-gray-400 leading-relaxed">{faq.a}</p>
+                <p className="px-4 pb-4 text-xs text-gray-300 leading-relaxed">{faq.a}</p>
               </details>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="text-center text-gray-600 text-xs mt-12 pb-4">
+        <footer className="text-center text-gray-300 text-xs mt-12 pb-4">
           <p>{t("app.family")}</p>
           <p className="mt-1">{t("pricing.supportEmail")}</p>
         </footer>
@@ -490,72 +492,72 @@ export default function Pricing() {
           <div className="bg-[#1a365d] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-white">{t("pricing.classroomRequestTitle")}</h3>
-              <button onClick={() => setShowClassroomModal(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setShowClassroomModal(false)} className="text-gray-300 hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
             
-            <p className="text-sm text-gray-400 mb-4">{t("pricing.classroomRequestDesc")}</p>
+            <p className="text-sm text-gray-300 mb-4">{t("pricing.classroomRequestDesc")}</p>
             
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t("pricing.schoolName")} *</label>
+                <label className="text-xs text-gray-300 block mb-1">{t("pricing.schoolName")} *</label>
                 <div className="relative">
-                  <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                   <input
                     type="text"
                     value={classroomForm.schoolName}
                     onChange={(e) => setClassroomForm({ ...classroomForm, schoolName: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-orange-400/50"
                     placeholder={t("pricing.schoolNamePlaceholder")}
                   />
                 </div>
               </div>
               
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t("pricing.contactName")} *</label>
+                <label className="text-xs text-gray-300 block mb-1">{t("pricing.contactName")} *</label>
                 <div className="relative">
-                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                   <input
                     type="text"
                     value={classroomForm.contactName}
                     onChange={(e) => setClassroomForm({ ...classroomForm, contactName: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-orange-400/50"
                     placeholder={t("pricing.contactNamePlaceholder")}
                   />
                 </div>
               </div>
               
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t("pricing.contactEmail")} *</label>
+                <label className="text-xs text-gray-300 block mb-1">{t("pricing.contactEmail")} *</label>
                 <div className="relative">
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                   <input
                     type="email"
                     value={classroomForm.email}
                     onChange={(e) => setClassroomForm({ ...classroomForm, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-orange-400/50"
                     placeholder={t("pricing.emailPlaceholder")}
                   />
                 </div>
               </div>
               
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t("pricing.contactPhone")}</label>
+                <label className="text-xs text-gray-300 block mb-1">{t("pricing.contactPhone")}</label>
                 <div className="relative">
-                  <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                   <input
                     type="tel"
                     value={classroomForm.phone}
                     onChange={(e) => setClassroomForm({ ...classroomForm, phone: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-orange-400/50"
                     placeholder={t("pricing.phonePlaceholder")}
                   />
                 </div>
               </div>
               
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t("pricing.numberOfStudents")}</label>
+                <label className="text-xs text-gray-300 block mb-1">{t("pricing.numberOfStudents")}</label>
                 <select
                   value={classroomForm.students}
                   onChange={(e) => setClassroomForm({ ...classroomForm, students: e.target.value })}
@@ -570,13 +572,13 @@ export default function Pricing() {
               </div>
               
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t("pricing.additionalMessage")}</label>
+                <label className="text-xs text-gray-300 block mb-1">{t("pricing.additionalMessage")}</label>
                 <div className="relative">
-                  <MessageSquare size={16} className="absolute left-3 top-3 text-gray-500" />
+                  <MessageSquare size={16} className="absolute left-3 top-3 text-gray-300" />
                   <textarea
                     value={classroomForm.message}
                     onChange={(e) => setClassroomForm({ ...classroomForm, message: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-400/50 min-h-[80px] resize-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-orange-400/50 min-h-[80px] resize-none"
                     placeholder={t("pricing.messagePlaceholder")}
                   />
                 </div>

@@ -375,7 +375,8 @@
     "governmentDesc": "公共部门定制条款。数据驻留、采购就绪、无限用户、专属客户经理。",
     "forOrganizations": "组织专用",
     "forGovernment": "政府专用",
-    "students": "学生"
+    "students": "学生",
+    "customPricing": "定制价格"
   },
   "tiers": {
     "free": "免费",

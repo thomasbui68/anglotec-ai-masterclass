@@ -375,7 +375,8 @@
     "governmentDesc": "Individuelle Bedingungen für den öffentlichen Sektor. Datenresidenz, beschaffungsfähig, unbegrenzte Nutzer, dedizierter Account Manager.",
     "forOrganizations": "Für Organisationen",
     "forGovernment": "Für Regierung",
-    "students": "Schüler"
+    "students": "Schüler",
+    "customPricing": "Individuelle Preisgestaltung"
   },
   "tiers": {
     "free": "Kostenlos",

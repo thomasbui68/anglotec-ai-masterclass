@@ -67,12 +67,12 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-5xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <img src="/app-icon.png" alt="" className="h-9 w-9 sm:h-10 sm:w-10 object-contain drop-shadow-lg rounded-xl" />
             <div className="hidden sm:block">
               <h1 className="text-lg font-bold text-white leading-tight">{t("app.name")}</h1>
-              <p className="text-[10px] text-gray-400">{t("app.tagline")}</p>
+              <p className="text-[10px] text-gray-300">{t("app.tagline")}</p>
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
@@ -113,7 +113,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Trial Banner */}
         <TrialBanner trialEndsAt={subscription.trialEndsAt} />
 
@@ -132,7 +132,7 @@ export default function Dashboard() {
             <h2 className="text-2xl font-bold text-white">
               {user ? t("dashboard.welcome") : t("dashboard.welcome")}
             </h2>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-gray-300 text-sm mt-1">
               {game.streak > 0
                 ? t("dashboard.streakMessage", { count: game.streak })
                 : t("dashboard.startLearning")}
@@ -151,7 +151,7 @@ export default function Dashboard() {
                 <span className="text-xs font-bold" style={{ color: game.rankInfo.color }}>{game.rankInfo.name}</span>
               </div>
             )}
-            <p className="text-[10px] text-gray-400">{t("dashboard.level")} {game.level}</p>
+            <p className="text-[10px] text-gray-300">{t("dashboard.level")} {game.level}</p>
             {subscription.isPaid && (
               <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 text-[10px] mt-1">
                 <Crown size={10} className="mr-0.5" /> {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
@@ -176,7 +176,7 @@ export default function Dashboard() {
               <p className="text-white font-bold text-lg leading-tight">
                 {t("masterclass.headline")}
               </p>
-              <p className="text-gray-400 text-xs mt-1 leading-relaxed">
+              <p className="text-gray-300 text-xs mt-1 leading-relaxed">
                 {t("masterclass.subtitle")}
               </p>
               <div className="flex items-center gap-3 mt-3">
@@ -248,7 +248,7 @@ export default function Dashboard() {
                       <Icon size={20} className="text-white" />
                     </div>
                     <p className="text-sm font-semibold text-white leading-tight">{cat}</p>
-                    <p className="text-[10px] text-gray-400 mt-1">
+                    <p className="text-[10px] text-gray-300 mt-1">
                       {isLocked ? t("flashcards.proOnly") : `250 ${t("flashcards.phrases")}`}
                     </p>
                   </button>
@@ -266,13 +266,13 @@ export default function Dashboard() {
                 <Zap size={16} className="text-yellow-400" />
                 <span className="text-sm font-semibold text-white">{t("dashboard.level")} {game.level}</span>
               </div>
-              <span className="text-xs text-gray-400">{game.xp} / {game.xpForNextLevel || 100} XP</span>
+              <span className="text-xs text-gray-300">{game.xp} / {game.xpForNextLevel || 100} XP</span>
             </div>
             <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full transition-all duration-1000" style={{ width: animated ? `${game.xpPercent}%` : "0%" }} />
             </div>
             {game.nextRank && (
-              <p className="text-[10px] text-gray-500 mt-1 text-right">{t("dashboard.nextRank", { rank: game.nextRank.name, level: game.nextRank.level })}</p>
+              <p className="text-[10px] text-gray-300 mt-1 text-right">{t("dashboard.nextRank", { rank: game.nextRank.name, level: game.nextRank.level })}</p>
             )}
           </CardContent>
         </Card>
@@ -291,7 +291,7 @@ export default function Dashboard() {
                   <s.icon size={20} className={s.color} />
                 </div>
                 <p className="text-xl font-bold text-white">{s.value}</p>
-                <p className="text-xs text-gray-400">{s.label}</p>
+                <p className="text-xs text-gray-300">{s.label}</p>
               </CardContent>
             </Card>
           ))}
@@ -313,7 +313,7 @@ export default function Dashboard() {
             {dailyPercent >= 100 ? (
               <p className="text-xs text-green-400 mt-2 flex items-center gap-1"><Star size={12} /> {t("dashboard.dailyGoalComplete")}</p>
             ) : (
-              <p className="text-xs text-gray-400 mt-2">{t("dashboard.practiceMore", { count: Math.max(0, (game.dailyGoal || 10) - game.dailyProgress) })}</p>
+              <p className="text-xs text-gray-300 mt-2">{t("dashboard.practiceMore", { count: Math.max(0, (game.dailyGoal || 10) - game.dailyProgress) })}</p>
             )}
           </CardContent>
         </Card>
@@ -357,7 +357,7 @@ export default function Dashboard() {
             <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full transition-all duration-1500" style={{ width: animated ? `${masteredPercent}%` : "0%" }} />
             </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
+            <div className="flex justify-between text-xs text-gray-300 mt-2">
               <span>0</span>
               <span>{stats.mastered} {t("masterclass.learned")}</span>
               <span>{stats.total_phrases} {t("dashboard.total")}</span>
@@ -366,7 +366,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Footer */}
-        <footer className="text-center text-gray-600 text-xs pb-4 pt-2">
+        <footer className="text-center text-gray-300 text-xs pb-4 pt-2">
           <p>{t("app.family")}</p>
         </footer>
       </main>

@@ -1,96 +1,47 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { trpc } from "@/providers/trpc";
-import { localPhrases, localProgress, localAchievements } from "@/lib/local-db";
 import { useAuth } from "./useAuth";
-
-// Re-export local-db helpers for direct access if needed
-export { localPhrases, localProgress, localAchievements } from "@/lib/local-db";
+import { getCategories, getAllPhrases, getTotalPhraseCount } from "@/lib/phrases-data";
 
 // ===== PHRASES =====
 export function usePhrases() {
-  const { mode, isReady, isAuthenticated } = useAuth();
-  const isLocal = mode === "local" || mode === "unknown";
+  const { isReady } = useAuth();
 
-  // tRPC queries — only when authenticated and in cloud mode
+  // tRPC queries — for cloud backend when available
   const categoriesQuery = trpc.phrase.categories.useQuery(undefined, {
-    enabled: isReady && !isLocal,
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
+    enabled: false, // Don't try tRPC on static deploy
+    retry: 0,
   });
 
   const listQuery = trpc.phrase.list.useQuery(
     { page: 1, limit: 50 },
-    {
-      enabled: isReady && !isLocal && isAuthenticated,
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-    }
+    { enabled: false, retry: 0 }
   );
 
-  // Local data state — populated when in local mode or not authenticated
-  const [localCategories, setLocalCategories] = useState<string[]>([]);
-  const [localPhrasesData, setLocalPhrasesData] = useState({
-    phrases: [] as any[],
-    total: 0,
+  // Always use bundled phrase data (no localStorage)
+  const categories = useMemo(() => getCategories(), []);
+  const allPhrases = useMemo(() => getAllPhrases(), []);
+  const totalCount = useMemo(() => getTotalPhraseCount(), []);
+
+  const phrases = useMemo(() => ({
+    phrases: allPhrases.slice(0, 50),
+    total: totalCount,
     page: 1,
     limit: 50,
-  });
+  }), [allPhrases, totalCount]);
 
-  // Populate local data — ALWAYS load as fallback, regardless of mode
-  useEffect(() => {
-    if (isReady) {
-      try {
-        setLocalCategories(localPhrases.getCategories());
-        setLocalPhrasesData(localPhrases.getAll(undefined, undefined, 1, 50));
-      } catch (e) {
-        console.error("Failed to load local phrases:", e);
-      }
-    }
-  }, [isReady]);
+  const isLoading = false; // Bundled data loads instantly
 
-  // Cloud error fallback — if tRPC errors, use local data
-  const [trpcTimeout, setTrpcTimeout] = useState(false);
-  useEffect(() => {
-    if (categoriesQuery.isLoading || listQuery.isLoading) {
-      const timer = setTimeout(() => setTrpcTimeout(true), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [categoriesQuery.isLoading, listQuery.isLoading]);
-
-  const cloudError = categoriesQuery.isError || listQuery.isError || trpcTimeout;
-  const useLocalData = isLocal || !isAuthenticated || cloudError;
-
-  const categories = useMemo(() => {
-    if (useLocalData) return localCategories;
-    return (categoriesQuery.data && (categoriesQuery.data as string[]).length > 0)
-      ? categoriesQuery.data
-      : localCategories;
-  }, [useLocalData, localCategories, categoriesQuery.data]);
-
-  const phrases = useMemo(() => {
-    if (useLocalData) return localPhrasesData;
-    const cloud = listQuery.data;
-    if (cloud && cloud.phrases && cloud.phrases.length > 0) return cloud;
-    return localPhrasesData;
-  }, [useLocalData, localPhrasesData, listQuery.data]);
-
-  const isLoading = isReady && !isLocal && !cloudError && categoriesQuery.isLoading;
-
-  // Function to get phrases for a specific category (client-side filter in cloud mode)
+  // Function to get phrases for a specific category
   const getPhrases = useCallback(
     (category?: string, search?: string, page?: number, limit?: number) => {
-      if (useLocalData) {
-        return localPhrases.getAll(category, search, page, limit);
-      }
-      // Cloud mode: client-side filter the cached data
-      const all = listQuery.data ?? { phrases: [] as any[], total: 0, page: 1, limit: 50 };
-      let result = [...all.phrases];
+      let result = [...allPhrases];
       if (category && category !== "all") {
-        result = result.filter((p: any) => p.category === category);
+        result = result.filter((p) => p.category === category);
       }
       if (search) {
         const s = search.toLowerCase();
-        result = result.filter((p: any) => p.english.toLowerCase().includes(s));
+        result = result.filter((p) => p.phrase.toLowerCase().includes(s));
       }
       const p = page ?? 1;
       const l = limit ?? 50;
@@ -102,26 +53,26 @@ export function usePhrases() {
         limit: l,
       };
     },
-    [useLocalData, listQuery.data]
+    [allPhrases]
   );
 
-  return useMemo(() => ({ categories, phrases: phrases.phrases, getPhrases, isLoading }), 
+  return useMemo(() => ({ categories, phrases: phrases.phrases, getPhrases, isLoading }),
     [categories, phrases.phrases, getPhrases, isLoading]);
 }
 
 // ===== PROGRESS =====
 export function useProgress(_userId: number) {
-  const { mode, isReady, user } = useAuth();
-  const isLocal = mode === "local" || mode === "unknown";
+  const { user } = useAuth();
 
   const statsQuery = trpc.progress.getStats.useQuery(undefined, {
-    enabled: isReady && !isLocal && !!user,
-    retry: 1,
+    enabled: false, // Don't try tRPC on static deploy
+    retry: 0,
   });
 
   const updateMutation = trpc.progress.update.useMutation();
 
-  const [localStats, setLocalStats] = useState({
+  // Default stats — will show 3,000 total
+  const [stats, setStats] = useState({
     total_phrases: 3000,
     mastered: 0,
     learning: 0,
@@ -132,81 +83,50 @@ export function useProgress(_userId: number) {
     last_active: null as string | null,
   });
 
-  const useLocalData = isLocal || statsQuery.isError;
-
-  // Populate local stats
-  useEffect(() => {
-    if (useLocalData && user) {
-      try {
-        setLocalStats(localProgress.getStats(user.id));
-      } catch (e) {
-        console.error("Failed to load local progress:", e);
-      }
-    }
-  }, [useLocalData, user]);
-
-  const stats = useLocalData
-    ? localStats
-    : (statsQuery.data ?? localStats);
-
   const update = useCallback(
     (phraseId: number, status: string) => {
-      if (useLocalData && user) {
-        try {
-          localProgress.update(user.id, phraseId, status);
-          setLocalStats(localProgress.getStats(user.id));
-        } catch (e) {
-          console.error("Failed to update local progress:", e);
+      // Update local stats for UI feedback
+      setStats((prev) => {
+        const next = { ...prev };
+        if (status === "mastered") {
+          next.mastered = Math.min(prev.mastered + 1, prev.total_phrases);
+          next.learning = Math.max(prev.learning - 1, 0);
+        } else if (status === "learning") {
+          next.learning = Math.min(prev.learning + 1, prev.total_phrases);
         }
-      } else {
+        next.new_count = Math.max(prev.total_phrases - next.mastered - next.learning, 0);
+        next.total_practices = prev.total_practices + 1;
+        return next;
+      });
+
+      // Also try to update cloud if available
+      try {
         updateMutation.mutate({
           phraseId,
           status: status as "mastered" | "learning" | "new",
         });
+      } catch {
+        // Silently fail if no backend — local stats already updated
       }
     },
-    [useLocalData, user, updateMutation]
+    [updateMutation]
   );
 
-  const getAll = useCallback(() => {
-    if (useLocalData && user) {
-      return localProgress.getAll(user.id);
-    }
-    return [];
-  }, [useLocalData, user]);
+  const getAll = useCallback(() => [], []);
 
-  return { stats, update, getAll, isLoading: statsQuery.isLoading };
+  return { stats, update, getAll, isLoading: false };
 }
 
 // ===== ACHIEVEMENTS =====
 export function useAchievements(_userId: number) {
-  const { mode, isReady, user } = useAuth();
-  const isLocal = mode === "local" || mode === "unknown";
-
   const listQuery = trpc.achievement.list.useQuery(undefined, {
-    enabled: isReady && !isLocal && !!user,
-    retry: 1,
+    enabled: false,
+    retry: 0,
   });
 
-  const useLocalData = isLocal || listQuery.isError;
+  const achievements: any[] = [];
 
-  const [localAchs, setLocalAchs] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (useLocalData && user) {
-      try {
-        setLocalAchs(localAchievements.getAll(user.id));
-      } catch (e) {
-        console.error("Failed to load local achievements:", e);
-      }
-    }
-  }, [useLocalData, user]);
-
-  const achievements = useLocalData
-    ? localAchs
-    : (listQuery.data ?? []);
-
-  return { achievements, isLoading: listQuery.isLoading };
+  return { achievements, isLoading: false };
 }
 
 // Legacy compatibility export

@@ -49,7 +49,7 @@ export default function ForgotPassword() {
         <div className="text-center mb-8">
           <img src="/app-icon.png" alt={t("app.name")} className="h-16 w-16 object-contain mx-auto mb-3 drop-shadow-lg rounded-2xl" />
           <h1 className="text-2xl font-bold text-white">{t("auth.resetPassword")}</h1>
-          <p className="text-gray-400 text-sm">{t("auth.resetSubtitle")}</p>
+          <p className="text-gray-300 text-sm">{t("auth.resetSubtitle")}</p>
         </div>
 
         {/* Supabase Not Ready */}
@@ -76,7 +76,7 @@ export default function ForgotPassword() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-800">{t("auth.checkYourEmail")}</h3>
-                  <p className="text-gray-500 text-sm mt-2">
+                  <p className="text-gray-300 text-sm mt-2">
                     {t("auth.resetLinkSent")} <strong>{email}</strong>
                   </p>
                 </div>
@@ -123,7 +123,7 @@ export default function ForgotPassword() {
                     className="h-12"
                     required
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-300">
                     {t("auth.enterEmailDesc")}
                   </p>
                 </div>
@@ -137,7 +137,7 @@ export default function ForgotPassword() {
                 </Button>
 
                 <div className="text-center pt-2">
-                  <Link to="/login" className="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1">
+                  <Link to="/login" className="text-sm text-gray-300 hover:text-gray-300 flex items-center justify-center gap-1">
                     <ArrowLeft size={14} /> {t("auth.backToSignIn")}
                   </Link>
                 </div>

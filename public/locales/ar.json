@@ -375,7 +375,8 @@
     "governmentDesc": "شروط مخصصة للقطاع العام. إقامة البيانات، جاهز للمشتريات، مستخدمين غير محدودين، مدير حساب مخصص。",
     "forOrganizations": "للمنظمات",
     "forGovernment": "للحكومة",
-    "students": "طلاب"
+    "students": "طلاب",
+    "customPricing": "تسعير مخصص"
   },
   "tiers": {
     "free": "مجاني",
