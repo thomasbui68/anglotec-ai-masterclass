@@ -299,7 +299,20 @@
       "assignmentBuilder": "منشئ الواجبات",
       "gradebookExport": "تصدير دفتر الدرجات",
       "customOnboarding": "توجيه مخصص",
-      "moreWithPro": "المزيد مع Pro"
+      "moreWithPro": "المزيد مع Pro",
+      "team50": "ما يصل إلى 50 عضوًا في الفريق",
+      "ssoSaml": "تكامل SSO وSAML",
+      "managerDashboard": "لوحة تحليلات المدير",
+      "apiAccess": "وصول API للتكاملات",
+      "customBranding": "العلامة التجارية المخصصة والتسمية البيضاء",
+      "sla": "اتفاقية مستوى الخدمة بنسبة 99.9%",
+      "everythingOrganization": "كل شيء في المنظمة",
+      "unlimitedUsers": "مستخدمين غير محدودين",
+      "dataResidency": "خيارات إقامة البيانات",
+      "publicSectorTerms": "شروط المشتريات الحكومية",
+      "procurementReady": "جاهز للمشتريات وطلبات العروض",
+      "dedicatedAccountManager": "مدير حساب مخصص",
+      "customContract": "عقد مخصص والفوترة"
     },
     "seePlans": "عرض الخطط",
     "freeDesc": "ابدأ بوصول أساسي",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "يرجى ملء جميع الحقول المطلوبة",
     "classroomRequestSent": "تم إرسال الطلب! تحقق من عميل البريد الإلكتروني لإرسال الرسالة.",
     "requestFailed": "فشل في إرسال الطلب. يرجى المحاولة مرة أخرى.",
-    "sendRequest": "إرسال الطلب"
+    "sendRequest": "إرسال الطلب",
+    "organization": "المنظمة",
+    "organizationDesc": "للشركات التي تدرب فرقها على الذكاء الاصطناعي. SSO، وصول API، لوحة المدير، والعلامة التجارية المخصصة。",
+    "government": "الحكومة",
+    "governmentDesc": "شروط مخصصة للقطاع العام. إقامة البيانات، جاهز للمشتريات، مستخدمين غير محدودين، مدير حساب مخصص。",
+    "forOrganizations": "للمنظمات",
+    "forGovernment": "للحكومة"
   },
   "tiers": {
     "free": "مجاني",
@@ -363,7 +382,9 @@
     "family": "عائلة",
     "classroom": "فصل",
     "learner": "متعلم",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "المنظمة",
+    "government": "الحكومة"
   },
   "errors": {
     "generic": "حدث خطأ ما",

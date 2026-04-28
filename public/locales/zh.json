@@ -299,7 +299,20 @@
       "assignmentBuilder": "作业构建器",
       "gradebookExport": "成绩簿导出",
       "customOnboarding": "自定义入职流程",
-      "moreWithPro": "更多专业版功能"
+      "moreWithPro": "更多专业版功能",
+      "team50": "最多50名团队成员",
+      "ssoSaml": "SSO和SAML集成",
+      "managerDashboard": "管理者分析仪表板",
+      "apiAccess": "集成API访问",
+      "customBranding": "自定义品牌和白色标签",
+      "sla": "99.9%正常运行时间SLA",
+      "everythingOrganization": "包含组织版所有功能",
+      "unlimitedUsers": "无限用户",
+      "dataResidency": "数据驻留选项",
+      "publicSectorTerms": "公共部门采购条款",
+      "procurementReady": "采购和RFP就绪",
+      "dedicatedAccountManager": "专属客户经理",
+      "customContract": "定制合同和开票"
     },
     "seePlans": "查看计划",
     "freeDesc": "从基本访问开始",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "请填写所有必填字段",
     "classroomRequestSent": "请求已发送！请检查您的电子邮件客户端以发送消息。",
     "requestFailed": "发送请求失败。请重试。",
-    "sendRequest": "发送请求"
+    "sendRequest": "发送请求",
+    "organization": "组织版",
+    "organizationDesc": "为企业AI团队培训提供。SSO、API访问、管理仪表板和自定义品牌。",
+    "government": "政府版",
+    "governmentDesc": "公共部门定制条款。数据驻留、采购就绪、无限用户、专属客户经理。",
+    "forOrganizations": "组织专用",
+    "forGovernment": "政府专用"
   },
   "tiers": {
     "free": "免费",
@@ -363,7 +382,9 @@
     "family": "家庭",
     "classroom": "教室",
     "learner": "学习者",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "组织",
+    "government": "政府"
   },
   "errors": {
     "generic": "出错了",

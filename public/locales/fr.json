@@ -299,7 +299,20 @@
       "assignmentBuilder": "Créateur de devoirs",
       "gradebookExport": "Exportation des notes",
       "customOnboarding": "Onboarding personnalisé",
-      "moreWithPro": "de plus avec Pro"
+      "moreWithPro": "de plus avec Pro",
+      "team50": "Jusqu'à 50 membres de l'équipe",
+      "ssoSaml": "Intégration SSO & SAML",
+      "managerDashboard": "Tableau de bord analytique du manager",
+      "apiAccess": "Accès API pour les intégrations",
+      "customBranding": "Marque personnalisée et white-label",
+      "sla": "SLA de disponibilité 99,9%",
+      "everythingOrganization": "Tout ce qui est dans Organisation",
+      "unlimitedUsers": "Utilisateurs illimités",
+      "dataResidency": "Options de résidence des données",
+      "publicSectorTerms": "Conditions d'achat du secteur public",
+      "procurementReady": "Prêt pour les achats et RFP",
+      "dedicatedAccountManager": "Responsable de compte dédié",
+      "customContract": "Contrat personnalisé et facturation"
     },
     "seePlans": "Voir les plans",
     "freeDesc": "Commencez avec un accès de base",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Veuillez remplir tous les champs obligatoires",
     "classroomRequestSent": "Demande envoyée ! Vérifiez votre client email pour envoyer le message.",
     "requestFailed": "Échec de l'envoi de la demande. Veuillez réessayer.",
-    "sendRequest": "Envoyer la Demande"
+    "sendRequest": "Envoyer la Demande",
+    "organization": "Organisation",
+    "organizationDesc": "Pour les entreprises formant des équipes à l'IA. SSO, accès API, tableau de bord manager et marque personnalisée.",
+    "government": "Gouvernement",
+    "governmentDesc": "Conditions personnalisées pour le secteur public. Résidence des données, prêt pour les achats, utilisateurs illimités, responsable de compte dédié.",
+    "forOrganizations": "Pour Organisations",
+    "forGovernment": "Pour Gouvernement"
   },
   "tiers": {
     "free": "Gratuit",
@@ -363,7 +382,9 @@
     "family": "Famille",
     "classroom": "Classe",
     "learner": "Apprenant",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organisation",
+    "government": "Gouvernement"
   },
   "errors": {
     "generic": "Quelque chose s'est mal passé",

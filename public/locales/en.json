@@ -303,7 +303,20 @@
       "assignmentBuilder": "Assignment builder",
       "gradebookExport": "Gradebook export",
       "customOnboarding": "Custom onboarding",
-      "moreWithPro": "more with Pro"
+      "moreWithPro": "more with Pro",
+      "team50": "Up to 50 team members",
+      "ssoSaml": "SSO & SAML integration",
+      "managerDashboard": "Manager analytics dashboard",
+      "apiAccess": "API access for integrations",
+      "customBranding": "Custom branding & white-label",
+      "sla": "99.9% uptime SLA",
+      "everythingOrganization": "Everything in Organization",
+      "unlimitedUsers": "Unlimited users",
+      "dataResidency": "Data residency options",
+      "publicSectorTerms": "Public sector procurement terms",
+      "procurementReady": "Procurement & RFP ready",
+      "dedicatedAccountManager": "Dedicated account manager",
+      "customContract": "Custom contract & invoicing"
     },
     "seePlans": "See Plans",
     "freeDesc": "Start learning with basic access",
@@ -359,7 +372,13 @@
     "pleaseFillRequired": "Please fill in all required fields",
     "classroomRequestSent": "Request sent! Check your email client to send the message.",
     "requestFailed": "Failed to send request. Please try again.",
-    "sendRequest": "Send Request"
+    "sendRequest": "Send Request",
+    "organization": "Organization",
+    "organizationDesc": "For companies training teams on AI. SSO, API access, manager dashboard, and custom branding.",
+    "government": "Government",
+    "governmentDesc": "Custom terms for public sector. Data residency, procurement-ready, unlimited users, dedicated account manager.",
+    "forOrganizations": "For Organizations",
+    "forGovernment": "For Government"
   },
   "tiers": {
     "free": "Free",
@@ -367,7 +386,9 @@
     "family": "Family",
     "classroom": "Classroom",
     "learner": "Learner",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organization",
+    "government": "Government"
   },
   "errors": {
     "generic": "Something went wrong",

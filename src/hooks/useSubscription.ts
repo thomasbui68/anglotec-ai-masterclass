@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { trpc } from "@/providers/trpc";
 import { useAuth } from "./useAuth";
 
-export type SubscriptionTier = "free" | "pro" | "family" | "classroom";
+export type SubscriptionTier = "free" | "pro" | "family" | "classroom" | "organization" | "government";
 
 export interface PlanLimit {
   dailyPhraseLimit: number;
@@ -13,6 +13,7 @@ export interface PlanLimit {
   analyticsEnabled: boolean;
   maxFamilyMembers: number;
   maxStudents: number;
+  maxTeamMembers: number;
 }
 
 export interface PlanConfig {
@@ -30,6 +31,7 @@ export interface PlanConfig {
   analyticsEnabled: boolean;
   maxFamilyMembers: number;
   maxStudents: number;
+  maxTeamMembers: number;
 }
 
 export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimit> = {
@@ -42,6 +44,7 @@ export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimit> = {
     analyticsEnabled: false,
     maxFamilyMembers: 1,
     maxStudents: 1,
+    maxTeamMembers: 1,
   },
   pro: {
     dailyPhraseLimit: 999999,
@@ -52,6 +55,7 @@ export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimit> = {
     analyticsEnabled: true,
     maxFamilyMembers: 1,
     maxStudents: 1,
+    maxTeamMembers: 1,
   },
   family: {
     dailyPhraseLimit: 999999,
@@ -62,6 +66,7 @@ export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimit> = {
     analyticsEnabled: true,
     maxFamilyMembers: 3,
     maxStudents: 3,
+    maxTeamMembers: 3,
   },
   classroom: {
     dailyPhraseLimit: 999999,
@@ -72,6 +77,29 @@ export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimit> = {
     analyticsEnabled: true,
     maxFamilyMembers: 1,
     maxStudents: 50,
+    maxTeamMembers: 50,
+  },
+  organization: {
+    dailyPhraseLimit: 999999,
+    categoryAccess: "all",
+    voiceEnabled: true,
+    syncEnabled: true,
+    weeklyContent: true,
+    analyticsEnabled: true,
+    maxFamilyMembers: 1,
+    maxStudents: 100,
+    maxTeamMembers: 50,
+  },
+  government: {
+    dailyPhraseLimit: 999999,
+    categoryAccess: "all",
+    voiceEnabled: true,
+    syncEnabled: true,
+    weeklyContent: true,
+    analyticsEnabled: true,
+    maxFamilyMembers: 1,
+    maxStudents: 500,
+    maxTeamMembers: 200,
   },
 };
 

@@ -299,7 +299,20 @@
       "assignmentBuilder": "Конструктор заданий",
       "gradebookExport": "Экспорт оценок",
       "customOnboarding": "Пользовательский онбординг",
-      "moreWithPro": "еще с Pro"
+      "moreWithPro": "еще с Pro",
+      "team50": "До 50 членов команды",
+      "ssoSaml": "Интеграция SSO и SAML",
+      "managerDashboard": "Аналитическая панель менеджера",
+      "apiAccess": "API-доступ для интеграций",
+      "customBranding": "Кастомный брендинг и white-label",
+      "sla": "SLA доступности 99,9%",
+      "everythingOrganization": "Всё из Организации",
+      "unlimitedUsers": "Неограниченные пользователи",
+      "dataResidency": "Опции резиденции данных",
+      "publicSectorTerms": "Условия закупок для государственного сектора",
+      "procurementReady": "Готов к закупкам и RFP",
+      "dedicatedAccountManager": "Выделенный менеджер аккаунта",
+      "customContract": "Индивидуальный контракт и выставление счетов"
     },
     "seePlans": "Посмотреть планы",
     "freeDesc": "Начните с базового доступа",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Пожалуйста, заполните все обязательные поля",
     "classroomRequestSent": "Запрос отправлен! Проверьте ваш email-клиент для отправки сообщения.",
     "requestFailed": "Не удалось отправить запрос. Пожалуйста, попробуйте ещё раз.",
-    "sendRequest": "Отправить Запрос"
+    "sendRequest": "Отправить Запрос",
+    "organization": "Организация",
+    "organizationDesc": "Для компаний, обучающих команды ИИ. SSO, доступ к API, панель менеджера и кастомный брендинг.",
+    "government": "Правительство",
+    "governmentDesc": "Индивидуальные условия для государственного сектора. Резиденция данных, готовность к закупкам, неограниченные пользователи, выделенный менеджер.",
+    "forOrganizations": "Для Организаций",
+    "forGovernment": "Для Правительства"
   },
   "tiers": {
     "free": "Бесплатно",
@@ -363,7 +382,9 @@
     "family": "Семья",
     "classroom": "Класс",
     "learner": "Ученик",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Организация",
+    "government": "Правительство"
   },
   "errors": {
     "generic": "Что-то пошло не так",

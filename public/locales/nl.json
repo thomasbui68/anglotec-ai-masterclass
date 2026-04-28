@@ -299,7 +299,20 @@
       "assignmentBuilder": "Opdrachtbouwer",
       "gradebookExport": "Cijferlijst-export",
       "customOnboarding": "Aangepast onboarding",
-      "moreWithPro": "meer met Pro"
+      "moreWithPro": "meer met Pro",
+      "team50": "Tot 50 teamleden",
+      "ssoSaml": "SSO & SAML-integratie",
+      "managerDashboard": "Manager analytics dashboard",
+      "apiAccess": "API-toegang voor integraties",
+      "customBranding": "Custom branding & white-label",
+      "sla": "99,9% uptime SLA",
+      "everythingOrganization": "Alles in Organisatie",
+      "unlimitedUsers": "Onbeperkte gebruikers",
+      "dataResidency": "Dataresidencie-opties",
+      "publicSectorTerms": "Publieke sector inkoopvoorwaarden",
+      "procurementReady": "Inkoop- en RFP-gereed",
+      "dedicatedAccountManager": "Dedicated account manager",
+      "customContract": "Aangepast contract & facturering"
     },
     "seePlans": "Plannen bekijken",
     "freeDesc": "Start met basis-toegang",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Vul alle verplichte velden in",
     "classroomRequestSent": "Verzoek verzonden! Controleer uw e-mailclient om het bericht te verzenden.",
     "requestFailed": "Verzoek kon niet worden verzonden. Probeer het opnieuw.",
-    "sendRequest": "Verzoek Verzenden"
+    "sendRequest": "Verzoek Verzenden",
+    "organization": "Organisatie",
+    "organizationDesc": "Voor bedrijven die teams opleiden in AI. SSO, API-toegang, manager dashboard en custom branding.",
+    "government": "Overheid",
+    "governmentDesc": "Aangepaste voorwaarden voor de publieke sector. Dataresidentie, inkoopklaar, onbeperkte gebruikers, dedicated account manager.",
+    "forOrganizations": "Voor Organisaties",
+    "forGovernment": "Voor Overheid"
   },
   "tiers": {
     "free": "Gratis",
@@ -363,7 +382,9 @@
     "family": "Familie",
     "classroom": "Klaslokaal",
     "learner": "Leerling",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organisatie",
+    "government": "Overheid"
   },
   "errors": {
     "generic": "Er is iets misgegaan",

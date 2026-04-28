@@ -299,7 +299,20 @@
       "assignmentBuilder": "Creador de tareas",
       "gradebookExport": "Exportar calificaciones",
       "customOnboarding": "Onboarding personalizado",
-      "moreWithPro": "más con Pro"
+      "moreWithPro": "más con Pro",
+      "team50": "Hasta 50 miembros del equipo",
+      "ssoSaml": "Integración SSO y SAML",
+      "managerDashboard": "Panel de análisis del gerente",
+      "apiAccess": "Acceso API para integraciones",
+      "customBranding": "Marca personalizada y white-label",
+      "sla": "99.9% de tiempo de actividad SLA",
+      "everythingOrganization": "Todo lo de Organización",
+      "unlimitedUsers": "Usuarios ilimitados",
+      "dataResidency": "Opciones de residencia de datos",
+      "publicSectorTerms": "Términos de adquisición del sector público",
+      "procurementReady": "Listo para adquisiciones y RFP",
+      "dedicatedAccountManager": "Gerente de cuenta dedicado",
+      "customContract": "Contrato personalizado y facturación"
     },
     "seePlans": "Ver Planes",
     "freeDesc": "Empieza con acceso básico",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Por favor completa todos los campos obligatorios",
     "classroomRequestSent": "¡Solicitud enviada! Revisa tu cliente de correo para enviar el mensaje.",
     "requestFailed": "Error al enviar la solicitud. Inténtalo de nuevo.",
-    "sendRequest": "Enviar Solicitud"
+    "sendRequest": "Enviar Solicitud",
+    "organization": "Organización",
+    "organizationDesc": "Para empresas que capacitan equipos en IA. SSO, acceso API, panel de gestión y marca personalizada.",
+    "government": "Gobierno",
+    "governmentDesc": "Términos personalizados para el sector público. Residencia de datos, listo para adquisiciones, usuarios ilimitados, gerente dedicado.",
+    "forOrganizations": "Para Organizaciones",
+    "forGovernment": "Para Gobierno"
   },
   "tiers": {
     "free": "Gratis",
@@ -363,7 +382,9 @@
     "family": "Familia",
     "classroom": "Aula",
     "learner": "Estudiante",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organización",
+    "government": "Gobierno"
   },
   "errors": {
     "generic": "Algo salió mal",

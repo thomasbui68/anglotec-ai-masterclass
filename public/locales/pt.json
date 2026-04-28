@@ -299,7 +299,20 @@
       "assignmentBuilder": "Construtor de tarefas",
       "gradebookExport": "Exportação de notas",
       "customOnboarding": "Onboarding personalizado",
-      "moreWithPro": "mais com Pro"
+      "moreWithPro": "mais com Pro",
+      "team50": "Até 50 membros da equipe",
+      "ssoSaml": "Integração SSO e SAML",
+      "managerDashboard": "Painel analítico do gerente",
+      "apiAccess": "Acesso API para integrações",
+      "customBranding": "Marca personalizada e white-label",
+      "sla": "SLA de uptime 99,9%",
+      "everythingOrganization": "Tudo do Organização",
+      "unlimitedUsers": "Usuários ilimitados",
+      "dataResidency": "Opções de residência de dados",
+      "publicSectorTerms": "Termos de aquisição do setor público",
+      "procurementReady": "Pronto para aquisições e RFP",
+      "dedicatedAccountManager": "Gerente de conta dedicado",
+      "customContract": "Contrato personalizado e faturamento"
     },
     "seePlans": "Ver Planos",
     "freeDesc": "Comece com acesso básico",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Por favor preencha todos os campos obrigatórios",
     "classroomRequestSent": "Solicitação enviada! Verifique seu cliente de email para enviar a mensagem.",
     "requestFailed": "Falha ao enviar solicitação. Tente novamente.",
-    "sendRequest": "Enviar Solicitação"
+    "sendRequest": "Enviar Solicitação",
+    "organization": "Organização",
+    "organizationDesc": "Para empresas treinando equipes em IA. SSO, acesso API, painel do gerente e marca personalizada.",
+    "government": "Governo",
+    "governmentDesc": "Termos personalizados para o setor público. Residência de dados, pronto para aquisições, usuários ilimitados, gerente de conta dedicado.",
+    "forOrganizations": "Para Organizações",
+    "forGovernment": "Para Governo"
   },
   "tiers": {
     "free": "Grátis",
@@ -363,7 +382,9 @@
     "family": "Família",
     "classroom": "Sala de Aula",
     "learner": "Aluno",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organização",
+    "government": "Governo"
   },
   "errors": {
     "generic": "Algo deu errado",

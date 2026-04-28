@@ -299,7 +299,20 @@
       "assignmentBuilder": "Creatore compiti",
       "gradebookExport": "Esportazione voti",
       "customOnboarding": "Onboarding personalizzato",
-      "moreWithPro": "di più con Pro"
+      "moreWithPro": "di più con Pro",
+      "team50": "Fino a 50 membri del team",
+      "ssoSaml": "Integrazione SSO e SAML",
+      "managerDashboard": "Dashboard analitica manager",
+      "apiAccess": "Accesso API per integrazioni",
+      "customBranding": "Branding personalizzato e white-label",
+      "sla": "SLA uptime 99,9%",
+      "everythingOrganization": "Tutto ciò che è in Organizzazione",
+      "unlimitedUsers": "Utenti illimitati",
+      "dataResidency": "Opzioni di residenza dei dati",
+      "publicSectorTerms": "Termini di acquisto del settore pubblico",
+      "procurementReady": "Pronto per gli acquisti e RFP",
+      "dedicatedAccountManager": "Account manager dedicato",
+      "customContract": "Contratto personalizzato e fatturazione"
     },
     "seePlans": "Vedi Piani",
     "freeDesc": "Inizia con accesso di base",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Si prega di compilare tutti i campi obbligatori",
     "classroomRequestSent": "Richiesta inviata! Controlla il tuo client email per inviare il messaggio.",
     "requestFailed": "Impossibile inviare la richiesta. Riprova.",
-    "sendRequest": "Invia Richiesta"
+    "sendRequest": "Invia Richiesta",
+    "organization": "Organizzazione",
+    "organizationDesc": "Per aziende che formano team sull'AI. SSO, accesso API, dashboard manager e branding personalizzato.",
+    "government": "Governo",
+    "governmentDesc": "Termini personalizzati per il settore pubblico. Residenza dati, pronto per gli acquisti, utenti illimitati, account manager dedicato.",
+    "forOrganizations": "Per Organizzazioni",
+    "forGovernment": "Per Governo"
   },
   "tiers": {
     "free": "Gratuito",
@@ -363,7 +382,9 @@
     "family": "Famiglia",
     "classroom": "Classe",
     "learner": "Studente",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organizzazione",
+    "government": "Governo"
   },
   "errors": {
     "generic": "Qualcosa è andato storto",

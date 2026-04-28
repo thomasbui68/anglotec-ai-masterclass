@@ -299,7 +299,20 @@
       "assignmentBuilder": "Kreator zadań",
       "gradebookExport": "Eksport dziennika",
       "customOnboarding": "Własny onboarding",
-      "moreWithPro": "więcej z Pro"
+      "moreWithPro": "więcej z Pro",
+      "team50": "Do 50 członków zespołu",
+      "ssoSaml": "Integracja SSO i SAML",
+      "managerDashboard": "Panel analityczny menedżera",
+      "apiAccess": "Dostęp API do integracji",
+      "customBranding": "Niestandardowe branding i white-label",
+      "sla": "SLA dostępności 99,9%",
+      "everythingOrganization": "Wszystko z Organizacja",
+      "unlimitedUsers": "Nieograniczeni użytkownicy",
+      "dataResidency": "Opcje rezydencji danych",
+      "publicSectorTerms": "Warunki zamówień publicznych",
+      "procurementReady": "Gotowy do zamówień i RFP",
+      "dedicatedAccountManager": "Dedykowany opiekun konta",
+      "customContract": "Niestandardowa umowa i fakturowanie"
     },
     "seePlans": "Zobacz Plany",
     "freeDesc": "Zacznij z podstawowym dostępem",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Proszę wypełnić wszystkie wymagane pola",
     "classroomRequestSent": "Prośba wysłana! Sprawdź swojego klienta poczty, aby wysłać wiadomość.",
     "requestFailed": "Nie udało się wysłać prośby. Spróbuj ponownie.",
-    "sendRequest": "Wyślij Prośbę"
+    "sendRequest": "Wyślij Prośbę",
+    "organization": "Organizacja",
+    "organizationDesc": "Dla firm szkolących zespoły w AI. SSO, dostęp API, panel menedżera i niestandardowe branding.",
+    "government": "Rząd",
+    "governmentDesc": "Niestandardowe warunki dla sektora publicznego. Rezydencja danych, gotowość do zamówień, nieograniczeni użytkownicy, dedykowany opiekun.",
+    "forOrganizations": "Dla Organizacji",
+    "forGovernment": "Dla Rządu"
   },
   "tiers": {
     "free": "Darmowy",
@@ -363,7 +382,9 @@
     "family": "Rodzina",
     "classroom": "Klasa",
     "learner": "Uczeń",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organizacja",
+    "government": "Rząd"
   },
   "errors": {
     "generic": "Coś poszło nie tak",

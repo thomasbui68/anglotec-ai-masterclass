@@ -299,7 +299,20 @@
       "assignmentBuilder": "Aufgabenersteller",
       "gradebookExport": "Notenbuch-Export",
       "customOnboarding": "Benutzerdefiniertes Onboarding",
-      "moreWithPro": "mehr mit Pro"
+      "moreWithPro": "mehr mit Pro",
+      "team50": "Bis zu 50 Teammitglieder",
+      "ssoSaml": "SSO & SAML-Integration",
+      "managerDashboard": "Manager-Analytics-Dashboard",
+      "apiAccess": "API-Zugang für Integrationen",
+      "customBranding": "Custom Branding & White-Label",
+      "sla": "99,9% Verfügbarkeit SLA",
+      "everythingOrganization": "Alles in Organisation",
+      "unlimitedUsers": "Unbegrenzte Nutzer",
+      "dataResidency": "Datenresidenz-Optionen",
+      "publicSectorTerms": "Beschaffungsbedingungen des öffentlichen Sektors",
+      "procurementReady": "Beschaffungs- und RFP-bereit",
+      "dedicatedAccountManager": "Dedizierter Account Manager",
+      "customContract": "Individueller Vertrag & Fakturierung"
     },
     "seePlans": "Pläne anzeigen",
     "freeDesc": "Starte mit Basis-Zugriff",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "Bitte füllen Sie alle Pflichtfelder aus",
     "classroomRequestSent": "Anfrage gesendet! Überprüfen Sie Ihren E-Mail-Client, um die Nachricht zu senden.",
     "requestFailed": "Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-    "sendRequest": "Anfrage Senden"
+    "sendRequest": "Anfrage Senden",
+    "organization": "Organisation",
+    "organizationDesc": "Für Unternehmen, die Teams in KI schulen. SSO, API-Zugang, Manager-Dashboard und Custom Branding.",
+    "government": "Regierung",
+    "governmentDesc": "Individuelle Bedingungen für den öffentlichen Sektor. Datenresidenz, beschaffungsfähig, unbegrenzte Nutzer, dedizierter Account Manager.",
+    "forOrganizations": "Für Organisationen",
+    "forGovernment": "Für Regierung"
   },
   "tiers": {
     "free": "Kostenlos",
@@ -363,7 +382,9 @@
     "family": "Familie",
     "classroom": "Klassenzimmer",
     "learner": "Lerner",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "Organisation",
+    "government": "Regierung"
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen",

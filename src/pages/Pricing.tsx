@@ -130,6 +130,52 @@ export default function Pricing() {
       ],
       notIncluded: [],
     },
+    {
+      tier: "organization" as SubscriptionTier,
+      name: t("pricing.organization"),
+      description: t("pricing.organizationDesc"),
+      monthlyPrice: 49900,
+      yearlyPrice: 449100,
+      icon: Building2,
+      color: "from-emerald-500 to-teal-500",
+      borderColor: "border-emerald-300",
+      popular: false,
+      badge: t("pricing.forOrganizations"),
+      features: [
+        t("pricing.features.everythingPro"),
+        t("pricing.features.team50"),
+        t("pricing.features.ssoSaml"),
+        t("pricing.features.managerDashboard"),
+        t("pricing.features.apiAccess"),
+        t("pricing.features.customBranding"),
+        t("pricing.features.dedicatedSupport"),
+        t("pricing.features.sla"),
+      ],
+      notIncluded: [],
+    },
+    {
+      tier: "government" as SubscriptionTier,
+      name: t("pricing.government"),
+      description: t("pricing.governmentDesc"),
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      icon: Shield,
+      color: "from-slate-500 to-slate-600",
+      borderColor: "border-slate-300",
+      popular: false,
+      badge: t("pricing.forGovernment"),
+      features: [
+        t("pricing.features.everythingOrganization"),
+        t("pricing.features.unlimitedUsers"),
+        t("pricing.features.dataResidency"),
+        t("pricing.features.publicSectorTerms"),
+        t("pricing.features.procurementReady"),
+        t("pricing.features.dedicatedAccountManager"),
+        t("pricing.features.customContract"),
+        t("pricing.features.prioritySupport"),
+      ],
+      notIncluded: [],
+    },
   ];
 
   // Calculate days left in trial
@@ -146,7 +192,7 @@ export default function Pricing() {
       return t("pricing.switchToFamily");
     }
     if (planTier === "free") return t("pricing.downgradeFree");
-    if (planTier === "classroom") return t("pricing.contactSales");
+    if (planTier === "classroom" || planTier === "organization" || planTier === "government") return t("pricing.contactSales");
     if (planTier === "pro") return t("pricing.startTrial");
     if (planTier === "family") return t("pricing.startFamilyTrial");
     return t("pricing.choosePlan");
@@ -158,7 +204,7 @@ export default function Pricing() {
       return;
     }
 
-    if (tier === "classroom") {
+    if (tier === "classroom" || tier === "organization" || tier === "government") {
       setShowClassroomModal(true);
       return;
     }

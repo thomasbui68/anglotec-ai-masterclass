@@ -299,7 +299,20 @@
       "assignmentBuilder": "課題ビルダー",
       "gradebookExport": "成績簿エクスポート",
       "customOnboarding": "カスタムオンボーディング",
-      "moreWithPro": "Proでさらに多く"
+      "moreWithPro": "Proでさらに多く",
+      "team50": "最大50名のチームメンバー",
+      "ssoSaml": "SSO・SAML統合",
+      "managerDashboard": "マネージャー分析ダッシュボード",
+      "apiAccess": "統合向けAPIアクセス",
+      "customBranding": "カスタムブランディング・ホワイトレーベル",
+      "sla": "99.9%稼働率SLA",
+      "everythingOrganization": "組織版のすべて",
+      "unlimitedUsers": "無制限ユーザー",
+      "dataResidency": "データレジデンシー選択",
+      "publicSectorTerms": "公共部門調達条件",
+      "procurementReady": "調達・RFP対応済み",
+      "dedicatedAccountManager": "専任アカウントマネージャー",
+      "customContract": "カスタム契約・請求"
     },
     "seePlans": "プランを見る",
     "freeDesc": "基本アクセスから開始",
@@ -355,7 +368,13 @@
     "pleaseFillRequired": "必須項目をすべて入力してください",
     "classroomRequestSent": "リクエストを送信しました！メールクライアントを確認してメッセージを送信してください。",
     "requestFailed": "リクエストの送信に失敗しました。もう一度お試しください。",
-    "sendRequest": "リクエストを送信"
+    "sendRequest": "リクエストを送信",
+    "organization": "組織版",
+    "organizationDesc": "企業のAIチームトレーニング向け。SSO、APIアクセス、マネージャーダッシュボード、カスタムブランディング。",
+    "government": "政府版",
+    "governmentDesc": "公共部門向けカスタム条件。データレジデンシー、調達対応、無制限ユーザー、専任アカウントマネージャー。",
+    "forOrganizations": "組織向け",
+    "forGovernment": "政府向け"
   },
   "tiers": {
     "free": "無料",
@@ -363,7 +382,9 @@
     "family": "ファミリー",
     "classroom": "教室",
     "learner": "学習者",
-    "admin": "ADMIN"
+    "admin": "ADMIN",
+    "organization": "組織",
+    "government": "政府"
   },
   "errors": {
     "generic": "問題が発生しました",
