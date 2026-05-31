@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, ScanFace, Mail, Shield, HelpCircle, Volume2, Trophy, Sparkles, LogOut } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 
 const FAQ_ICONS = [
   <BookOpen size={18} className="text-orange-500" />,

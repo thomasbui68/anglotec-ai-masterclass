@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Wifi, WifiOff, AlertTriangle, RefreshCw, CheckCircle, Shield, Gauge } from "lucide-react";
 import { toast } from "sonner";
+import i18n from "@/i18n";
 
 interface DiagnosticState {
   online: boolean;
@@ -252,33 +253,33 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
               <Shield size={14} className={state.errorCount > 0 ? "text-red-400" : "text-green-400"} />
-              System Status
+              {i18n.t("system.systemStatus")}
             </h4>
             <button onClick={() => setShowPanel(false)} className="text-gray-400 hover:text-white">×</button>
           </div>
 
           <div className="space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Network</span>
+              <span className="text-gray-400">{i18n.t("system.network")}</span>
               <span className={state.online ? "text-green-400" : "text-amber-400"}>
-                {state.online ? "Online" : "Offline"}
+                {state.online ? i18n.t("common.online") : i18n.t("common.offline")}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Storage</span>
+              <span className="text-gray-400">{i18n.t("system.storage")}</span>
               <span className={state.storageOk ? "text-green-400" : "text-red-400"}>
                 {state.storageOk ? "OK" : state.storageError || "Error"}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">FPS</span>
+              <span className="text-gray-400">{i18n.t("system.fps")}</span>
               <span className={state.fps >= 30 ? "text-green-400" : state.fps >= 20 ? "text-amber-400" : "text-red-400"}>
                 {state.fps}
               </span>
             </div>
             {state.memoryMB !== null && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Memory</span>
+                <span className="text-gray-400">{i18n.t("system.memory")}</span>
                 <span className={state.memoryMB < 128 ? "text-green-400" : state.memoryMB < 256 ? "text-amber-400" : "text-red-400"}>
                   {state.memoryMB}MB
                 </span>
@@ -286,7 +287,7 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
             )}
             {state.errorCount > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Errors Caught</span>
+                <span className="text-gray-400">{i18n.t("system.errorsCaught")}</span>
                 <span className="text-red-400">{state.errorCount}</span>
               </div>
             )}

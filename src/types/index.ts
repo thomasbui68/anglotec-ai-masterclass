@@ -10,7 +10,7 @@ export interface User {
   hasBiometric?: boolean;
 }
 
-export interface Phrase {
+export interface Prompt {
   id: number;
   english: string;
   category: string;
@@ -18,7 +18,7 @@ export interface Phrase {
 }
 
 export interface Progress {
-  total_phrases: number;
+  total_prompts: number;
   mastered: number;
   learning: number;
   new_count: number;

@@ -4,6 +4,7 @@ import {
   Activity, Wifi, Database, Volume2, HardDrive, CheckCircle,
   AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Zap
 } from "lucide-react";
+import i18n from "@/i18n";
 
 interface TestResult {
   name: string;
@@ -13,11 +14,11 @@ interface TestResult {
 }
 
 const TESTS = [
-  { id: "network", name: "Network", icon: Wifi },
-  { id: "supabase", name: "Cloud Auth", icon: Database },
-  { id: "storage", name: "Storage", icon: HardDrive },
-  { id: "voice", name: "Voice", icon: Volume2 },
-  { id: "performance", name: "Performance", icon: Activity },
+  { id: "network", name: i18n.t("system.network"), icon: Wifi },
+  { id: "supabase", name: i18n.t("auth.cloudAuth"), icon: Database },
+  { id: "storage", name: i18n.t("system.storage"), icon: HardDrive },
+  { id: "voice", name: i18n.t("settings.premiumVoice"), icon: Volume2 },
+  { id: "performance", name: i18n.t("system.performance"), icon: Activity },
 ];
 
 export function SelfTestingProvider({ children }: { children: React.ReactNode }) {
@@ -83,11 +84,14 @@ export function SelfTestingProvider({ children }: { children: React.ReactNode })
 
       case "voice": {
         const hasTTS = "speechSynthesis" in window;
-        const hasElevenLabs = !!import.meta.env.VITE_ELEVENLABS_API_KEY;
+        const voices = hasTTS ? window.speechSynthesis.getVoices() : [];
+        const hasNeural = voices.some((v) =>
+          /samantha|tessa|moira|daniel|aria|jenny|guy|sonia|ryan|neural|natural/.test(v.name.toLowerCase())
+        );
         result = {
           name: "Voice",
           status: hasTTS ? "pass" : "warn",
-          message: hasElevenLabs ? "Premium voice ready" : hasTTS ? "Browser voice ready" : "Voice unavailable",
+          message: hasNeural ? "Premium browser voice ready" : hasTTS ? "Browser voice ready" : "Voice unavailable",
           duration: performance.now() - start,
         };
         break;
@@ -206,7 +210,7 @@ export function SelfTestingProvider({ children }: { children: React.ReactNode })
               if (!r) return (
                 <div key={test.id} className="flex items-center justify-between text-xs text-gray-500 py-1">
                   <span className="flex items-center gap-1.5"><test.icon size={10} /> {test.name}</span>
-                  <span>Pending</span>
+                  <span>{i18n.t("system.pending")}</span>
                 </div>
               );
               return (

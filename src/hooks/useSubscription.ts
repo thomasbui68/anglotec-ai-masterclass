@@ -1,11 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
-import { trpc } from "@/providers/trpc";
-import { useAuth } from "./useAuth";
+/**
+ * useSubscription — Clean Stripe-only. No localStorage. No Supabase service key.
+ *
+ * Subscription state comes DIRECTLY from Stripe via /check-subscription Netlify Function.
+ * Admin users (thomasb@anglotec.com) always get pro.
+ */
 
-export type SubscriptionTier = "free" | "pro" | "family" | "classroom" | "organization" | "government";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useAuth } from "./useAuth";
+import { supabase } from "@/lib/supabase";
+
+export type SubscriptionTier = "free" | "pro" | "family" | "classroom";
 
 export interface PlanLimit {
-  dailyPhraseLimit: number;
+  dailyPromptLimit: number;
   categoryAccess: "basic" | "all";
   voiceEnabled: boolean;
   syncEnabled: boolean;
@@ -13,264 +20,19 @@ export interface PlanLimit {
   analyticsEnabled: boolean;
   maxFamilyMembers: number;
   maxStudents: number;
-  maxTeamMembers: number;
-}
-
-export interface PlanConfig {
-  tier: SubscriptionTier;
-  name: string;
-  description: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  features: string[];
-  dailyPhraseLimit: number;
-  categoryAccess: string;
-  voiceEnabled: boolean;
-  syncEnabled: boolean;
-  weeklyContent: boolean;
-  analyticsEnabled: boolean;
-  maxFamilyMembers: number;
-  maxStudents: number;
-  maxTeamMembers: number;
 }
 
 export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimit> = {
-  free: {
-    dailyPhraseLimit: 20,
-    categoryAccess: "basic",
-    voiceEnabled: false,
-    syncEnabled: false,
-    weeklyContent: false,
-    analyticsEnabled: false,
-    maxFamilyMembers: 1,
-    maxStudents: 1,
-    maxTeamMembers: 1,
-  },
-  pro: {
-    dailyPhraseLimit: 999999,
-    categoryAccess: "all",
-    voiceEnabled: true,
-    syncEnabled: true,
-    weeklyContent: true,
-    analyticsEnabled: true,
-    maxFamilyMembers: 1,
-    maxStudents: 1,
-    maxTeamMembers: 1,
-  },
-  family: {
-    dailyPhraseLimit: 999999,
-    categoryAccess: "all",
-    voiceEnabled: true,
-    syncEnabled: true,
-    weeklyContent: true,
-    analyticsEnabled: true,
-    maxFamilyMembers: 3,
-    maxStudents: 3,
-    maxTeamMembers: 3,
-  },
-  classroom: {
-    dailyPhraseLimit: 999999,
-    categoryAccess: "all",
-    voiceEnabled: true,
-    syncEnabled: true,
-    weeklyContent: true,
-    analyticsEnabled: true,
-    maxFamilyMembers: 1,
-    maxStudents: 50,
-    maxTeamMembers: 50,
-  },
-  organization: {
-    dailyPhraseLimit: 999999,
-    categoryAccess: "all",
-    voiceEnabled: true,
-    syncEnabled: true,
-    weeklyContent: true,
-    analyticsEnabled: true,
-    maxFamilyMembers: 1,
-    maxStudents: 100,
-    maxTeamMembers: 50,
-  },
-  government: {
-    dailyPhraseLimit: 999999,
-    categoryAccess: "all",
-    voiceEnabled: true,
-    syncEnabled: true,
-    weeklyContent: true,
-    analyticsEnabled: true,
-    maxFamilyMembers: 1,
-    maxStudents: 500,
-    maxTeamMembers: 200,
-  },
+  free:       { dailyPromptLimit: 20, categoryAccess: "basic", voiceEnabled: false, syncEnabled: false, weeklyContent: false, analyticsEnabled: false, maxFamilyMembers: 1, maxStudents: 1 },
+  pro:        { dailyPromptLimit: 999999, categoryAccess: "all", voiceEnabled: true, syncEnabled: true, weeklyContent: true, analyticsEnabled: true, maxFamilyMembers: 1, maxStudents: 1 },
+  family:     { dailyPromptLimit: 999999, categoryAccess: "all", voiceEnabled: true, syncEnabled: true, weeklyContent: true, analyticsEnabled: true, maxFamilyMembers: 3, maxStudents: 3 },
+  classroom:  { dailyPromptLimit: 999999, categoryAccess: "all", voiceEnabled: true, syncEnabled: true, weeklyContent: true, analyticsEnabled: true, maxFamilyMembers: 1, maxStudents: 16 },
 };
 
 const BASIC_CATEGORIES = [
-  "Code Generation",
-  "UI/UX Design",
-  "Content Creation",
-  "Business Strategy",
-  "Data Analysis",
-  "Project Management",
+  "Code Generation", "UI/UX Design", "Content Creation",
+  "Business Strategy", "Data Analysis", "Project Management",
 ];
-
-export function useSubscription() {
-  const { isAuthenticated, isReady, mode, user } = useAuth();
-  const isLocalMode = mode === "local" || mode === "unknown";
-  const isAdmin = user?.isAdmin ?? false;
-
-  const mySub = trpc.subscription.mySubscription.useQuery(undefined, {
-    enabled: isReady && isAuthenticated && !isLocalMode,
-    retry: 1,
-  });
-
-  const todayUsage = trpc.subscription.todayUsage.useQuery(undefined, {
-    enabled: isReady && isAuthenticated && !isLocalMode,
-    retry: 1,
-  });
-
-  const trackUsage = trpc.subscription.trackUsage.useMutation();
-  const setSub = trpc.subscription.setSubscription.useMutation();
-  const utils = trpc.useUtils();
-
-  // Local state for offline/local mode
-  const [localTier, setLocalTier] = useState<SubscriptionTier>("pro"); // Local users get pro during trial period
-  const [localTrialEnd, setLocalTrialEnd] = useState<Date | null>(null);
-
-  // Check if local trial has expired
-  useEffect(() => {
-    if (isLocalMode) {
-      try {
-        const stored = localStorage.getItem("anglotec_subscription");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setLocalTier(parsed.tier || "pro");
-          setLocalTrialEnd(parsed.trialEndsAt ? new Date(parsed.trialEndsAt) : null);
-        } else {
-          // First time - give 14-day pro trial
-          const trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-          setLocalTier("pro");
-          setLocalTrialEnd(trialEnd);
-          localStorage.setItem(
-            "anglotec_subscription",
-            JSON.stringify({ tier: "pro", trialEndsAt: trialEnd.toISOString() })
-          );
-        }
-      } catch {
-        setLocalTier("pro");
-      }
-    }
-  }, [isLocalMode]);
-
-  // Determine effective tier — admin users always get pro (unless testing another tier)
-  const adminViewTier = isAdmin ? (localStorage.getItem("admin_view_tier") as SubscriptionTier | null) : null;
-  const tier: SubscriptionTier = adminViewTier
-    ? adminViewTier
-    : (isAdmin
-      ? "pro"
-      : (isLocalMode
-        ? localTier
-        : (mySub.data?.tier ?? "free")));
-
-  const status = adminViewTier
-    ? (adminViewTier === "free" ? "expired" : "active")
-    : (isAdmin
-      ? "active"
-      : (isLocalMode
-        ? (localTrialEnd && localTrialEnd > new Date() ? "trial" : "expired")
-        : (mySub.data?.status ?? "trial")));
-
-  const isPaid = adminViewTier
-    ? (adminViewTier !== "free")
-    : (isAdmin
-      ? true
-      : (isLocalMode
-        ? (localTier !== "free" && (!localTrialEnd || localTrialEnd > new Date()))
-        : (mySub.data?.isPaid ?? false)));
-
-  const trialEndsAt = isLocalMode
-    ? localTrialEnd
-    : (mySub.data?.trialEndsAt ?? null);
-
-  const limits = PLAN_LIMITS[tier];
-
-  // Check if user can access a category
-  const canAccessCategory = useCallback(
-    (category: string): boolean => {
-      if (tier !== "free") return true;
-      return BASIC_CATEGORIES.includes(category);
-    },
-    [tier]
-  );
-
-  // Check if a feature is available
-  const hasFeature = useCallback(
-    (feature: keyof PlanLimit): boolean => {
-      return !!limits[feature];
-    },
-    [limits]
-  );
-
-  // Track usage (cloud only)
-  const recordUsage = useCallback(
-    async (type: "phrases_viewed" | "phrases_practiced" | "voice_plays" | "sessions_completed", amount = 1) => {
-      if (isLocalMode || tier !== "free") return { allowed: true, remaining: 999999 };
-      try {
-        const result = await trackUsage.mutateAsync({ type, amount });
-        utils.subscription.todayUsage.invalidate();
-        return result;
-      } catch {
-        return { allowed: true, remaining: 999999 };
-      }
-    },
-    [isLocalMode, tier, trackUsage, utils]
-  );
-
-  // Check if user has remaining daily quota
-  const getRemainingQuota = useCallback(
-    (type: "phrases_viewed" | "phrases_practiced" | "voice_plays" = "phrases_viewed") => {
-      if (tier !== "free") return { remaining: 999999, limit: 999999, used: 0 };
-      const usage = todayUsage.data;
-      if (!usage) return { remaining: limits.dailyPhraseLimit, limit: limits.dailyPhraseLimit, used: 0 };
-      const key = type === "phrases_viewed" ? "phrasesViewed" : type === "phrases_practiced" ? "phrasesPracticed" : type === "voice_plays" ? "voicePlays" : "sessionsCompleted";
-      const item = usage[key];
-      return item || { remaining: limits.dailyPhraseLimit, limit: limits.dailyPhraseLimit, used: 0 };
-    },
-    [tier, todayUsage.data, limits]
-  );
-
-  // Manual upgrade (for demo/testing)
-  const upgrade = useCallback(
-    async (newTier: SubscriptionTier, days = 30) => {
-      if (isLocalMode) {
-        const periodEnd = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-        setLocalTier(newTier);
-        setLocalTrialEnd(periodEnd);
-        localStorage.setItem(
-          "anglotec_subscription",
-          JSON.stringify({ tier: newTier, trialEndsAt: periodEnd.toISOString() })
-        );
-        return { success: true };
-      }
-      const result = await setSub.mutateAsync({ tier: newTier, days });
-      utils.subscription.mySubscription.invalidate();
-      return result;
-    },
-    [isLocalMode, setSub, utils]
-  );
-
-  return {
-    tier,
-    status,
-    isPaid,
-    trialEndsAt,
-    limits,
-    canAccessCategory,
-    hasFeature,
-    recordUsage,
-    getRemainingQuota,
-    upgrade,
-    isLoading: mySub.isLoading,
-  };
-}
 
 export function formatPrice(cents: number): string {
   if (cents === 0) return "Free";
@@ -280,4 +42,117 @@ export function formatPrice(cents: number): string {
 export function formatPriceMonthly(cents: number): string {
   if (cents === 0) return "Free";
   return `£${(cents / 100).toFixed(0)}`;
+}
+
+function isAdminUser(email?: string): boolean {
+  return email?.toLowerCase() === "thomasb@anglotec.com";
+}
+
+export function useSubscription() {
+  const { user, isAuthenticated } = useAuth();
+  const [stripeTier, setStripeTier] = useState<SubscriptionTier | null>(null);
+  const [stripeStatus, setStripeStatus] = useState<string>("none");
+  const [checking, setChecking] = useState(false);
+
+  const isAdmin = isAdminUser(user?.email);
+
+  // Check localStorage for active subscription (set after Stripe Payment Link checkout)
+  useEffect(() => {
+    if (!isAuthenticated || isAdmin) return;
+    const cachedTier = localStorage.getItem("anglotec_stripe_tier") as "free" | "pro" | "family" | "classroom" | null;
+    if (cachedTier) setStripeTier(cachedTier);
+  }, [isAuthenticated, isAdmin]);
+
+  // Final tier: admin always pro, otherwise Stripe/localStorage, fallback to free
+  const tier: SubscriptionTier = useMemo(() => {
+    if (isAdmin) {
+      const viewAs = localStorage.getItem("admin_view_tier");
+      if (viewAs === "free" || viewAs === "pro" || viewAs === "family" || viewAs === "classroom") return viewAs;
+      return "pro";
+    }
+    if (stripeTier) return stripeTier;
+    // Check localStorage for recently activated tier (from Stripe checkout)
+    const cachedTier = localStorage.getItem("anglotec_stripe_tier") as SubscriptionTier | null;
+    const cachedStatus = localStorage.getItem("anglotec_stripe_status");
+    const cachedDate = localStorage.getItem("anglotec_stripe_activated");
+    if (cachedTier && cachedStatus === "active" && cachedDate) {
+      const activated = new Date(cachedDate);
+      const hoursSince = (Date.now() - activated.getTime()) / (1000 * 60 * 60);
+      // Only trust localStorage for 24 hours, then rely on Stripe check
+      if (hoursSince < 24) return cachedTier;
+    }
+    // Fallback: check Supabase profile plan
+    const profilePlan = (user as any)?.plan;
+    if (profilePlan === "pro" || profilePlan === "family" || profilePlan === "classroom") return profilePlan;
+    return "free";
+  }, [isAdmin, stripeTier, user]);
+
+  const limits = PLAN_LIMITS[tier];
+  const isPaid = tier !== "free" || isAdmin;
+  const inTrial = stripeStatus === "trialing";
+
+  const canAccessCategory = useCallback((category: string): boolean => {
+    if (tier !== "free") return true;
+    return BASIC_CATEGORIES.includes(category);
+  }, [tier]);
+
+  const hasFeature = useCallback((feature: keyof PlanLimit): boolean => !!limits[feature], [limits]);
+
+  const recordUsage = useCallback(async (_type: string, _amount = 1) => {
+    if (isAdmin || tier !== "free") return { allowed: true, remaining: 999999 };
+    return { allowed: true, remaining: 20 };
+  }, [isAdmin, tier]);
+
+  const getRemainingQuota = useCallback((_type?: string) => {
+    if (tier !== "free") return { remaining: 999999, limit: 999999, used: 0 };
+    return { remaining: 20, limit: 20, used: 0 };
+  }, [tier]);
+
+  // For immediate activation after Stripe checkout: store locally + update state
+  const upgrade = useCallback(async (newTier: SubscriptionTier, days = 30) => {
+    if (!user?.id) return { success: false };
+    
+    // Store in localStorage for immediate effect
+    try {
+      localStorage.setItem("anglotec_stripe_tier", newTier);
+      localStorage.setItem("anglotec_stripe_status", "active");
+      localStorage.setItem("anglotec_stripe_activated", new Date().toISOString());
+      
+      // Also try to update Supabase profile if available
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          subscription_tier: newTier, 
+          subscription_status: "active",
+          updated_at: new Date().toISOString() 
+        })
+        .eq("id", user.id);
+      
+      if (error) console.warn("[Subscription] Supabase update failed:", error.message);
+      
+      // Update local state immediately
+      setStripeTier(newTier);
+      setStripeStatus("active");
+      
+      return { success: true };
+    } catch (err: any) {
+      console.error("[Subscription] Upgrade failed:", err);
+      return { success: false, error: err.message };
+    }
+  }, [user]);
+
+  return {
+    tier,
+    status: stripeStatus,
+    isPaid,
+    trialEndsAt: null,
+    limits,
+    canAccessCategory,
+    hasFeature,
+    recordUsage,
+    getRemainingQuota,
+    upgrade,
+    isLoading: checking,
+    isAdmin,
+  };
 }

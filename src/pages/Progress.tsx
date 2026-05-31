@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trophy, Flame, Brain, BookOpen, ArrowLeft, Award, TrendingUp, Calendar, Home, AlertCircle } from "lucide-react";
 import type { Progress as ProgressStats, Achievement } from "@/types";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 
 export default function ProgressPage() {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ export default function ProgressPage() {
     );
   }
 
-  const total = stats?.total_phrases || 3000;
+  const total = stats?.total_prompts || 3000;
   const mastered = stats?.mastered || 0;
   const learning = stats?.learning || 0;
   const newCount = stats?.new_count || total - mastered - learning;

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Disallow auth callbacks and private routes
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /settings
+Disallow: /api/
+
+Sitemap: https://masterclass.anglotec-ai.com/sitemap.xml

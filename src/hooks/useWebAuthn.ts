@@ -202,17 +202,13 @@ export function useWebAuthn() {
   const authenticateBiometric = useCallback(async (credentialId: string): Promise<boolean> => {
     setError(null);
 
-    // Validate credentialId before passing to WebAuthn
-    if (!credentialId || typeof credentialId !== "string") {
-      setError("Face ID credential is missing. Please sign in with your password first.");
+    // Silently fail if credential is missing or invalid — fall back to password
+    if (!credentialId || typeof credentialId !== "string" || credentialId.length < 10) {
       return false;
     }
-    if (credentialId.length < 10) {
-      setError("Face ID credential appears invalid. Please sign in with your password and set up Face ID again.");
-      return false;
-    }
-    if (!/^[A-Za-z0-9_-]+$/.test(credentialId)) {
-      setError("Face ID credential is corrupted. Please sign in with your password and set up Face ID again.");
+    try {
+      base64ToBuffer(credentialId);
+    } catch {
       return false;
     }
 
@@ -231,13 +227,8 @@ export function useWebAuthn() {
         },
       });
       return !!assertion;
-    } catch (err: any) {
-      let msg = "Face ID verification failed.";
-      if (err.name === "NotAllowedError") msg = "Face ID verification was cancelled or denied.";
-      else if (err.name === "SecurityError") msg = "Face ID requires a secure connection.";
-      else if (err.name === "NotSupportedError") msg = "This browser doesn't support Face ID on this device.";
-      else if (err.message) msg = err.message;
-      setError(msg);
+    } catch {
+      // Silently fail — don't show error toast, just fall back to password
       return false;
     }
   }, []);

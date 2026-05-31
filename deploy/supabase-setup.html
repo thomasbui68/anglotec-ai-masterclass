@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Anglotec Supabase Setup</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #0f172a; color: white; }
+    h1 { color: #f97316; }
+    button { padding: 12px 24px; font-size: 16px; cursor: pointer; background: #f97316; color: white; border: none; border-radius: 8px; }
+    button:disabled { background: #666; cursor: not-allowed; }
+    pre { background: #1e293b; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+    .success { color: #4ade80; }
+    .error { color: #f87171; }
+    .step { margin: 20px 0; padding: 15px; background: #1e293b; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Anglotec AI Masterclass — Supabase Setup</h1>
+  <p>This tool will create all required database tables in your Supabase project.</p>
+
+  <div class="step">
+    <h3>Step 1: Connect</h3>
+    <p>Project URL: <code>https://rluiarorxttctkeozmpv.supabase.co</code></p>
+    <p id="status">Click the button below to connect and create tables.</p>
+  </div>
+
+  <button id="setupBtn" onclick="runSetup()">Create Database Tables</button>
+
+  <div class="step">
+    <h3>Step 2: Progress</h3>
+    <pre id="log">Waiting...</pre>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://rluiarorxttctkeozmpv.supabase.co';
+    const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsdWlhcm9yeHR0Y3RrZW96bXB2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzI4OTk0OSwiZXhwIjoyMDkyODY1OTQ5fQ.k_xYN8DHAh0vJttLYa6BBRHJuTBXZMPi9_JdBG0c1QI';
+
+    const supabase = supabase.createClient(SUPABASE_URL, SERVICE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+
+    function log(msg, type = 'info') {
+      const el = document.getElementById('log');
+      const color = type === 'success' ? 'color: #4ade80' : type === 'error' ? 'color: #f87171' : '';
+      el.innerHTML += `<div style="${color}">${msg}</div>`;
+    }
+
+    async function runSetup() {
+      const btn = document.getElementById('setupBtn');
+      btn.disabled = true;
+      document.getElementById('log').innerHTML = '';
+      log('Starting setup...');
+
+      try {
+        // Test connection
+        log('Testing connection...');
+        const { data, error } = await supabase.from('information_schema.tables').select('table_name').limit(1);
+        if (error) throw error;
+        log('Connection successful!', 'success');
+
+        // Unfortunately, Supabase JS client cannot execute raw CREATE TABLE SQL.
+        // The service_role key only has access via REST API, not direct SQL execution.
+        log('');
+        log('NOTE: Supabase JavaScript client cannot execute CREATE TABLE statements.', 'error');
+        log('You MUST paste the SQL into the Supabase SQL Editor manually.', 'error');
+        log('');
+        log('Here is the SQL you need to paste:');
+        log('');
+        log(`-- Run this in Supabase SQL Editor (https://supabase.com/dashboard/project/rluiarorxttctkeozmpv/sql/new)
+
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  display_name TEXT,
+  avatar_url TEXT,
+  plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'family', 'classroom')),
+  daily_goal INTEGER NOT NULL DEFAULT 20,
+  email_verified BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$ BEGIN
+  INSERT INTO public.profiles (id, email, display_name, plan, daily_goal, email_verified, created_at, updated_at)
+  VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)), 'free', 20, false, now(), now())
+  ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, display_name = COALESCE(EXCLUDED.display_name, profiles.display_name), updated_at = now();
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can read own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  tier TEXT NOT NULL DEFAULT 'free' CHECK (tier IN ('free', 'pro', 'family', 'classroom')),
+  status TEXT NOT NULL DEFAULT 'trial' CHECK (status IN ('active', 'trial', 'expired', 'cancelled')),
+  trial_ends_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(user_id)
+);
+
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can read own subscription" ON subscriptions FOR SELECT USING (auth.uid() = user_id);
+
+CREATE OR REPLACE FUNCTION public.handle_new_subscription()
+RETURNS TRIGGER AS $$ BEGIN
+  INSERT INTO public.subscriptions (user_id, tier, status, trial_ends_at, created_at, updated_at)
+  VALUES (NEW.id, 'pro', 'trial', now() + interval '14 days', now(), now())
+  ON CONFLICT (user_id) DO NOTHING;
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_subscribed ON auth.users;
+CREATE TRIGGER on_auth_user_subscribed AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_subscription();
+
+CREATE TABLE IF NOT EXISTS user_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  phrase_id TEXT NOT NULL,
+  category TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'learning', 'mastered')),
+  correct_count INTEGER NOT NULL DEFAULT 0,
+  wrong_count INTEGER NOT NULL DEFAULT 0,
+  last_reviewed TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(user_id, phrase_id)
+);
+
+ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can CRUD own progress" ON user_progress FOR ALL USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS user_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  xp_earned INTEGER NOT NULL DEFAULT 0,
+  phrases_studied INTEGER NOT NULL DEFAULT 0,
+  correct_count INTEGER NOT NULL DEFAULT 0,
+  wrong_count INTEGER NOT NULL DEFAULT 0,
+  duration_seconds INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE user_sessions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can CRUD own sessions" ON user_sessions FOR ALL USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS usage_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  action TEXT NOT NULL,
+  phrase_id TEXT,
+  category TEXT,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE usage_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can read own logs" ON usage_logs FOR SELECT USING (auth.uid() = user_id);
+`);
+        log('');
+        log('Copy ALL the SQL above (from CREATE TABLE to the last semicolon).', 'success');
+        log('Paste it at: https://supabase.com/dashboard/project/rluiarorxttctkeozmpv/sql/new', 'success');
+        log('Then click RUN.', 'success');
+
+      } catch (err) {
+        log('Error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

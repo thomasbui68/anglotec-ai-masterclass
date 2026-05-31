@@ -1,6 +1,7 @@
 import { createContext, useContext, useCallback, useRef, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Shield, Clock, AlertTriangle } from "lucide-react";
+import i18n from "@/i18n";
 
 interface ProtectState {
   isRateLimited: boolean;
@@ -10,16 +11,12 @@ interface ProtectState {
 }
 
 interface ProtectContextType {
-  // Button spam protection
   canAct: (actionId: string, cooldownMs?: number) => boolean;
-  // Login brute-force
   recordLoginAttempt: () => void;
   isLoginLocked: boolean;
   loginLockSeconds: number;
-  // Flashcard feedback cooldown
   canAnswer: boolean;
   recordAnswer: () => void;
-  // Global cooldown
   isRateLimited: boolean;
 }
 
@@ -33,10 +30,10 @@ const Context = createContext<ProtectContextType>({
   isRateLimited: false,
 });
 
-const ACTION_COOLDOWN = 500; // ms between same action
+const ACTION_COOLDOWN = 500;
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_LOCKOUT_MINUTES = 15;
-const FLASHCARD_ANSWER_COOLDOWN = 800; // ms between I Know This / Practice More
+const FLASHCARD_ANSWER_COOLDOWN = 800;
 
 export function SelfProtectingProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<ProtectState>({
@@ -50,7 +47,6 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
   const answerTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [canAnswer, setCanAnswer] = useState(true);
 
-  // Restore login attempt count from storage
   useEffect(() => {
     try {
       const raw = localStorage.getItem("__protect_login__");
@@ -67,14 +63,12 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
     }
   }, []);
 
-  // Persist state
   useEffect(() => {
     if (state.loginAttempts > 0 || state.isLocked) {
       localStorage.setItem("__protect_login__", JSON.stringify(state));
     }
   }, [state]);
 
-  // Countdown timer for lock display
   const [lockSeconds, setLockSeconds] = useState(0);
   useEffect(() => {
     if (!state.isLocked) {
@@ -96,7 +90,6 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
     const now = Date.now();
     const last = actionTimestamps.current.get(actionId) || 0;
     if (now - last < cooldownMs) {
-      // Too fast — silently ignore or gentle toast
       return false;
     }
     actionTimestamps.current.set(actionId, now);
@@ -114,8 +107,8 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
           <div className="flex items-start gap-2">
             <AlertTriangle size={16} className="text-red-400 shrink-0 mt-0.5" />
             <div className="text-xs">
-              <p className="font-medium">Too many failed attempts</p>
-              <p className="text-gray-400">Account locked for {LOGIN_LOCKOUT_MINUTES} minutes.</p>
+              <p className="font-medium">{i18n.t("security.tooManyAttempts")}</p>
+              <p className="text-gray-400">{i18n.t("security.accountLockedFor", { minutes: LOGIN_LOCKOUT_MINUTES })}</p>
             </div>
           </div>,
           { duration: 6000, id: "login-locked" }
@@ -124,7 +117,7 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
       }
 
       if (attempts >= 3) {
-        toast.warning(`${LOGIN_MAX_ATTEMPTS - attempts} attempts remaining before lockout.`, {
+        toast.warning(i18n.t("security.attemptsRemaining", { count: LOGIN_MAX_ATTEMPTS - attempts }), {
           icon: <Clock size={14} />,
           duration: 4000,
           id: "login-warn",
@@ -152,23 +145,22 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
       isRateLimited: state.isRateLimited,
     }}>
       {children}
-      {/* Lockout overlay */}
       {state.isLocked && (
         <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-[#1a2332] border border-red-400/30 rounded-2xl p-6 max-w-sm w-full text-center">
             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Shield size={32} className="text-red-400" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">Account Locked</h2>
+            <h2 className="text-xl font-bold text-white mb-2">{i18n.t("security.accountLocked")}</h2>
             <p className="text-gray-400 text-sm mb-4">
-              Too many failed sign-in attempts. Please wait before trying again.
+              {i18n.t("security.accountLockedDesc")}
             </p>
             <div className="bg-white/5 rounded-xl p-4 mb-4">
               <p className="text-3xl font-bold text-orange-400">{Math.ceil(lockSeconds / 60)}:{String(lockSeconds % 60).padStart(2, "0")}</p>
-              <p className="text-xs text-gray-500 mt-1">remaining</p>
+              <p className="text-xs text-gray-500 mt-1">{i18n.t("security.remaining")}</p>
             </div>
             <p className="text-xs text-gray-500">
-              Forgot your password? Use the forgot password link when unlocked.
+              {i18n.t("security.forgotPasswordHint")}
             </p>
           </div>
         </div>

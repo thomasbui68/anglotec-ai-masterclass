@@ -11,7 +11,7 @@ import {
   Mail, Lock, User, Phone, Shield, CheckCircle, ArrowRight,
   ArrowLeft, Sparkles, Eye, EyeOff, AlertCircle
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 
 export default function Register() {
   const { t } = useTranslation();
@@ -106,7 +106,7 @@ export default function Register() {
             <Sparkles size={14} className="text-orange-400" />
           </div>
           <p className="text-white text-xs leading-relaxed">
-            {t("auth.joiningPhrases")}
+            {t("auth.joiningPrompts")}
           </p>
         </div>
 
@@ -192,7 +192,7 @@ export default function Register() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>{t("auth.email")}</Label>
-                    <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" required />
+                    <Input type="email" placeholder={t("auth.emailPlaceholder")} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12" required />
                     <p className="text-xs text-gray-300">{t("auth.verificationLinkSent")}</p>
                   </div>
                   <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">{t("common.continue")} <ArrowRight size={18} className="ml-2" /></Button>
@@ -252,7 +252,7 @@ export default function Register() {
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1"><Phone size={14} /> {t("auth.phone")} <span className="text-gray-300">({t("common.optional")})</span></Label>
-                    <Input type="tel" placeholder="+1 234 567 8900" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" />
+                    <Input type="tel" placeholder={t("auth.phonePlaceholder")} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" />
                     <p className="text-xs text-gray-300">{t("auth.phoneDesc")}</p>
                   </div>
                   <Button onClick={handleNext} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">{t("common.continue")} <ArrowRight size={18} className="ml-2" /></Button>

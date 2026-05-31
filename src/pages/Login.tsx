@@ -9,10 +9,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  LogIn, Fingerprint, Loader2, Eye, EyeOff, ArrowRight,
+  LogIn, Fingerprint, Loader2, Eye, EyeOff, ArrowRight, Users,
   ShieldCheck, AlertCircle, Sparkles, GraduationCap
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
 
 export default function Login() {
@@ -52,6 +52,17 @@ export default function Login() {
     try {
       await login(email.trim(), password);
       toast.success(t("auth.welcomeBack"));
+      
+      // Check for pending checkout tier (after Stripe payment)
+      const pendingTier = localStorage.getItem("pending_checkout_tier") as "pro" | "family" | "classroom" | null;
+      if (pendingTier) {
+        localStorage.removeItem("pending_checkout_tier");
+        toast.success(`Payment confirmed! Activating ${pendingTier.toUpperCase()} plan...`);
+        // Small delay so user sees the toast before redirect
+        setTimeout(() => navigate("/settings?checkout=success&tier=" + pendingTier), 1500);
+        return;
+      }
+      
       navigate("/");
     } catch (err: any) {
       setLoginError(err.message || t("errors.authFailed"));
@@ -137,6 +148,14 @@ export default function Login() {
           </div>
         )}
 
+        {/* Social Proof Bar */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-2">
+            <Users size={16} className="text-green-400" />
+            <span className="text-green-400 text-sm font-medium">{t("pricing.joinLearners")}</span>
+          </div>
+        </div>
+
         <Card className="border-0 shadow-2xl bg-white">
           <CardHeader className="pb-2">
             <h2 className="text-xl font-bold text-center text-gray-800 flex items-center justify-center gap-2">
@@ -156,7 +175,7 @@ export default function Login() {
               <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
                 <TabsTrigger value="password" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">{t("auth.password")}</TabsTrigger>
                 <TabsTrigger value="faceid" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  <Fingerprint size={14} className="mr-1" /> Face ID
+                  <Fingerprint size={14} className="mr-1" /> {t("auth.faceId")}
                 </TabsTrigger>
               </TabsList>
 
@@ -168,7 +187,7 @@ export default function Login() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); setLoginError(null); }}
                       className="h-12 rounded-xl border-gray-200 focus:border-orange-400 focus:ring-orange-400"
@@ -225,7 +244,7 @@ export default function Login() {
                     <Input
                       id="bio-email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="h-12 rounded-xl border-gray-200"

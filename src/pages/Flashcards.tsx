@@ -2,9 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
-import { useProgress, usePhrases } from "@/hooks/useApi";
+import { useProgress, usePrompts } from "@/hooks/useApi";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useBrowserTTS } from "@/hooks/useBrowserTTS";
 import { useSessionRestore } from "@/components/SelfSavingProvider";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
   Home, RotateCcw, Brain, Sparkles, Star, Flame,
   Zap, Loader2, Lock, ArrowLeft, X, SkipForward, AlertTriangle
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 
 const BASIC_CATEGORIES = [
   "Code Generation", "UI/UX Design", "Content Creation",
@@ -32,9 +32,9 @@ export default function Flashcards() {
 
   const { user } = useAuth();
   const game = useGamification();
-  const tts = useElevenLabsTTS();
+  const tts = useBrowserTTS();
   const progressApi = useProgress(user?.id || 0);
-  const phraseApi = usePhrases();
+  const promptApi = usePrompts();
   const subscription = useSubscription();
   const protect = useSelfProtecting();
 
@@ -46,8 +46,8 @@ export default function Flashcards() {
   const [showScore, setShowScore] = useState(false);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [comboCount, setComboCount] = useState(0);
-  const [phrases, setPhrases] = useState<any[]>([]);
-  const [phrasesLoading, setPhrasesLoading] = useState(true);
+  const [prompts, setPrompts] = useState<any[]>([]);
+  const [promptsLoading, setPromptsLoading] = useState(true);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   // ── Self-Saving Session Restore ──
@@ -86,29 +86,29 @@ export default function Flashcards() {
     saveCheckpoint();
   }, [saveCheckpoint]);
 
-  const categories = phraseApi.categories ?? [];
-  const currentPhrase = phrases[currentIndex];
+  const categories = promptApi.categories ?? [];
+  const currentPrompt = prompts[currentIndex];
 
   // Reset index when category changes
   useEffect(() => {
     setCurrentIndex(0);
   }, [selectedCategory]);
 
-  // Load phrases when category or phraseApi changes
+  // Load prompts when category or promptApi changes
   useEffect(() => {
-    setPhrasesLoading(true);
+    setPromptsLoading(true);
     try {
-      const result = phraseApi.getPhrases(
+      const result = promptApi.getPrompts(
         selectedCategory !== "all" ? selectedCategory : undefined,
         undefined, 1, 50
       );
-      setPhrases(result.phrases);
+      setPrompts(result.prompts);
     } catch {
-      setPhrases([]);
+      setPrompts([]);
     } finally {
-      setPhrasesLoading(false);
+      setPromptsLoading(false);
     }
-  }, [selectedCategory, phraseApi]);
+  }, [selectedCategory, promptApi]);
 
   // Session start
   useEffect(() => {
@@ -117,17 +117,17 @@ export default function Flashcards() {
   }, []);
 
   useEffect(() => {
-    if (phrases.length > 0 && showHint) {
+    if (prompts.length > 0 && showHint) {
       const timer = setTimeout(() => setShowHint(false), 4000);
       return () => clearTimeout(timer);
     }
-  }, [phrases.length, showHint]);
+  }, [prompts.length, showHint]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (showScore || showQuitConfirm) return;
-      if (!currentPhrase) return;
+      if (!currentPrompt) return;
 
       switch (e.key) {
         case "ArrowLeft":
@@ -160,12 +160,12 @@ export default function Flashcards() {
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [currentPhrase, flipped, showScore, showQuitConfirm, currentIndex, phrases.length]);
+  }, [currentPrompt, flipped, showScore, showQuitConfirm, currentIndex, prompts.length]);
 
   const playAudio = useCallback(() => {
-    if (!currentPhrase || !tts.isReady) return;
-    tts.speak(currentPhrase.english);
-  }, [currentPhrase, tts]);
+    if (!currentPrompt || !tts.isReady) return;
+    tts.speak(currentPrompt.prompt);
+  }, [currentPrompt, tts]);
 
   const handleFeedback = useCallback((isCorrect: boolean) => {
     if (flipped || feedback) return; // Prevent double-tap
@@ -177,7 +177,7 @@ export default function Flashcards() {
 
     if (isCorrect) {
       game.recordCorrect();
-      progressApi.update(currentPhrase.id, "mastered");
+      progressApi.update(currentPrompt.id, "mastered");
       const newStreak = sessionStats.streak + 1;
       const newCombo = comboCount + 1;
       setSessionStats((s) => ({
@@ -196,29 +196,29 @@ export default function Flashcards() {
     } else {
       setSessionStats((s) => ({ ...s, incorrect: s.incorrect + 1, streak: 0 }));
       setComboCount(0);
-      progressApi.update(currentPhrase.id, "learning");
+      progressApi.update(currentPrompt.id, "learning");
     }
 
     setTimeout(() => {
       setFlipped(false);
       setFeedback(null);
-      if (currentIndex < phrases.length - 1) {
+      if (currentIndex < prompts.length - 1) {
         setCurrentIndex((i) => i + 1);
-        subscription.recordUsage("phrases_viewed", 1);
+        subscription.recordUsage("prompts_viewed", 1);
       } else {
         setShowScore(true);
         subscription.recordUsage("sessions_completed", 1);
       }
     }, 1200);
-  }, [currentPhrase, currentIndex, phrases.length, sessionStats, comboCount, game, progressApi, subscription, flipped, feedback, protect]);
+  }, [currentPrompt, currentIndex, prompts.length, sessionStats, comboCount, game, progressApi, subscription, flipped, feedback, protect]);
 
   const nextCard = useCallback(() => {
     if (flipped) return;
-    if (currentIndex < phrases.length - 1) {
+    if (currentIndex < prompts.length - 1) {
       setCurrentIndex((i) => i + 1);
-      subscription.recordUsage("phrases_viewed", 1);
+      subscription.recordUsage("prompts_viewed", 1);
     }
-  }, [currentIndex, phrases.length, subscription, flipped]);
+  }, [currentIndex, prompts.length, subscription, flipped]);
 
   const prevCard = useCallback(() => {
     if (currentIndex > 0 && !flipped) {
@@ -240,8 +240,8 @@ export default function Flashcards() {
     navigate("/");
   }, [navigate]);
 
-  const isVoiceLocked = !subscription.hasFeature("voiceEnabled");
-  const quota = subscription.getRemainingQuota("phrases_viewed");
+  // Voice is now FREE for all users — no tier restriction
+  const quota = subscription.getRemainingQuota("prompts_viewed");
 
   // ── RENDER STATES ──
 
@@ -338,13 +338,13 @@ export default function Flashcards() {
   }
 
   // Loading
-  if (phrasesLoading) {
+  if (promptsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={40} className="text-orange-400 animate-spin mx-auto mb-4" />
-          <p className="text-gray-300">{t("flashcards.loadingPhrases")}</p>
-          <p className="text-gray-300 text-xs mt-2">{t("masterclass.title")} — 3,000 {t("flashcards.phrases")}</p>
+          <p className="text-gray-300">{t("flashcards.loadingPrompts")}</p>
+          <p className="text-gray-300 text-xs mt-2">{t("masterclass.title")} — 3,000 {t("flashcards.prompts")}</p>
         </div>
       </div>
     );
@@ -389,7 +389,7 @@ export default function Flashcards() {
       {/* Usage limit warning for free users */}
       {subscription.tier === "free" && (
         <div className="bg-[#0f172a] px-4 pt-2">
-          <UsageLimitWarning used={quota.used} limit={quota.limit} type="phrases" />
+          <UsageLimitWarning used={quota.used} limit={quota.limit} type="prompts" />
         </div>
       )}
 
@@ -420,36 +420,26 @@ export default function Flashcards() {
             </div>
 
             {/* Progress */}
-            <span className="text-xs text-gray-300 font-mono">{currentIndex + 1}/{phrases.length}</span>
+            <span className="text-xs text-gray-300 font-mono">{currentIndex + 1}/{prompts.length}</span>
           </div>
 
           {/* Progress bar */}
           <div className="h-1 bg-gray-800 rounded-full mt-2 overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full transition-all duration-300"
-              style={{ width: `${phrases.length > 0 ? ((currentIndex + 1) / phrases.length) * 100 : 0}%` }}
+              style={{ width: `${prompts.length > 0 ? ((currentIndex + 1) / prompts.length) * 100 : 0}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Voice error banner — shows when ElevenLabs fails with cause */}
+      {/* Voice error banner */}
       {tts.error && (
         <div className="bg-red-500/10 border-b border-red-400/20 px-4 py-2 flex items-start gap-2">
           <AlertTriangle size={14} className="text-red-400 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-red-300 font-medium">{t("flashcards.premiumVoiceError")}</p>
+            <p className="text-xs text-red-300 font-medium">{t("flashcards.voiceError")}</p>
             <p className="text-[10px] text-red-400/80">{tts.error}</p>
-            {tts.error?.includes("elevenlabs.io/pricing") && (
-              <a
-                href="https://elevenlabs.io/pricing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[10px] text-orange-400 underline mt-1 inline-block"
-              >
-                {t("flashcards.upgradeVoice")} →
-              </a>
-            )}
           </div>
           <button onClick={tts.clearError} className="text-red-400 hover:text-red-300 shrink-0">
             <X size={14} />
@@ -503,7 +493,7 @@ export default function Flashcards() {
           <div className="min-w-0">
             <p className="text-xs text-orange-400 font-bold tracking-wide">{t("masterclass.title")}</p>
             <p className="text-[10px] text-gray-300 truncate">
-              {t("flashcards.phraseOf", { current: currentIndex + 1, total: phrases.length })} &middot; 3,000 {t("flashcards.phrasesTotal")}
+              {t("flashcards.promptOf", { current: currentIndex + 1, total: prompts.length })} &middot; 3,000 {t("flashcards.promptsTotal")}
             </p>
           </div>
         </div>
@@ -519,7 +509,7 @@ export default function Flashcards() {
         )}
 
         {/* Flashcard */}
-        {currentPhrase && (
+        {currentPrompt && (
           <div className="mb-6" style={{ perspective: "1000px" }}>
             <div
               className="relative transition-all duration-500"
@@ -537,42 +527,31 @@ export default function Flashcards() {
                 }`}
               >
                 <Badge className="mb-4 bg-white/10 text-gray-300 border-0 text-xs">
-                  {currentPhrase.category}
+                  {currentPrompt.category}
                 </Badge>
 
                 <p className="text-xl sm:text-2xl font-bold text-white leading-relaxed mb-6">
-                  {currentPhrase.english}
+                  {currentPrompt.prompt}
                 </p>
 
-                {/* Listen button */}
+                {/* Listen button — FREE for all users */}
                 <Button
-                  onClick={() => {
-                    if (isVoiceLocked) {
-                      toast.info(t("flashcards.voiceProFeature"));
-                      return;
-                    }
-                    playAudio();
-                  }}
+                  onClick={() => playAudio()}
                   disabled={tts.isSpeaking || !tts.isReady}
-                  className={`h-12 px-6 font-semibold text-base rounded-xl ${
-                    isVoiceLocked
-                      ? "bg-gray-600 hover:bg-gray-500 text-gray-300"
-                      : "bg-orange-500 hover:bg-orange-600 text-white"
-                  }`}
+                  className="h-12 px-6 font-semibold text-base rounded-xl bg-orange-500 hover:bg-orange-600 text-white"
                   size="lg"
                 >
-                  {isVoiceLocked ? (
-                    <><Lock className="mr-2 h-5 w-5" /> {t("flashcards.voicePro")}</>
-                  ) : tts.isSpeaking ? (
+                  {tts.isSpeaking ? (
                     <><RotateCcw className="mr-2 h-5 w-5 animate-spin" /> {t("flashcards.playing")}</>
                   ) : (
                     <><Volume2 className="mr-2 h-5 w-5" /> {t("flashcards.listen")}</>
                   )}
                 </Button>
 
-                {!isVoiceLocked && tts.hasConfig && (
-                  <Badge variant="secondary" className="mt-2 bg-amber-500/20 text-amber-300 text-[10px] border-0">
-                    <Sparkles size={10} className="mr-1" /> {t("flashcards.premiumVoice")}
+                {/* Voice quality badge — shows what voice is active */}
+                {tts.hasConfig && (
+                  <Badge variant="secondary" className={`mt-2 text-[10px] border-0 ${tts.isNeural ? "bg-purple-500/20 text-purple-300" : "bg-blue-500/20 text-blue-300"}`}>
+                    <Sparkles size={10} className="mr-1" /> {tts.isNeural ? t("flashcards.premiumVoice") : t("flashcards.aiVoice")}
                   </Badge>
                 )}
 
@@ -604,7 +583,7 @@ export default function Flashcards() {
         )}
 
         {/* Action Buttons */}
-        {!flipped && currentPhrase && (
+        {!flipped && currentPrompt && (
           <div className="flex gap-3 mb-6">
             <Button
               onClick={() => handleFeedback(false)}
@@ -625,7 +604,7 @@ export default function Flashcards() {
         <div className="flex items-center justify-center mb-6">
           <button
             onClick={nextCard}
-            disabled={currentIndex >= phrases.length - 1 || flipped}
+            disabled={currentIndex >= prompts.length - 1 || flipped}
             className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-3 py-2 rounded-lg hover:bg-white/5"
           >
             <SkipForward size={14} /> {t("flashcards.skip")}
@@ -641,10 +620,10 @@ export default function Flashcards() {
           >
             <ChevronLeft size={18} /> <span className="text-sm">{t("flashcards.previous")}</span>
           </button>
-          <span className="text-xs text-gray-300 font-mono">{currentIndex + 1} / {phrases.length}</span>
+          <span className="text-xs text-gray-300 font-mono">{currentIndex + 1} / {prompts.length}</span>
           <button
             onClick={nextCard}
-            disabled={currentIndex >= phrases.length - 1 || flipped}
+            disabled={currentIndex >= prompts.length - 1 || flipped}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-300"
           >
             <span className="text-sm">{t("flashcards.next")}</span> <ChevronRight size={18} />

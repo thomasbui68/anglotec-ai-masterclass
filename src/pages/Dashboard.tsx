@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
-import { usePhrases, useProgress } from "@/hooks/useApi";
+import { usePrompts, useProgress } from "@/hooks/useApi";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
   Target, Crown, Star, TrendingUp, ChevronRight,
   GraduationCap, Shield, Gem, LogOut, ShieldCheck
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,22 +37,22 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const game = useGamification();
-  const phraseApi = usePhrases();
+  const promptApi = usePrompts();
   const progressApi = useProgress(user?.id || 0);
   const subscription = useSubscription();
 
-  const categories = phraseApi.categories ?? [];
-  const catLoading = phraseApi.isLoading;
+  const categories = promptApi.categories ?? [];
+  const catLoading = promptApi.isLoading;
   const stats = progressApi.stats ?? {
-    total_phrases: 3000, mastered: 0, learning: 0, new_count: 3000,
+    total_prompts: 3000, mastered: 0, learning: 0, new_count: 3000,
     avg_mastery: 0, total_practices: 0, active_days: 0, last_active: null,
   };
 
   // Usage quota for free users
-  const quota = subscription.getRemainingQuota("phrases_viewed");
+  const quota = subscription.getRemainingQuota("prompts_viewed");
 
-  const masteredPercent = stats.total_phrases > 0
-    ? Math.round((stats.mastered / stats.total_phrases) * 100)
+  const masteredPercent = stats.total_prompts > 0
+    ? Math.round((stats.mastered / stats.total_prompts) * 100)
     : 0;
 
   const dailyPercent = Math.min(100, Math.round((game.dailyProgress / (game.dailyGoal || 10)) * 100));
@@ -66,7 +66,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
+      <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <img src="/app-icon.png" alt="" className="h-9 w-9 sm:h-10 sm:w-10 object-contain drop-shadow-lg rounded-xl" />
@@ -122,7 +122,7 @@ export default function Dashboard() {
           <UsageLimitWarning
             used={quota.used}
             limit={quota.limit}
-            type="phrases"
+            type="prompts"
           />
         )}
 
@@ -178,6 +178,9 @@ export default function Dashboard() {
               </p>
               <p className="text-gray-300 text-xs mt-1 leading-relaxed">
                 {t("masterclass.subtitle")}
+              </p>
+              <p className="text-green-400 text-xs mt-2 font-semibold flex items-center gap-1">
+                <Target size={12} /> {t("pricing.masterIn30Days")}
               </p>
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center gap-1 text-xs text-gray-300">
@@ -249,7 +252,7 @@ export default function Dashboard() {
                     </div>
                     <p className="text-sm font-semibold text-white leading-tight">{cat}</p>
                     <p className="text-[10px] text-gray-300 mt-1">
-                      {isLocked ? t("flashcards.proOnly") : `250 ${t("flashcards.phrases")}`}
+                      {isLocked ? t("flashcards.proOnly") : `250 ${t("flashcards.prompts")}`}
                     </p>
                   </button>
                 );
@@ -360,7 +363,7 @@ export default function Dashboard() {
             <div className="flex justify-between text-xs text-gray-300 mt-2">
               <span>0</span>
               <span>{stats.mastered} {t("masterclass.learned")}</span>
-              <span>{stats.total_phrases} {t("dashboard.total")}</span>
+              <span>{stats.total_prompts} {t("dashboard.total")}</span>
             </div>
           </CardContent>
         </Card>

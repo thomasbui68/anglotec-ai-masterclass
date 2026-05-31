@@ -11,12 +11,13 @@ import {
   Sparkles, Shield, TrendingUp, Volume2, Smartphone,
   Star, Loader2, Clock, Mail, Building2, Phone, User, MessageSquare, X
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
+import { redirectToStripePayment } from "@/lib/stripe";
 
 export default function Pricing() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const subscription = useSubscription();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export default function Pricing() {
       borderColor: "border-gray-200",
       popular: false,
       features: [
-        t("pricing.features.phrases20"),
+        t("pricing.features.prompts20"),
         t("pricing.features.categories6"),
         t("pricing.features.localTracking"),
         t("pricing.features.basicAchievements"),
@@ -53,7 +54,7 @@ export default function Pricing() {
       notIncluded: [
         t("pricing.features.aiVoice"),
         t("pricing.features.crossDevice"),
-        t("pricing.features.weeklyPhrases"),
+        t("pricing.features.weeklyPrompts"),
         t("pricing.features.advancedAnalytics"),
       ],
     },
@@ -62,18 +63,18 @@ export default function Pricing() {
       name: t("pricing.pro"),
       description: t("pricing.proDesc"),
       monthlyPrice: 1999,
-      yearlyPrice: 17999,
+      yearlyPrice: 17991, // 25% off: 1999 × 12 × 0.75
       icon: Crown,
       color: "from-orange-500 to-yellow-500",
       borderColor: "border-orange-300",
       popular: true,
       badge: t("pricing.mostPopular"),
       features: [
-        t("pricing.features.unlimitedPhrases"),
+        t("pricing.features.unlimitedPrompts"),
         t("pricing.features.allCategories"),
         t("pricing.features.aiVoice"),
         t("pricing.features.crossDevice"),
-        t("pricing.features.weeklyPhrases"),
+        t("pricing.features.weeklyPrompts"),
         t("pricing.features.advancedAnalytics"),
         t("pricing.features.progressReports"),
         t("pricing.features.prioritySupport"),
@@ -88,7 +89,7 @@ export default function Pricing() {
       name: t("pricing.family"),
       description: t("pricing.familyDesc"),
       monthlyPrice: 3999,
-      yearlyPrice: 34999,
+      yearlyPrice: 35991, // 25% off: 3999 × 12 × 0.75
       icon: Users,
       color: "from-blue-500 to-cyan-500",
       borderColor: "border-blue-300",
@@ -96,7 +97,7 @@ export default function Pricing() {
       badge: t("pricing.bestValue"),
       features: [
         t("pricing.features.everythingPro"),
-        t("pricing.features.family5"),
+        t("pricing.features.family3"),
         t("pricing.features.parentDashboard"),
         t("pricing.features.familyReports"),
         t("pricing.features.sharedAchievements"),
@@ -185,14 +186,11 @@ export default function Pricing() {
   const inTrial = subscription.status === "trial" && trialDaysLeft > 0;
 
   const getButtonText = (planTier: SubscriptionTier) => {
-    if (inTrial && planTier === "pro") {
-      return t("pricing.keepProAfterTrial");
-    }
-    if (inTrial && planTier === "family") {
-      return t("pricing.switchToFamily");
-    }
     if (planTier === "free") return t("pricing.downgradeFree");
-    if (planTier === "classroom" || planTier === "organization" || planTier === "government") return t("pricing.contactSales");
+    if (planTier === "government") return t("pricing.contactSales");
+    if (planTier === "classroom" || planTier === "organization") return t("pricing.contactSales");
+    if (inTrial && planTier === "pro") return t("pricing.keepProAfterTrial");
+    if (inTrial && planTier === "family") return t("pricing.switchToFamily");
     if (planTier === "pro") return t("pricing.startTrial");
     if (planTier === "family") return t("pricing.startFamilyTrial");
     return t("pricing.choosePlan");
@@ -204,21 +202,50 @@ export default function Pricing() {
       return;
     }
 
-    if (tier === "classroom" || tier === "organization" || tier === "government") {
+    // Government → Contact Sales modal
+    if (tier === "government") {
       setShowClassroomModal(true);
       return;
     }
 
+    // Classroom / Organization → Contact Sales modal (not instant Stripe checkout)
+    if (tier === "classroom" || tier === "organization") {
+      setShowClassroomModal(true);
+      return;
+    }
+
+    if (tier === "free") {
+      // Downgrade to free
+      setUpgradingTier(tier);
+      try {
+        const result = await subscription.upgrade(tier, 30);
+        if (result.success) {
+          toast.success(t("pricing.planActivated", { tier: t(`tiers.${tier}`) }));
+          setTimeout(() => navigate("/dashboard"), 1500);
+        }
+      } catch (err: any) {
+        toast.error(err.message || t("errors.generic"));
+      } finally {
+        setUpgradingTier(null);
+      }
+      return;
+    }
+
+    // Paid tiers (pro, family): activate locally (Stripe can be added later)
     setUpgradingTier(tier);
     try {
       const result = await subscription.upgrade(tier, 30);
       if (result.success) {
+        localStorage.setItem("anglotec_stripe_tier", tier);
+        localStorage.setItem("anglotec_stripe_status", "active");
         toast.success(t("pricing.planActivated", { tier: t(`tiers.${tier}`) }));
-        setTimeout(() => navigate("/dashboard"), 1500);
+        setTimeout(() => {
+          window.location.hash = "#/settings";
+          window.location.reload();
+        }, 1500);
       }
     } catch (err: any) {
       toast.error(err.message || t("errors.generic"));
-    } finally {
       setUpgradingTier(null);
     }
   };
@@ -238,7 +265,7 @@ export default function Pricing() {
         `Contact Name: ${classroomForm.contactName}\n` +
         `Email: ${classroomForm.email}\n` +
         `Phone: ${classroomForm.phone}\n` +
-        `Number of Students: ${classroomForm.students}\n\n` +
+        `Number of Users: ${classroomForm.students}\n\n` +
         `Message:\n${classroomForm.message || "No additional message"}`
       );
       
@@ -319,6 +346,39 @@ export default function Pricing() {
           </div>
         </div>
 
+        {/* Trust & Social Proof Bar */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+          <div className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1.5">
+            <span className="text-green-400 text-xs font-bold">✓ 7-Day Money-Back Guarantee</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1.5">
+            <span className="text-blue-400 text-xs font-bold">✓ Cancel Anytime</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/20 rounded-full px-3 py-1.5">
+            <span className="text-purple-400 text-xs font-bold">✓ No Credit Card Required for Free</span>
+          </div>
+        </div>
+
+        {/* Cost Comparison — makes £19.99 feel tiny */}
+        <div className="max-w-xl mx-auto bg-[#1a2332] border border-white/10 rounded-2xl p-5 mb-8 text-center">
+          <p className="text-gray-400 text-sm mb-2">{t("pricing.bootcampComparison")}</p>
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-gray-500 line-through text-lg">£2,000+ AI Bootcamp</span>
+            <span className="text-orange-400 text-2xl font-bold">→</span>
+            <span className="text-white text-2xl font-bold">£19.99/mo</span>
+          </div>
+          <p className="text-green-400 text-xs mt-2">{t("pricing.sameKnowledgeFractionCost")}</p>
+        </div>
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-4">
+            <span className="text-gray-400 line-through text-sm">{t("pricing.totalValue", { amount: "£999" })}</span>
+            <span className="text-green-400 text-sm font-semibold">{t("pricing.save98Percent")}</span>
+          </div>
+          <p className="text-xs text-gray-300 max-w-md mx-auto">
+            {t("pricing.perPromptValue", { count: "3,000", price: "£0.007" })}
+          </p>
+        </div>
+
         {/* Plan Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           {PLAN_DETAILS.map((plan) => {
@@ -336,10 +396,16 @@ export default function Pricing() {
                   plan.popular ? "ring-2 ring-orange-400/40" : ""
                 }`}
               >
-                {/* Popular Badge */}
                 {plan.badge && (
                   <div className={`bg-gradient-to-r ${plan.color} text-white text-xs font-bold text-center py-1.5`}>
                     {plan.badge}
+                  </div>
+                )}
+
+                {/* Limited Time Offer */}
+                {plan.tier === "pro" && (
+                  <div className="bg-red-500/10 border-b border-red-500/20 text-center py-1.5">
+                    <span className="text-red-300 text-xs font-bold">🔥 {t("pricing.limitedOffer")}</span>
                   </div>
                 )}
 
@@ -355,7 +421,10 @@ export default function Pricing() {
                   {/* Price */}
                   <div className="mb-4">
                     {plan.tier === "government" ? (
-                      <span className="text-3xl font-bold text-white">{t("pricing.customPricing")}</span>
+                      <div>
+                        <span className="text-2xl font-bold text-white">{t("pricing.publicSectorFramework")}</span>
+                        <p className="text-xs text-gray-300 mt-1">{t("pricing.fromPrice", { amount: "£2,000" })}</p>
+                      </div>
                     ) : plan.monthlyPrice === 0 ? (
                       <span className="text-3xl font-bold text-white">{t("pricing.free")}</span>
                     ) : (
@@ -363,14 +432,23 @@ export default function Pricing() {
                         <span className="text-3xl font-bold text-white">
                           {billingCycle === "monthly"
                             ? formatPriceMonthly(plan.monthlyPrice)
-                            : formatPriceMonthly(plan.yearlyPrice / 12)}
+                            : formatPrice(plan.yearlyPrice)}
                         </span>
-                        <span className="text-gray-300 text-sm">{t("pricing.perMonth")}</span>
+                        <span className="text-gray-300 text-sm">
+                          {billingCycle === "monthly" ? "/mo" : "/year"}
+                        </span>
                         {billingCycle === "yearly" && (
                           <p className="text-xs text-green-400 mt-1">
-                            {formatPrice(plan.yearlyPrice)} {t("pricing.billedYearly")}
+                            {t("pricing.saveVsMonthly")}
                           </p>
                         )}
+                        {/* Per-day psychology */}
+                        <p className="text-xs text-orange-300 mt-1 font-medium">
+                          {plan.tier === "pro" && t("pricing.justPerDay", { amount: "£0.66", comparison: t("pricing.lessThanCoffee") })}
+                          {plan.tier === "family" && t("pricing.justPerDay", { amount: "£1.33", comparison: t("pricing.wholeFamily") })}
+                          {plan.tier === "classroom" && t("pricing.justPerStudent", { amount: "£12.50" })}
+                          {plan.tier === "organization" && t("pricing.justPerUser", { amount: "£0.83" })}
+                        </p>
                       </>
                     )}
                   </div>

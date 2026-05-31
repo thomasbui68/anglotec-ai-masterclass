@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Download, X, Smartphone, Share, ArrowUpFromLine, Apple, Monitor } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -29,6 +30,7 @@ function isStandalone(): boolean {
 }
 
 export function InstallPrompt() {
+  const { t } = useTranslation();
   const [show, setShow] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [platform] = useState<Platform>(detectPlatform());
@@ -67,7 +69,7 @@ export function InstallPrompt() {
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") {
-        toast.success("Anglotec AI installed! Find it on your home screen.", {
+        toast.success(t("installPrompt.installedToast"), {
           icon: <Download size={16} />,
           duration: 5000,
         });
@@ -78,11 +80,11 @@ export function InstallPrompt() {
       // iOS Safari - show instructions
       toast.info(
         <div className="space-y-2">
-          <p className="font-bold">Add to Home Screen:</p>
+          <p className="font-bold">{t("installPrompt.addToHomeScreen")}</p>
           <ol className="text-xs space-y-1 list-decimal pl-4">
-            <li>Tap the <strong>Share</strong> button in Safari</li>
-            <li>Scroll down and tap <strong>Add to Home Screen</strong></li>
-            <li>Tap <strong>Add</strong></li>
+            <li>{t("installPrompt.iosStep1")}</li>
+            <li>{t("installPrompt.iosStep2")}</li>
+            <li>{t("installPrompt.iosStep3")}</li>
           </ol>
         </div>,
         { duration: 10000, icon: <Share size={16} /> }
@@ -92,17 +94,17 @@ export function InstallPrompt() {
       // Android browser manual instructions
       toast.info(
         <div className="space-y-2">
-          <p className="font-bold">Add to Home Screen:</p>
+          <p className="font-bold">{t("installPrompt.addToHomeScreen")}</p>
           <ol className="text-xs space-y-1 list-decimal pl-4">
-            <li>Tap the <strong>menu</strong> (3 dots) in your browser</li>
-            <li>Tap <strong>Add to Home screen</strong> or <strong>Install</strong></li>
+            <li>{t("installPrompt.androidStep1")}</li>
+            <li>{t("installPrompt.androidStep2")}</li>
           </ol>
         </div>,
         { duration: 10000, icon: <Smartphone size={16} /> }
       );
       setShow(false);
     }
-  }, [deferredPrompt, platform]);
+  }, [deferredPrompt, platform, t]);
 
   // Don't show if already installed
   if (!show || isStandalone()) return null;
@@ -113,6 +115,8 @@ export function InstallPrompt() {
     if (dismissed && Date.now() - parseInt(dismissed) < 24 * 60 * 60 * 1000) return null;
   } catch { /* */ }
 
+  const descriptionKey = platform === "ios" ? "installPrompt.description_ios" : platform === "android" ? "installPrompt.description_android" : "installPrompt.description_desktop";
+
   return (
     <div className="fixed bottom-16 left-4 right-4 z-[80] max-w-md mx-auto">
       <Card className="bg-[#1a2332] border-orange-400/30 shadow-2xl">
@@ -122,13 +126,13 @@ export function InstallPrompt() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm font-bold text-white">Install Anglotec AI</p>
+              <p className="text-sm font-bold text-white">{t("installPrompt.title")}</p>
               {platform === "ios" && <Apple size={14} className="text-gray-400" />}
               {platform === "android" && <Smartphone size={14} className="text-gray-400" />}
               {platform === "windows" && <Monitor size={14} className="text-gray-400" />}
             </div>
             <p className="text-xs text-gray-400 mb-2">
-              Add to your {platform === "ios" ? "iPhone/iPad" : platform === "android" ? "home screen" : "desktop"} for quick access — works offline too!
+              {t(descriptionKey)}
             </p>
             <div className="flex gap-2">
               <Button
@@ -137,7 +141,7 @@ export function InstallPrompt() {
                 className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
               >
                 <Download size={14} className="mr-1" />
-                {deferredPrompt ? "Install Now" : "How to Install"}
+                {deferredPrompt ? t("installPrompt.installNow") : t("installPrompt.howToInstall")}
               </Button>
               <Button
                 onClick={dismiss}
@@ -145,7 +149,7 @@ export function InstallPrompt() {
                 size="sm"
                 className="h-8 text-xs text-gray-500 hover:text-white"
               >
-                <X size={14} className="mr-1" /> Not Now
+                <X size={14} className="mr-1" /> {t("installPrompt.notNow")}
               </Button>
             </div>
           </div>
@@ -157,11 +161,12 @@ export function InstallPrompt() {
 
 // Simple standalone badge that shows when installed
 export function StandaloneBadge() {
+  const { t } = useTranslation();
   if (!isStandalone()) return null;
   return (
     <div className="fixed top-1 left-1 z-[90] bg-green-500/20 border border-green-400/30 rounded-full px-2 py-0.5 flex items-center gap-1">
       <ArrowUpFromLine size={10} className="text-green-400" />
-      <span className="text-[10px] text-green-300 font-medium">App Mode</span>
+      <span className="text-[10px] text-green-300 font-medium">{t("installPrompt.appMode")}</span>
     </div>
   );
 }

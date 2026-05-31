@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { Sparkles, Volume2, Award, Brain, Star, ChevronRight, Crown, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 
 const ONBOARDING_KEY = "__anglotec_onboarding_v2__";
 

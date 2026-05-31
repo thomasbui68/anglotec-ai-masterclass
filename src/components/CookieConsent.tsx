@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { X, Cookie, ShieldCheck, ExternalLink } from "lucide-react";
+import { X, Cookie } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 export function CookieConsent() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -31,27 +33,26 @@ export function CookieConsent() {
           <Cookie size={20} className="text-orange-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-white text-sm font-medium">
-              We respect your privacy
+              {t("cookieConsent.title")}
             </p>
             <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-              We use cookies to enhance your experience, serve personalised content, and analyse traffic. 
-              By clicking "Accept All", you consent to our use of cookies in accordance with our{" "}
+              {t("cookieConsent.description")}{" "}
               <a
                 href="https://new.anglotec.com/en/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-orange-400 hover:text-orange-300 underline"
               >
-                Privacy Policy
+                {t("cookieConsent.privacyPolicy")}
               </a>{" "}
-              and{" "}
+              &amp;{" "}
               <a
                 href="https://new.anglotec.com/en/terms-and-conditions"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-orange-400 hover:text-orange-300 underline"
               >
-                Terms & Conditions
+                {t("cookieConsent.termsConditions")}
               </a>.
             </p>
           </div>
@@ -61,18 +62,18 @@ export function CookieConsent() {
             onClick={decline}
             className="px-3 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
           >
-            Reject All
+            {t("cookieConsent.rejectAll")}
           </button>
           <button
             onClick={accept}
             className="px-4 py-2 rounded-lg text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white transition-colors"
           >
-            Accept All
+            {t("cookieConsent.acceptAll")}
           </button>
           <button
             onClick={() => setVisible(false)}
             className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-            title="Close"
+            title={t("cookieConsent.close")}
           >
             <X size={16} />
           </button>

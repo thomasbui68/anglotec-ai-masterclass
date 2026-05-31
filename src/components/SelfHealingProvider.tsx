@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import { AlertTriangle } from "lucide-react";
+import i18n from "@/i18n";
 
 interface HealingContext {
   lastError: string | null;
@@ -21,7 +22,7 @@ export function SelfHealingProvider({ children }: { children: React.ReactNode })
           <div className="flex items-start gap-3">
             <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
             <p className="text-sm font-medium text-red-800 flex-1">{lastError}</p>
-            <button onClick={clearError} className="text-xs text-red-500 font-medium shrink-0">Dismiss</button>
+            <button onClick={clearError} className="text-xs text-red-500 font-medium shrink-0">{i18n.t("system.dismiss")}</button>
           </div>
         </div>
       )}

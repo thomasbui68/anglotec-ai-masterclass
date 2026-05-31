@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import i18n from "@/i18n";
 
 interface Props {
   children: ReactNode;
@@ -38,21 +39,21 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
               <AlertTriangle size={40} className="text-red-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Oops!</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">{i18n.t("errorBoundary.title")}</h1>
             <p className="text-gray-400 text-sm mb-6">
-              Something unexpected happened. Don&apos;t worry — your progress is safely saved in the cloud.
+              {i18n.t("errorBoundary.description")}
             </p>
             <p className="text-gray-600 text-xs mb-6 bg-white/5 rounded-lg p-3 text-left font-mono break-all">
-              {this.state.error?.message || "Unknown error"}
+              {this.state.error?.message || i18n.t("errors.generic")}
             </p>
             <Button
               onClick={this.handleReset}
               className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-bold text-base rounded-xl"
             >
-              <RefreshCw size={20} className="mr-2" /> Refresh the App
+              <RefreshCw size={20} className="mr-2" /> {i18n.t("errorBoundary.refresh")}
             </Button>
             <p className="text-gray-600 text-xs mt-4">
-              If this keeps happening, try clearing your browser cache.
+              {i18n.t("errorBoundary.tip")}
             </p>
           </div>
         </div>

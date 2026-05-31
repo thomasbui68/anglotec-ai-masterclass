@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mail, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 
 export default function ForgotPassword() {
   const { t } = useTranslation();
@@ -117,7 +117,7 @@ export default function ForgotPassword() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setError(null); }}
                     className="h-12"

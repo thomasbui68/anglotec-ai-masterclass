@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
 import { Globe, Check } from "lucide-react";
 import { LANGUAGES } from "@/i18n";
 

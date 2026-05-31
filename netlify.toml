@@ -1,0 +1,14 @@
+[build]
+  publish = "dist/public"
+  
+[functions]
+  directory = "netlify/functions"
+
+# SPA redirect: all routes to index.html for React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables (set in Netlify Dashboard → Site Settings → Environment Variables)
+# STRIPE_SECRET_KEY = sk_test_... or sk_live_...

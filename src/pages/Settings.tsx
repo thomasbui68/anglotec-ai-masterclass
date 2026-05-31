@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
-import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useBrowserTTS } from "@/hooks/useBrowserTTS";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,14 +13,15 @@ import {
   CheckCircle, Mail, ShieldCheck, Play,
   AlertTriangle, Crown, Clock, Zap, CreditCard, Sparkles
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n";
+ 
 
 export default function Settings() {
   const { t } = useTranslation();
   const { user, logout, mode } = useAuth();
   const navigate = useNavigate();
   const webAuthn = useWebAuthn();
-  const tts = useElevenLabsTTS();
+  const tts = useBrowserTTS();
 
   const isLocalMode = mode === "local" || mode === "unknown";
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,6 +35,37 @@ export default function Settings() {
 
   const [isRegistering, setIsRegistering] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+ 
+
+  // Handle Stripe checkout return — HashRouter stores params in hash fragment
+  useEffect(() => {
+    // With HashRouter, query params are in window.location.hash (e.g. #/settings?checkout=success&tier=pro)
+    const hash = window.location.hash;
+    const queryIndex = hash.indexOf("?");
+    if (queryIndex === -1) return;
+    
+    const queryString = hash.slice(queryIndex + 1);
+    const params = new URLSearchParams(queryString);
+    const checkout = params.get("checkout");
+    const tier = params.get("tier") as SubscriptionTier | null;
+    
+    if (checkout === "success" && tier) {
+      // Activate the tier in Supabase immediately
+      subscription.upgrade(tier, 30).then(() => {
+        toast.success(t("pricing.paymentSuccess"));
+        // Clear the query params from hash
+        const cleanHash = hash.slice(0, queryIndex);
+        window.location.hash = cleanHash;
+        // Refresh to pick up new subscription state
+        setTimeout(() => window.location.reload(), 1500);
+      });
+    } else if (checkout === "cancelled") {
+      toast.info(t("pricing.paymentCancelled"));
+      const cleanHash = hash.slice(0, queryIndex);
+      window.location.hash = cleanHash;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [hasBiometricState, setHasBiometricState] = useState(user?.hasBiometric || false);
 
   if (!user) {
@@ -223,7 +255,7 @@ export default function Settings() {
                       ? t("settings.unlimitedAccess")
                       : inTrial
                       ? t("settings.trialDaysLeft", { days: trialDaysLeft })
-                      : t("settings.phrasesPerDay20")}
+                      : t("settings.promptsPerDay20")}
                   </p>
                 </div>
               </div>
@@ -240,7 +272,7 @@ export default function Settings() {
               <p className="text-sm font-medium text-gray-700">{t("settings.included")}</p>
               {subscription.tier === "free" ? (
                 <>
-                  {[t("settings.feature20Phrases"), t("settings.feature6Categories"), t("settings.featureLocalTracking")].map((f) => (
+                  {[t("settings.feature20Prompts"), t("settings.feature6Categories"), t("settings.featureLocalTracking")].map((f) => (
                     <div key={f} className="flex items-center gap-2 text-sm text-gray-600">
                       <CheckCircle size={14} className="text-green-500" /> {f}
                     </div>
@@ -270,19 +302,19 @@ export default function Settings() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    subscription.upgrade("free");
-                    toast.success(t("settings.planCancelled"));
+                    toast.info("To manage or cancel your subscription, please contact support at thomasb@anglotec.com");
                   }}
                   className="h-11 border-gray-300 text-gray-600"
                 >
-                  {t("settings.cancelSubscription")}
+                  <CreditCard size={18} className="mr-2" />
+                  {t("settings.manageSubscription")}
                 </Button>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Voice & Audio - ElevenLabs Premium */}
+        {/* Voice & Audio — Browser TTS (100% Free) */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -290,49 +322,108 @@ export default function Settings() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* ElevenLabs status banner */}
+            {/* Voice status banner */}
             <div className={`p-3 rounded-xl border flex items-start gap-3 ${
               tts.hasConfig
-                ? "bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200"
+                ? tts.isNeural
+                  ? "bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200"
+                  : "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
                 : "bg-gray-50 border-gray-200"
             }`}>
-              <Sparkles size={18} className={`shrink-0 mt-0.5 ${tts.hasConfig ? "text-amber-600" : "text-gray-300"}`} />
+              <Sparkles size={18} className={`shrink-0 mt-0.5 ${tts.hasConfig ? (tts.isNeural ? "text-purple-600" : "text-blue-600") : "text-gray-300"}`} />
               <div>
                 <p className="text-sm font-semibold text-gray-800">
-                  {tts.hasConfig ? t("settings.premiumVoiceActive") : t("settings.premiumVoiceSoon")}
-                </p>
-                <p className="text-xs text-gray-300 mt-0.5">
                   {tts.hasConfig
-                    ? t("settings.usingVoice", { voice: tts.voices.find(v => v.key === tts.currentVoice)?.name || "Rachel" })
-                    : t("settings.addVoiceKey")}
+                    ? (tts.isNeural ? t("settings.premiumVoiceActive") : t("settings.browserVoiceActive"))
+                    : t("settings.voiceUnavailable")}
                 </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {tts.hasConfig
+                    ? t("settings.usingVoice", { voice: tts.currentVoiceName })
+                    : t("settings.noVoiceFound")}
+                </p>
+                {tts.hasConfig && (
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    {tts.isNeural
+                      ? "Neural-quality voice detected on your device."
+                      : "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11."}
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* ElevenLabs voice selector */}
+            {/* Browser voice selector */}
             {tts.voices.length > 0 && (
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t("settings.voiceCharacter")}</label>
                 <select
-                  value={tts.currentVoice}
+                  value={tts.currentVoice?.id || ""}
                   onChange={(e) => tts.selectVoice(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none"
                 >
                   {tts.voices.map((voice) => (
-                    <option key={voice.key} value={voice.key}>
-                      {voice.name} — {voice.description} ({voice.accent})
+                    <option key={voice.id} value={voice.id}>
+                      {voice.name} {voice.isNeural ? "(Neural)" : ""} — {voice.accent} {voice.gender}
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-gray-300">
-                  {t("settings.voiceTrained")}
+                <p className="text-[10px] text-gray-400">
+                  {tts.platform === "macos" || tts.platform === "ios"
+                    ? "Siri voices available on this device."
+                    : tts.platform === "windows"
+                      ? "Microsoft voices available on this device."
+                      : "Browser voices available on this device."}
                 </p>
               </div>
             )}
 
+            {/* Speed control */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-gray-700">{t("settings.voiceSpeed")}</label>
+                <span className="text-xs text-gray-500">{Math.round(tts.rate * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.5"
+                max="1.5"
+                step="0.05"
+                value={tts.rate}
+                onChange={(e) => tts.setRate(parseFloat(e.target.value))}
+                className="w-full accent-amber-500"
+              />
+              <div className="flex justify-between text-[10px] text-gray-400">
+                <span>{t("settings.slow")}</span>
+                <span>{t("settings.normal")}</span>
+                <span>{t("settings.fast")}</span>
+              </div>
+            </div>
+
+            {/* Pitch control */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-gray-700">{t("settings.voicePitch")}</label>
+                <span className="text-xs text-gray-500">{Math.round(tts.pitch * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.5"
+                max="1.5"
+                step="0.05"
+                value={tts.pitch}
+                onChange={(e) => tts.setPitch(parseFloat(e.target.value))}
+                className="w-full accent-amber-500"
+              />
+              <div className="flex justify-between text-[10px] text-gray-400">
+                <span>{t("settings.low")}</span>
+                <span>{t("settings.normal")}</span>
+                <span>{t("settings.high")}</span>
+              </div>
+            </div>
+
             {/* Test Voice Button */}
             <Button
-              onClick={() => tts.speak("Welcome to Anglotec AI Master Class. Let's learn some amazing phrases together.")}
+              onClick={() => tts.speak("Welcome to Anglotec AI Masterclass. Let's learn some amazing AI prompts together.")}
               disabled={tts.isSpeaking || !tts.isReady}
               variant="outline"
               className="w-full h-12 border-amber-300 text-amber-700 hover:bg-amber-50 rounded-xl"
@@ -342,7 +433,7 @@ export default function Settings() {
               ) : (
                 <Play className="mr-2 h-5 w-5" />
               )}
-              {tts.isSpeaking ? t("flashcards.playing") : t("settings.testPremiumVoice")}
+              {tts.isSpeaking ? t("flashcards.playing") : t("settings.testVoice")}
             </Button>
 
             {tts.error && (

@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Crown, Zap, X, Lock, Volume2, TrendingUp, Star, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 
 interface UpgradePromptProps {
   variant?: "banner" | "card" | "inline";
@@ -12,6 +13,7 @@ interface UpgradePromptProps {
 }
 
 export function UpgradePrompt({ variant = "card", feature, onDismiss, className = "" }: UpgradePromptProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
@@ -31,10 +33,10 @@ export function UpgradePrompt({ variant = "card", feature, onDismiss, className 
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">
-            {feature ? `Unlock "${feature}"` : "Ready for more?"}
+            {feature ? t("upgradePrompt.unlockFeature", { feature }) : t("upgradePrompt.readyForMore")}
           </p>
           <p className="text-xs text-gray-400">
-            Get unlimited phrases, AI voice, and new content every week.
+            {t("upgradePrompt.proDescription")}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -43,12 +45,12 @@ export function UpgradePrompt({ variant = "card", feature, onDismiss, className 
             size="sm"
             className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
           >
-            <Zap size={14} className="mr-1" /> See Plans
+            <Zap size={14} className="mr-1" /> {t("upgradePrompt.seePlans")}
           </Button>
           <button
             onClick={handleDismiss}
             className="p-1.5 text-gray-500 hover:text-white transition-colors rounded-lg hover:bg-white/10"
-            aria-label="Dismiss"
+            aria-label={t("upgradePrompt.dismiss")}
           >
             <X size={16} />
           </button>
@@ -63,12 +65,12 @@ export function UpgradePrompt({ variant = "card", feature, onDismiss, className 
       <div className={`flex items-center gap-2 text-xs text-orange-400 ${className}`}>
         <Lock size={12} />
         <span>
-          {feature ? `${feature} is included with Pro.` : "This is a Pro feature."}
+          {feature ? t("upgradePrompt.includedWithPro", { feature }) : t("upgradePrompt.proFeature")}
           <button
             onClick={() => navigate("/pricing")}
             className="ml-1 underline hover:text-orange-300 transition-colors font-semibold"
           >
-            Unlock it
+            {t("upgradePrompt.unlockIt")}
           </button>
         </span>
       </div>
@@ -83,17 +85,17 @@ export function UpgradePrompt({ variant = "card", feature, onDismiss, className 
           <Sparkles size={28} className="text-white" />
         </div>
         <h3 className="text-lg font-bold text-white mb-1">
-          {feature ? `Unlock "${feature}"` : "Go Pro"}
+          {feature ? t("upgradePrompt.unlockFeature", { feature }) : t("upgradePrompt.goPro")}
         </h3>
         <p className="text-sm text-gray-400 mb-4">
-          Upgrade to Pro for unlimited phrases, voice pronunciation, weekly updates, and more.
+          {t("upgradePrompt.upgradeDescription")}
         </p>
         <div className="space-y-2 mb-4 text-left">
           {[
-            { icon: Zap, text: "Unlimited phrases every day" },
-            { icon: Volume2, text: "AI voice pronunciation" },
-            { icon: TrendingUp, text: "New phrases every week" },
-            { icon: Star, text: "14-day free trial" },
+            { icon: Zap, text: t("upgradePrompt.featureUnlimited") },
+            { icon: Volume2, text: t("upgradePrompt.featureVoice") },
+            { icon: TrendingUp, text: t("upgradePrompt.featureWeekly") },
+            { icon: Star, text: t("upgradePrompt.featureTrial") },
           ].map((item) => (
             <div key={item.text} className="flex items-center gap-2 text-xs text-gray-300">
               <item.icon size={14} className="text-orange-400" />
@@ -106,11 +108,11 @@ export function UpgradePrompt({ variant = "card", feature, onDismiss, className 
             onClick={() => navigate("/pricing")}
             className="flex-1 h-11 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold"
           >
-            <Zap size={16} className="mr-1" /> See Plans
+            <Zap size={16} className="mr-1" /> {t("upgradePrompt.seePlans")}
           </Button>
           {onDismiss && (
             <Button variant="ghost" onClick={handleDismiss} className="h-11 text-gray-400 hover:text-white">
-              Later
+              {t("upgradePrompt.later")}
             </Button>
           )}
         </div>
@@ -120,7 +122,8 @@ export function UpgradePrompt({ variant = "card", feature, onDismiss, className 
 }
 
 // Usage limit warning shown when free user approaches their daily limit
-export function UsageLimitWarning({ used, limit, type = "phrases" }: { used: number; limit: number; type?: string }) {
+export function UsageLimitWarning({ used, limit, type = "prompts" }: { used: number; limit: number; type?: string }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const percentage = Math.round((used / limit) * 100);
 
@@ -132,8 +135,8 @@ export function UsageLimitWarning({ used, limit, type = "phrases" }: { used: num
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-yellow-300 font-medium">
             {percentage >= 100
-              ? "You have reached your daily limit"
-              : `Almost there — ${percentage}% of daily ${type} used`}
+              ? t("upgradePrompt.dailyLimitReached")
+              : t("upgradePrompt.almostThere", { percentage, type })}
           </span>
           <span className="text-[10px] text-gray-400">{used}/{limit}</span>
         </div>
@@ -150,7 +153,7 @@ export function UsageLimitWarning({ used, limit, type = "phrases" }: { used: num
           size="sm"
           className="bg-orange-500 hover:bg-orange-600 text-white h-7 text-[10px] shrink-0"
         >
-          Unlock More
+          {t("upgradePrompt.unlockMore")}
         </Button>
       )}
     </div>
@@ -159,6 +162,7 @@ export function UsageLimitWarning({ used, limit, type = "phrases" }: { used: num
 
 // Trial countdown banner
 export function TrialBanner({ trialEndsAt }: { trialEndsAt: Date | string | null | undefined }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   if (!trialEndsAt) return null;
@@ -172,15 +176,15 @@ export function TrialBanner({ trialEndsAt }: { trialEndsAt: Date | string | null
       <div className="bg-orange-500/10 border border-orange-400/20 rounded-xl p-4 flex items-center gap-4">
         <Crown size={20} className="text-orange-400 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-semibold text-white">Your free trial has ended</p>
-          <p className="text-xs text-gray-400">Upgrade to keep unlimited access to all phrases.</p>
+          <p className="text-sm font-semibold text-white">{t("upgradePrompt.trialEnded")}</p>
+          <p className="text-xs text-gray-400">{t("upgradePrompt.trialEndedDesc")}</p>
         </div>
         <Button
           onClick={() => navigate("/pricing")}
           size="sm"
           className="bg-orange-500 hover:bg-orange-600 text-white shrink-0"
         >
-          See Plans
+          {t("upgradePrompt.seePlans")}
         </Button>
       </div>
     );
@@ -192,16 +196,16 @@ export function TrialBanner({ trialEndsAt }: { trialEndsAt: Date | string | null
         <Crown size={20} className="text-orange-400 shrink-0" />
         <div className="flex-1">
           <p className="text-sm font-semibold text-white">
-            {daysLeft} day{daysLeft !== 1 ? "s" : ""} left in your free trial
+            {t("upgradePrompt.trialDaysLeft", { days: daysLeft, plural: daysLeft !== 1 ? "s" : "" })}
           </p>
-          <p className="text-xs text-gray-400">Choose a plan to keep uninterrupted access.</p>
+          <p className="text-xs text-gray-400">{t("upgradePrompt.trialDaysLeftDesc")}</p>
         </div>
         <Button
           onClick={() => navigate("/pricing")}
           size="sm"
           className="bg-orange-500 hover:bg-orange-600 text-white shrink-0"
         >
-          See Plans
+          {t("upgradePrompt.seePlans")}
         </Button>
       </div>
     );
@@ -211,9 +215,9 @@ export function TrialBanner({ trialEndsAt }: { trialEndsAt: Date | string | null
     <div className="bg-green-500/10 border border-green-400/20 rounded-lg p-3 flex items-center gap-3">
       <Crown size={16} className="text-green-400 shrink-0" />
       <p className="text-xs text-green-300">
-        Pro trial active — {daysLeft} days remaining.
+        {t("upgradePrompt.trialActive", { days: daysLeft })}
         <button onClick={() => navigate("/pricing")} className="ml-2 underline font-semibold hover:text-green-200">
-          Choose your plan
+          {t("upgradePrompt.chooseYourPlan")}
         </button>
       </p>
     </div>

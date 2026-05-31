@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Anglotec AI Master Class</title>
+    <meta name="app-version" content="2.1.1-stripe-test" />
+    <meta name="description" content="Master 3,000+ AI prompting phrases with premium voice and gamification. Learn AI like a pro." />
+
+    <!-- ===== PWA: Web App Manifest (Chrome, Edge, Firefox, Opera, Samsung) ===== -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ===== iOS / iPadOS / Safari ===== -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Anglotec AI" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/app-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/app-icon.png" />
+    <link rel="apple-touch-startup-image" href="/app-icon.png" />
+
+    <!-- ===== Android / Chrome ===== -->
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Anglotec AI" />
+
+    <!-- ===== Microsoft Edge / Windows ===== -->
+    <meta name="msapplication-TileColor" content="#1a365d" />
+    <meta name="msapplication-TileImage" content="/app-icon-192.png" />
+    <meta name="msapplication-config" content="none" />
+    <meta name="msapplication-starturl" content="/" />
+
+    <!-- ===== General ===== -->
+    <link rel="icon" type="image/png" sizes="64x64" href="/app-icon-64.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/app-icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/app-icon.png" />
+    <link rel="shortcut icon" href="/app-icon-64.png" />
+
+    <!-- ===== Plausible Analytics (Privacy-friendly, GDPR compliant, no cookies) ===== -->
+    <script defer data-domain="masterclass.anglotec-ai.com" src="https://plausible.io/js/script.js"></script>
+
+    <!-- ===== Content Security Policy ===== -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://polyfill.io https://plausible.io https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.elevenlabs.io https://plausible.io https://cdn.jsdelivr.net; media-src 'self' blob:; worker-src 'self';">
+
+    <!-- ===== Twitter / X Cards ===== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Anglotec AI Master Class" />
+    <meta name="twitter:description" content="Master 3,000+ AI prompting phrases with premium voice and gamification" />
+    <meta name="twitter:image" content="/app-icon-192.png" />
+
+    <!-- ===== Polyfills for older browsers ===== -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015,fetch,Promise,Object.assign,String.prototype.includes,Array.prototype.includes,URLSearchParams,Intl"></script>
+
+    <script>
+      // ===== IFRAME BUST — break out if loaded in a frame (breaks auth, routing, sizing) =====
+      if (window.self !== window.top) {
+        window.top.location = window.self.location;
+      }
+    </script>
+
+    <!-- ===== Service Worker Registration + Auto-Update ===== -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(reg) {
+              console.log('[PWA] Service worker registered', reg.scope);
+              // Force update check on every load
+              reg.update();
+              // If a new worker is waiting, reload to activate it
+              reg.addEventListener('updatefound', function() {
+                var newWorker = reg.installing;
+                newWorker.addEventListener('statechange', function() {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] New version available — reloading...');
+                    window.location.reload();
+                  }
+                });
+              });
+            })
+            .catch(function(err) { console.log('[PWA] Service worker registration failed', err); });
+        });
+      }
+    </script>
+    <style>
+      /* ===== iOS SAFE AREA — push content below status bar ===== */
+      body {
+        padding-top: 0px;
+        padding-bottom: 0px;
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+      /* Ensure app header doesn't get hidden under iOS status bar */
+      header.sticky, [class*="sticky top-0"] {
+        padding-top: 1rem !important;
+      }
+      /* ===== KILL KIMI AGENT PILL — runs before ANY JavaScript ===== */
+      [class*="kimi"],[id*="kimi"],[data-testid*="kimi"],
+      [class*="agent"][style*="position:fixed"],[class*="agent"][style*="position: fixed"],
+      [class*="pill"][style*="position:fixed"],[class*="pill"][style*="position: fixed"] {
+        display:none!important;visibility:hidden!important;opacity:0!important;
+        pointer-events:none!important;width:0!important;height:0!important;
+        overflow:hidden!important;position:fixed!important;top:-9999px!important;
+        left:-9999px!important;z-index:-9999!important;margin:0!important;
+        padding:0!important;border:0!important;clip:rect(0,0,0,0)!important;
+      }
+    </style>
+    <script>
+      // ===== AGGRESSIVE KIMI PILL REMOVAL =====
+      // Runs immediately before React loads
+      (function() {
+        var KILL_PATTERNS = ['kimi','agent','pill','widget','bot','float','overlay'];
+        function killPills() {
+          var all = document.querySelectorAll('*');
+          for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            var cls = (el.className || '').toString().toLowerCase();
+            var id = (el.id || '').toLowerCase();
+            var text = (el.textContent || '').slice(0, 60).toLowerCase();
+            for (var j = 0; j < KILL_PATTERNS.length; j++) {
+              var p = KILL_PATTERNS[j];
+              if (cls.indexOf(p) !== -1 || id.indexOf(p) !== -1) {
+                if (cls.indexOf('kimi') !== -1 || text.indexOf('kimi') !== -1 || text.indexOf('agent') !== -1) {
+                  el.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;height:0!important;position:fixed!important;top:-9999px!important;z-index:-9999!important;';
+                  if (el.parentNode) el.parentNode.removeChild(el);
+                }
+                break;
+              }
+            }
+          }
+        }
+        // Run immediately and repeatedly
+        killPills();
+        setInterval(killPills, 500);
+        // Watch for new elements
+        if (typeof MutationObserver !== 'undefined') {
+          new MutationObserver(function(mutations) {
+            for (var m = 0; m < mutations.length; m++) {
+              var added = mutations[m].addedNodes;
+              for (var n = 0; n < added.length; n++) {
+                var node = added[n];
+                if (node.nodeType === 1) {
+                  var cls2 = (node.className || '').toString().toLowerCase();
+                  var id2 = (node.id || '').toLowerCase();
+                  var txt2 = (node.textContent || '').slice(0, 60).toLowerCase();
+                  if (cls2.indexOf('kimi') !== -1 || id2.indexOf('kimi') !== -1 || txt2.indexOf('kimi') !== -1 || txt2.indexOf('agent') !== -1) {
+                    node.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;width:0!important;height:0!important;position:fixed!important;top:-9999px!important;z-index:-9999!important;';
+                    if (node.parentNode) node.parentNode.removeChild(node);
+                  }
+                }
+              }
+            }
+          }).observe(document.documentElement, { childList: true, subtree: true });
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-DAj_be-o.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-iP2hsQjO.css">
+  </head>
+  <body>
+    <div id="root">
+      <div id="loading-fallback" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0f172a;color:white;font-family:sans-serif;flex-direction:column;gap:12px;z-index:1;text-align:center;padding:20px;">
+        <div style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.2);border-top-color:#f59e0b;border-radius:50%;animation:spin 1s linear infinite;"></div>
+        <p style="margin:0;font-size:14px;opacity:0.8;">Loading Anglotec AI Masterclass...</p>
+        <p id="browser-error" style="margin:0;font-size:12px;opacity:0.5;display:none;">If this message persists, your browser may need updating.</p>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      <noscript>
+        <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:20px;z-index:2;">
+          <div>
+            <h1 style="font-size:20px;margin-bottom:10px;">JavaScript Required</h1>
+            <p style="font-size:14px;opacity:0.8;">Anglotec AI Masterclass requires JavaScript to run.</p>
+            <p style="font-size:12px;opacity:0.5;">Please enable JavaScript in your browser settings.</p>
+          </div>
+        </div>
+      </noscript>
+      <script nomodule>
+        // Fallback for browsers without ES module support
+        document.getElementById('loading-fallback').innerHTML = 
+          '<div style="text-align:center;padding:40px;">' +
+          '<h1 style="font-size:20px;margin-bottom:10px;color:#f59e0b;">Browser Update Needed</h1>' +
+          '<p style="font-size:14px;opacity:0.8;">Your browser is too old to run this app.</p>' +
+          '<p style="font-size:12px;opacity:0.5;margin-top:10px;">Please upgrade to Firefox 121+, Chrome 96+, or Safari 14+</p>' +
+          '</div>';
+      </script>
+      <script>
+        // Show error message if loading takes too long
+        setTimeout(function() {
+          var el = document.getElementById('browser-error');
+          if (el) el.style.display = 'block';
+        }, 8000);
+      </script>
+    </div>
+  </body>
+</html>
