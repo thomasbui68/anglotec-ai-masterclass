@@ -151,7 +151,14 @@
     "premiumVoiceError": "Błąd Głosu Premium",
     "upgradeVoice": "Ulepsz ElevenLabs",
     "bestStreak": "Najlepsza Seria",
-    "hint": "Wskazówka: Stuknij kartę, aby ją odwrócić"
+    "hint": "Wskazówka: Stuknij kartę, aby ją odwrócić",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "Ustawienia",
@@ -246,7 +253,20 @@
     "reportBug": "Zgłoś problem",
     "bugPlaceholder": "Co poszło nie tak? Co robiłeś?",
     "sendReport": "Wyślij raport",
-    "manageSubscription": "Zarządzaj subskrypcją"
+    "manageSubscription": "Zarządzaj subskrypcją",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "Wybierz Swój Plan",
@@ -405,14 +425,18 @@
     "justPerUser": "Tylko {{amount}}/użytkownik/miesiąc",
     "bootcampComparison": "Dlaczego płacić £2,000 za bootcamp AI, skoro możesz zdobyć tę samą wiedzę tutaj?",
     "sameKnowledgeFractionCost": "Ta sama wiedza. 1% kosztów.",
-    "joinLearners": "Dołącz do 10,000+ uczniów AI opanowujących prompty",
+    "joinLearners": "Dołącz do uczniów AI opanowujących prompty",
     "masterIn30Days": "7-dniowa gwarancja zwrotu pieniędzy",
     "limitedOffer": "Ograniczone: 50% zniżki w pierwszym miesiącu — kończy się wkrótce",
     "riskFree": "100% bez ryzyka. Zacznij naukę w 60 sekund.",
     "terms": "Rozliczenie miesięczne. Anuluj w dowolnym momencie.",
     "paymentSuccess": "Płatność zakończona sukcesem! Twoja subskrypcja jest teraz aktywna.",
     "paymentCancelled": "Płatność anulowana. Możesz spróbować ponownie w dowolnym momencie.",
-    "saveVsMonthly": "Oszczędź 25% vs miesięcznie"
+    "saveVsMonthly": "Oszczędź 25% vs miesięcznie",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "Darmowy",

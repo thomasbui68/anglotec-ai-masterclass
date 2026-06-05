@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useBrowserTTS } from "@/hooks/useBrowserTTS";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,18 +15,13 @@ import {
   AlertTriangle, Crown, Clock, Zap, CreditCard, Sparkles
 } from "lucide-react";
 import { useTranslation } from "@/i18n";
- 
 
 export default function Settings() {
   const { t } = useTranslation();
-  const { user, logout, mode } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const webAuthn = useWebAuthn();
   const tts = useBrowserTTS();
-
-  const isLocalMode = mode === "local" || mode === "unknown";
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _isLocalMode = isLocalMode; // kept for compat, not used with Supabase
   const subscription = useSubscription();
 
   const trialDaysLeft = subscription.trialEndsAt
@@ -35,28 +31,23 @@ export default function Settings() {
 
   const [isRegistering, setIsRegistering] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
- 
 
   // Handle Stripe checkout return — HashRouter stores params in hash fragment
   useEffect(() => {
-    // With HashRouter, query params are in window.location.hash (e.g. #/settings?checkout=success&tier=pro)
     const hash = window.location.hash;
     const queryIndex = hash.indexOf("?");
     if (queryIndex === -1) return;
-    
+
     const queryString = hash.slice(queryIndex + 1);
     const params = new URLSearchParams(queryString);
     const checkout = params.get("checkout");
     const tier = params.get("tier") as SubscriptionTier | null;
-    
+
     if (checkout === "success" && tier) {
-      // Activate the tier in Supabase immediately
       subscription.upgrade(tier, 30).then(() => {
         toast.success(t("pricing.paymentSuccess"));
-        // Clear the query params from hash
         const cleanHash = hash.slice(0, queryIndex);
         window.location.hash = cleanHash;
-        // Refresh to pick up new subscription state
         setTimeout(() => window.location.reload(), 1500);
       });
     } else if (checkout === "cancelled") {
@@ -64,8 +55,9 @@ export default function Settings() {
       const cleanHash = hash.slice(0, queryIndex);
       window.location.hash = cleanHash;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const [hasBiometricState, setHasBiometricState] = useState(user?.hasBiometric || false);
 
   if (!user) {
@@ -149,14 +141,14 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
       {/* Header */}
-      <header className="bg-[#1a365d] text-white shadow-lg sticky top-0 z-50">
+      <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/app-icon.png" alt="Anglotec" className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
-              <h1 className="text-base font-bold tracking-wide">{t("app.name")}</h1>
+              <h1 className="text-base font-bold tracking-wide text-white">{t("app.name")}</h1>
               <p className="text-xs text-orange-400">{t("settings.title")}</p>
             </div>
           </div>
@@ -170,16 +162,16 @@ export default function Settings() {
 
       <main className="max-w-4xl mx-auto px-4 py-6 pb-24 space-y-5">
         {/* Account Info */}
-        <Card>
+        <Card className="bg-white/5 border-white/10">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2 text-white">
               <Mail size={20} className="text-orange-500" /> {t("settings.accountInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b">
+            <div className="flex justify-between items-center py-2 border-b border-white/10">
               <span className="text-gray-300 text-sm">{t("auth.email")}</span>
-              <span className="font-semibold text-[#1a365d]">{user.email}</span>
+              <span className="font-semibold text-white">{user.email}</span>
             </div>
             {user?.backupEmail && (
               <div className="flex justify-between items-center py-2 border-b">
@@ -298,11 +290,16 @@ export default function Settings() {
                 <CreditCard size={18} className="mr-2" />
                 {inTrial ? t("settings.choosePlan") : subscription.tier === "free" ? t("settings.upgradePro") : t("settings.changePlan")}
               </Button>
-              {subscription.tier !== "free" && !inTrial && (
+              {subscription.tier !== "free" && !subscription.isAdmin && (
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    toast.info("To manage or cancel your subscription, please contact support at thomasb@anglotec.com");
+                  onClick={async () => {
+                    try {
+                      const data = await subscription.openCustomerPortal();
+                      if (data.url) window.location.href = data.url;
+                    } catch (err: any) {
+                      toast.error(err.message || t("settings.couldNotOpenBilling"));
+                    }
                   }}
                   className="h-11 border-gray-300 text-gray-600"
                 >
@@ -345,8 +342,8 @@ export default function Settings() {
                 {tts.hasConfig && (
                   <p className="text-[10px] text-gray-400 mt-1">
                     {tts.isNeural
-                      ? "Neural-quality voice detected on your device."
-                      : "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11."}
+                      ? t("settings.neuralVoiceDetected")
+                      : t("settings.standardBrowserVoice")}
                   </p>
                 )}
               </div>
@@ -369,10 +366,10 @@ export default function Settings() {
                 </select>
                 <p className="text-[10px] text-gray-400">
                   {tts.platform === "macos" || tts.platform === "ios"
-                    ? "Siri voices available on this device."
+                    ? t("settings.siriVoices")
                     : tts.platform === "windows"
-                      ? "Microsoft voices available on this device."
-                      : "Browser voices available on this device."}
+                      ? t("settings.microsoftVoices")
+                      : t("settings.browserVoices")}
                 </p>
               </div>
             )}

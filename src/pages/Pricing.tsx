@@ -12,7 +12,7 @@ import {
   Star, Loader2, Clock, Mail, Building2, Phone, User, MessageSquare, X
 } from "lucide-react";
 import { useTranslation } from "@/i18n";
-import { redirectToStripePayment } from "@/lib/stripe";
+
 
 export default function Pricing() {
   const { t } = useTranslation();
@@ -221,7 +221,7 @@ export default function Pricing() {
         const result = await subscription.upgrade(tier, 30);
         if (result.success) {
           toast.success(t("pricing.planActivated", { tier: t(`tiers.${tier}`) }));
-          setTimeout(() => navigate("/dashboard"), 1500);
+          setTimeout(() => navigate("/"), 1500);
         }
       } catch (err: any) {
         toast.error(err.message || t("errors.generic"));
@@ -231,18 +231,17 @@ export default function Pricing() {
       return;
     }
 
-    // Paid tiers (pro, family): activate locally (Stripe can be added later)
+    // Paid tiers (pro, family): Redirect to Stripe Checkout
     setUpgradingTier(tier);
     try {
-      const result = await subscription.upgrade(tier, 30);
-      if (result.success) {
-        localStorage.setItem("anglotec_stripe_tier", tier);
-        localStorage.setItem("anglotec_stripe_status", "active");
-        toast.success(t("pricing.planActivated", { tier: t(`tiers.${tier}`) }));
-        setTimeout(() => {
-          window.location.hash = "#/settings";
-          window.location.reload();
-        }, 1500);
+      const result = await subscription.createCheckout(tier as "pro" | "family", billingCycle);
+      if (result.url) {
+        // Store pending tier in localStorage so the app knows what to expect after return
+        localStorage.setItem("anglotec_pending_tier", tier);
+        // Redirect to Stripe Checkout
+        window.location.href = result.url;
+      } else {
+        throw new Error("No checkout URL received");
       }
     } catch (err: any) {
       toast.error(err.message || t("errors.generic"));
@@ -349,13 +348,13 @@ export default function Pricing() {
         {/* Trust & Social Proof Bar */}
         <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
           <div className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1.5">
-            <span className="text-green-400 text-xs font-bold">✓ 7-Day Money-Back Guarantee</span>
+            <span className="text-green-400 text-xs font-bold">✓ {t("pricing.moneyBackGuarantee")}</span>
           </div>
           <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1.5">
-            <span className="text-blue-400 text-xs font-bold">✓ Cancel Anytime</span>
+            <span className="text-blue-400 text-xs font-bold">✓ {t("pricing.cancelAnytime")}</span>
           </div>
           <div className="flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/20 rounded-full px-3 py-1.5">
-            <span className="text-purple-400 text-xs font-bold">✓ No Credit Card Required for Free</span>
+            <span className="text-purple-400 text-xs font-bold">✓ {t("pricing.noCreditCardRequired")}</span>
           </div>
         </div>
 
@@ -363,9 +362,9 @@ export default function Pricing() {
         <div className="max-w-xl mx-auto bg-[#1a2332] border border-white/10 rounded-2xl p-5 mb-8 text-center">
           <p className="text-gray-400 text-sm mb-2">{t("pricing.bootcampComparison")}</p>
           <div className="flex items-center justify-center gap-3">
-            <span className="text-gray-500 line-through text-lg">£2,000+ AI Bootcamp</span>
+            <span className="text-gray-500 line-through text-lg">{t("pricing.aiBootcamp")}</span>
             <span className="text-orange-400 text-2xl font-bold">→</span>
-            <span className="text-white text-2xl font-bold">£19.99/mo</span>
+            <span className="text-white text-2xl font-bold">{formatPriceMonthly(1999)}{t("pricing.pricePerMonth")}</span>
           </div>
           <p className="text-green-400 text-xs mt-2">{t("pricing.sameKnowledgeFractionCost")}</p>
         </div>
@@ -432,22 +431,34 @@ export default function Pricing() {
                         <span className="text-3xl font-bold text-white">
                           {billingCycle === "monthly"
                             ? formatPriceMonthly(plan.monthlyPrice)
-                            : formatPrice(plan.yearlyPrice)}
+                            // Show MONTHLY EQUIVALENT on yearly (industry standard)
+                            : formatPriceMonthly(Math.round(plan.yearlyPrice / 12))}
                         </span>
-                        <span className="text-gray-300 text-sm">
-                          {billingCycle === "monthly" ? "/mo" : "/year"}
-                        </span>
+                        <span className="text-gray-300 text-sm">{t("pricing.pricePerMonth")}</span>
                         {billingCycle === "yearly" && (
-                          <p className="text-xs text-green-400 mt-1">
-                            {t("pricing.saveVsMonthly")}
-                          </p>
+                          <>
+                            <p className="text-xs text-green-400 mt-1">
+                              {t("pricing.saveVsMonthly")} — {formatPrice(plan.yearlyPrice)}{t("pricing.billedAnnually")}
+                            </p>
+                            {/* Show original monthly price with strikethrough */}
+                            <p className="text-xs text-gray-300 mt-0.5">
+                              <span className="line-through opacity-50">{formatPriceMonthly(plan.monthlyPrice)}{t("pricing.pricePerMonth")}</span>
+                              <span className="text-green-400 ml-1">
+                                {t("pricing.save25")}
+                              </span>
+                            </p>
+                          </>
                         )}
-                        {/* Per-day psychology */}
+                        {/* Per-day psychology — updates for yearly */}
                         <p className="text-xs text-orange-300 mt-1 font-medium">
-                          {plan.tier === "pro" && t("pricing.justPerDay", { amount: "£0.66", comparison: t("pricing.lessThanCoffee") })}
-                          {plan.tier === "family" && t("pricing.justPerDay", { amount: "£1.33", comparison: t("pricing.wholeFamily") })}
-                          {plan.tier === "classroom" && t("pricing.justPerStudent", { amount: "£12.50" })}
-                          {plan.tier === "organization" && t("pricing.justPerUser", { amount: "£0.83" })}
+                          {plan.tier === "pro" && billingCycle === "monthly" && t("pricing.justPerDay", { amount: "£0.66", comparison: t("pricing.lessThanCoffee") })}
+                          {plan.tier === "pro" && billingCycle === "yearly" && t("pricing.justPerDay", { amount: "£0.49", comparison: t("pricing.lessThanCoffee") })}
+                          {plan.tier === "family" && billingCycle === "monthly" && t("pricing.justPerDay", { amount: "£1.33", comparison: t("pricing.wholeFamily") })}
+                          {plan.tier === "family" && billingCycle === "yearly" && t("pricing.justPerDay", { amount: "£0.99", comparison: t("pricing.wholeFamily") })}
+                          {plan.tier === "classroom" && billingCycle === "monthly" && t("pricing.justPerStudent", { amount: "£12.50" })}
+                          {plan.tier === "classroom" && billingCycle === "yearly" && t("pricing.justPerStudent", { amount: "£9.38" })}
+                          {plan.tier === "organization" && billingCycle === "monthly" && t("pricing.justPerUser", { amount: "£0.83" })}
+                          {plan.tier === "organization" && billingCycle === "yearly" && t("pricing.justPerUser", { amount: "£0.62" })}
                         </p>
                       </>
                     )}

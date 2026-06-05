@@ -151,7 +151,14 @@
     "premiumVoiceError": "Erro na Voz Premium",
     "upgradeVoice": "Atualizar ElevenLabs",
     "bestStreak": "Melhor Sequência",
-    "hint": "Dica: Toca no cartão para virá-lo"
+    "hint": "Dica: Toca no cartão para virá-lo",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "Configurações",
@@ -246,7 +253,20 @@
     "reportBug": "Reportar um problema",
     "bugPlaceholder": "O que correu mal? O que estavas a fazer?",
     "sendReport": "Enviar relatório",
-    "manageSubscription": "Gerir Subscrição"
+    "manageSubscription": "Gerir Subscrição",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "Escolha Seu Plano",
@@ -405,14 +425,18 @@
     "justPerUser": "Apenas {{amount}}/usuário/mês",
     "bootcampComparison": "Por que pagar £2,000 por um bootcamp de IA quando você obtém o mesmo conhecimento aqui?",
     "sameKnowledgeFractionCost": "Mesmo conhecimento. 1% do custo.",
-    "joinLearners": "Junte-se a 10,000+ alunos de IA dominando prompts",
+    "joinLearners": "Junte-se a alunos de IA dominando prompts",
     "masterIn30Days": "Garantia de reembolso de 7 dias",
     "limitedOffer": "Limitado: 50% off no primeiro mês — acaba em breve",
     "riskFree": "100% sem risco. Comece a aprender em 60 segundos.",
     "terms": "Faturação mensal. Cancela a qualquer momento.",
     "paymentSuccess": "Pagamento bem-sucedido! A tua subscrição está agora ativa.",
     "paymentCancelled": "Pagamento cancelado. Podes tentar novamente a qualquer momento.",
-    "saveVsMonthly": "Poupe 25% vs mensal"
+    "saveVsMonthly": "Poupe 25% vs mensal",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "Grátis",

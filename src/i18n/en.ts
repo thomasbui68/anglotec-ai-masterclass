@@ -399,7 +399,7 @@ export const EN_TRANSLATIONS: Record<string, string> = {
   "pricing.justPerUser": "Just {{amount}}/user/month",
   "pricing.bootcampComparison": "Why pay £2,000 for an AI bootcamp when you get the same knowledge here?",
   "pricing.sameKnowledgeFractionCost": "Same knowledge. 1% of the cost.",
-  "pricing.joinLearners": "Join 10,000+ AI learners mastering prompts",
+  "pricing.joinLearners": "Join AI learners mastering prompts",
   "pricing.masterIn30Days": "7-Day Money-Back Guarantee",
   "pricing.limitedOffer": "Limited: First month 50% off — ends soon",
   "pricing.riskFree": "100% Risk-Free. Start learning in 60 seconds.",

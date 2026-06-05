@@ -151,7 +151,14 @@
     "premiumVoiceError": "プレミアム音声エラー",
     "upgradeVoice": "ElevenLabsをアップグレード",
     "bestStreak": "最高ストリーク",
-    "hint": "ヒント：カードをタップして裏返し"
+    "hint": "ヒント：カードをタップして裏返し",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "設定",
@@ -246,7 +253,20 @@
     "reportBug": "問題を報告",
     "bugPlaceholder": "何が問題でしたか？何をしていましたか？",
     "sendReport": "レポートを送信",
-    "manageSubscription": "サブスクリプション管理"
+    "manageSubscription": "サブスクリプション管理",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "プランを選択",
@@ -405,14 +425,18 @@
     "justPerUser": "ユーザーあたり月額{{amount}}のみ",
     "bootcampComparison": "なぜ£2,000もするAIブートキャンプに行く必要があるのか？ここで同じ知識が得られます",
     "sameKnowledgeFractionCost": "同じ知識。1%のコスト。",
-    "joinLearners": "10,000人以上のプロンプトをマスターするAI学習者に参加",
+    "joinLearners": "プロンプトをマスターするAI学習者に参加",
     "masterIn30Days": "7日間の返金保証",
     "limitedOffer": "期間限定：初月50%オフ — まもなく終了",
     "riskFree": "100%リスクフリー。60秒で学習開始。",
     "terms": "月額請求。いつでもキャンセル可能。",
     "paymentSuccess": "お支払いが完了しました！サブスクリプションが有効になりました。",
     "paymentCancelled": "支払いがキャンセルされました。いつでも再試行できます。",
-    "saveVsMonthly": "月額より 25% お得"
+    "saveVsMonthly": "月額より 25% お得",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "無料",

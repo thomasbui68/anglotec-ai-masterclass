@@ -151,7 +151,14 @@
     "premiumVoiceError": "高级语音错误",
     "upgradeVoice": "升级 ElevenLabs",
     "bestStreak": "最佳连续",
-    "hint": "提示：点击卡片翻转查看 AI 提示词"
+    "hint": "提示：点击卡片翻转查看 AI 提示词",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "设置",
@@ -246,7 +253,20 @@
     "reportBug": "报告问题",
     "bugPlaceholder": "出了什么问题？您在做什么？",
     "sendReport": "发送报告",
-    "manageSubscription": "管理订阅"
+    "manageSubscription": "管理订阅",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "选择你的计划",
@@ -405,14 +425,18 @@
     "justPerUser": "每用户每月仅需{{amount}}",
     "bootcampComparison": "为什么要花 £2,000 参加 AI 训练营，在这里你能获得同样的知识？",
     "sameKnowledgeFractionCost": "同样的知识。1% 的成本。",
-    "joinLearners": "加入 10,000+ 正在掌握提示词的 AI 学习者",
+    "joinLearners": "加入正在掌握提示词的 AI 学习者",
     "masterIn30Days": "7天退款保证",
     "limitedOffer": "限时：首月 5 折优惠 — 即将结束",
     "riskFree": "100% 零风险。60 秒开始学习。",
     "terms": "按月计费。随时取消。",
     "paymentSuccess": "支付成功！您的订阅现已激活。",
     "paymentCancelled": "支付已取消。您可以随时重试。",
-    "saveVsMonthly": "比月付省 25%"
+    "saveVsMonthly": "比月付省 25%",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "免费",

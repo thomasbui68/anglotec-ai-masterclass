@@ -170,7 +170,7 @@ export function SelfDiagnosticProvider({ children }: { children: React.ReactNode
         setState((s) => ({ ...s, fps, memoryMB, slowFrames }));
 
         // Warn if consistently slow
-        if (slowFrames >= 5 && s.slowFrames < 5) {
+        if (slowFrames >= 5) {
           toast.warning("Your device is working hard. Consider closing other tabs.", {
             icon: <Gauge size={14} />,
             duration: 5000,

@@ -21,7 +21,7 @@ export function LanguageSelector() {
   }, []);
 
   const handleChange = (code: string, dir: string) => {
-    i18n.changeLanguage(code);
+    i18n.changeLanguage(code as any);
     document.documentElement.dir = dir;
     document.documentElement.lang = code;
     setOpen(false);

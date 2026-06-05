@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anglotec AI — Tweet Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;padding:20px;max-width:900px;margin:0 auto}
+h1{color:#f97316;margin-bottom:4px}
+.subtitle{color:#94a3b8;margin-bottom:20px;font-size:.9rem}
+.tweet{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;margin:16px 0;position:relative}
+.tweet h3{color:#facc15;font-size:1rem;margin-bottom:8px}
+.tweet .content{white-space:pre-wrap;font-size:.95rem;line-height:1.6;margin:12px 0;padding:12px;background:#0f172a;border-radius:8px;font-family:monospace;word-break:break-word}
+.tweet .meta{color:#64748b;font-size:.8rem;margin-top:8px}
+button{background:linear-gradient(135deg,#f97316,#eab308);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.85rem}
+button:hover{opacity:.9}
+.copy-btn{position:absolute;top:16px;right:16px}
+.copied{background:#22c55e!important}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;background:#1e293b;border:1px solid #334155;color:#94a3b8;cursor:pointer;font-size:.85rem}
+.tab.active{background:#f97316;color:#fff;border-color:#f97316}
+.schedule{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;margin-top:20px}
+.schedule h2{color:#facc15;font-size:1.1rem;margin-bottom:12px}
+.schedule-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #334155;font-size:.9rem}
+.schedule-item input[type=checkbox]{width:18px;height:18px;accent-color:#f97316}
+.schedule-item.done{color:#64748b;text-decoration:line-through}
+.cta-box{background:linear-gradient(135deg,#1a365d,#234a7c);border-radius:12px;padding:20px;text-align:center;margin-top:20px;border:1px solid rgba(255,255,255,.1)}
+.cta-box a{color:#f97316;font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<h1>Anglotec AI — Tweet Dashboard</h1>
+<p class="subtitle">Copy, paste, post. All tweets ready to go for @anglotecai</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('tweets')">Tweets</div>
+  <div class="tab" onclick="showTab('threads')">Threads</div>
+  <div class="tab" onclick="showTab('replies')">Replies</div>
+  <div class="tab" onclick="showTab('schedule')">Schedule</div>
+</div>
+
+<div id="tweets">
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 1 — Free Prompts Lead Magnet</h3>
+  <div class="content">50 free ChatGPT prompts that actually work.
+
+Organized by category: Code, Content, Strategy, Data, UX.
+
+Copy and paste. No signup.
+
+https://masterclass.anglotec-ai.com/free-prompts.html
+
+Which one is your favorite?</div>
+  <div class="meta">280 chars | Post: Morning (8-10am) | Pin to profile</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 2 — Cost Comparison (Viral Hook)</h3>
+  <div class="content">AI bootcamp: £2,000
+Our masterclass: £19.99/mo
+
+Same knowledge. 99% less cost.
+
+3,000 prompts. 12 categories. Voice practice. 12 languages.
+
+14-day free trial. No credit card.
+
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">275 chars | Post: Midday (12-2pm) | High engagement potential</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 3 — Technical (Dev/AI Audience)</h3>
+  <div class="content">We built an AI prompt engineering course that runs Distil-Whisper entirely in the browser.
+
+No API calls. No cloud costs. Voice recognition works offline.
+
+Transformers.js + WebGPU = 2x real-time inference.
+
+Open source approach to AI education.
+
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">280 chars | Post: Evening (6-8pm) | Target: dev/AI community</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 4 — Social Proof</h3>
+  <div class="content">Looking to learn AI prompting without breaking the bank?
+
+Our masterclass teaches 3,000 prompts via interactive flashcards with voice practice — at a fraction of bootcamp cost.
+
+£19.99/mo. Free tier available. 14-day trial.
+
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">280 chars | Post: Afternoon (3-5pm)</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 5 — Feature Spotlight</h3>
+  <div class="content">Practice AI prompts with your voice.
+
+1. Hear the prompt
+2. Speak it back
+3. Get instant feedback
+
+Distil-Whisper runs in your browser — no cloud, no cost, no privacy risk.
+
+Part of our AI Masterclass:
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">270 chars | Post: Morning | Showcase unique feature</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 6 — 12 Languages</h3>
+  <div class="content">AI education should be global.
+
+Our masterclass is available in 12 languages:
+English, Spanish, French, German, Italian, Portuguese, Dutch, Polish, Russian, Chinese, Japanese, Arabic.
+
+3,000 prompts. Interactive flashcards. Voice practice.
+
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">280 chars | Post: Anytime | Global audience appeal</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 7 — Urgency/Scarcity</h3>
+  <div class="content">Last chance: 50% off your first month of Pro.
+
+Use code: LAUNCH50
+
+3,000 AI prompts. All 12 categories. Voice practice. Progress tracking. 12 languages.
+
+£9.99 for the first month (normally £19.99).
+
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">280 chars | Post: Evening | Conversion-focused</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Tweet 8 — Educational Value</h3>
+  <div class="content">What is prompt engineering?
+
+It's the skill of crafting instructions for AI to get better, more accurate results.
+
+Our masterclass teaches 3,000 proven prompts across 12 categories.
+
+From beginner to AI power-user.
+
+Start free:
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">280 chars | Post: Morning | Educational, high share potential</div>
+</div>
+
+</div>
+
+<div id="threads" style="display:none">
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy All</button>
+  <h3>Thread 1 — "Why I Built This" (7 tweets)</h3>
+  <div class="content">1/ I was about to pay £2,000 for an AI bootcamp.
+
+Then I realized: they were just selling me a list of prompts.
+
+So I built something better. For 1% of the cost.
+
+A thread on democratizing AI education 🧵
+
+2/ The problem: AI education is gatekept by price.
+
+Bootcamps: £2,000+
+Courses: £500+
+Books: Outdated by publication
+
+Meanwhile, the actual skill — prompt engineering — is just... practice.
+
+3/ So I built Anglotec AI Masterclass.
+
+3,000 prompts across 12 categories.
+Interactive flashcards with voice practice.
+Progress tracking with XP and levels.
+Available in 12 languages.
+
+All for £19.99/month. Or free (20 prompts/day).
+
+4/ The tech stack is fully browser-based:
+- Transformers.js for in-browser speech recognition
+- ElevenLabs for premium voice
+- Supabase for cloud sync
+- Stripe for payments
+
+No app download needed. Works on mobile, tablet, desktop.
+
+5/ My favorite feature: voice practice.
+
+Hear the prompt → Speak it back → Get instant feedback
+
+Uses Distil-Whisper running locally. No cloud costs. No privacy risk.
+
+6/ 14-day free trial. No credit card.
+
+If you don't learn something valuable in 14 days, cancel and pay nothing.
+
+But I'm confident you will. 3,000 prompts is a lot of practice.
+
+7/ Here's 50 free prompts to try right now (no signup):
+
+https://masterclass.anglotec-ai.com/free-prompts.html
+
+And the full masterclass:
+https://masterclass.anglotec-ai.com
+
+RT if you believe AI education should be affordable 🔄</div>
+  <div class="meta">7-tweet thread | Post: Morning | High engagement format</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy All</button>
+  <h3>Thread 2 — "50 Prompts for X" (5 tweets)</h3>
+  <div class="content">1/ Here are 10 prompts that will change how you work with AI:
+
+(Copy and paste thread 🧵)
+
+2/ Write production-ready code:
+"Write a [language] function that [description]. Include error handling, input validation, docstrings, and unit tests. Follow [style guide]."
+
+Debug any error:
+"I'm getting this error: [error]. The code is: [code]. Explain why and provide the fix with comments."
+
+3/ Create viral social media:
+"Write 10 social media posts about [topic] for [platform]. Each under 280 characters. Use hooks that drive engagement."
+
+Analyze competitors:
+"Analyze the competitive landscape for [product]. Identify top 5 competitors, strengths, weaknesses, pricing. Give differentiation strategies."
+
+4/ Write blog posts:
+"Write a 1,500-word blog post about [topic] for [audience]. Include: hook headline, 5 H2 sections, summary, CTA. Optimize for SEO with: [keywords]."
+
+Design user flows:
+"Design a user flow for [app/feature] that [goal]. Include wireframe descriptions, user actions, decision points, error states."
+
+5/ Want all 3,000 prompts with interactive flashcards and voice practice?
+
+Our masterclass: £19.99/mo (99% cheaper than bootcamps)
+50 free prompts (no signup):
+https://masterclass.anglotec-ai.com/free-prompts.html
+
+Full masterclass:
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">5-tweet thread | Post: Anytime | Viral potential</div>
+</div>
+
+</div>
+
+<div id="replies" style="display:none">
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Reply 1 — When someone asks "How do I learn prompt engineering?"</h3>
+  <div class="content">I built exactly what you're looking for:
+
+3,000 prompts across 12 categories, interactive flashcards with voice practice, progress tracking.
+
+£19.99/mo (or start free with 20 prompts/day). 14-day trial.
+
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">Reply template | Use on AI/ChatGPT threads</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Reply 2 — When someone complains about AI course prices</h3>
+  <div class="content">This is exactly why I built an alternative.
+
+Same knowledge as a £2,000 bootcamp. 1% of the cost.
+
+Interactive flashcards, voice practice, 12 languages.
+
+Start free:
+https://masterclass.anglotec-ai.com/free-prompts.html</div>
+  <div class="meta">Reply template | Use on pricing complaint threads</div>
+</div>
+
+<div class="tweet">
+  <button class="copy-btn" onclick="copy(this)">Copy</button>
+  <h3>Reply 3 — When someone asks for ChatGPT prompt examples</h3>
+  <div class="content">Here are 50 free prompts organized by category:
+
+https://masterclass.anglotec-ai.com/free-prompts.html
+
+If you want all 3,000 with interactive practice:
+https://masterclass.anglotec-ai.com</div>
+  <div class="meta">Reply template | Use on prompt request threads</div>
+</div>
+
+</div>
+
+<div id="schedule" style="display:none">
+<div class="schedule">
+  <h2>This Week's Posting Schedule</h2>
+  <div class="schedule-item"><input type="checkbox"> <strong>Monday AM</strong> — Tweet 1 (Free Prompts Lead Magnet)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Monday PM</strong> — Reply to 5 AI-related threads</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Tuesday AM</strong> — Tweet 2 (Cost Comparison)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Tuesday PM</strong> — Thread 1 ("Why I Built This")</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Wednesday AM</strong> — Tweet 3 (Technical/Dev Audience)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Wednesday PM</strong> — Reply to 5 prompt engineering threads</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Thursday AM</strong> — Tweet 4 (Social Proof)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Thursday PM</strong> — Thread 2 ("50 Prompts for X")</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Friday AM</strong> — Tweet 5 (Feature Spotlight)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Friday PM</strong> — Tweet 7 (Urgency/Discount)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Saturday</strong> — Tweet 6 (12 Languages/Global)</div>
+  <div class="schedule-item"><input type="checkbox"> <strong>Sunday</strong> — Tweet 8 (Educational Value)</div>
+</div>
+
+<div class="cta-box">
+  <p>Posting 3x/day = ~90 tweets/month</p>
+  <p>Expected: 5-15% click-through = 500-1,500 visitors/mo</p>
+  <p>At 5% conversion = 25-75 signups/mo</p>
+</div>
+</div>
+
+<script>
+function copy(btn) {
+  const text = btn.parentElement.querySelector('.content').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  ['tweets','threads','replies','schedule'].forEach(id => {
+    document.getElementById(id).style.display = id === tab ? 'block' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>

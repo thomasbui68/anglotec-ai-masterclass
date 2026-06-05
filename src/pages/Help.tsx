@@ -29,40 +29,38 @@ export default function Help() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white">
-      <header className="bg-[#1a365d] text-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
+      <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/app-icon.png" alt={t("app.name")} className="h-10 w-10 object-contain drop-shadow-lg rounded-xl" />
             <div>
-              <h1 className="text-base font-bold tracking-wide">{t("app.name")}</h1>
+              <h1 className="text-base font-bold tracking-wide text-white">{t("app.name")}</h1>
               <p className="text-xs text-orange-400">{t("help.title")}</p>
             </div>
           </div>
-          <Link to="/">
-            <button className="flex items-center gap-1 text-white hover:bg-white/10 rounded-lg px-3 py-2 text-sm transition-colors">
-              <ArrowLeft size={16} /> {t("common.back")}
-            </button>
+          <Link to="/" className="flex items-center gap-1 text-white hover:bg-white/10 rounded-lg px-3 py-2 text-sm transition-colors">
+            <ArrowLeft size={16} /> {t("common.back")}
           </Link>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
         <div className="text-center mb-8">
-          <HelpCircle size={48} className="mx-auto text-orange-500 mb-3" />
-          <h2 className="text-2xl font-bold text-[#1a365d]">{t("help.heading")}</h2>
+          <HelpCircle size={48} className="mx-auto text-orange-400 mb-3" />
+          <h2 className="text-2xl font-bold text-white">{t("help.heading")}</h2>
           <p className="text-gray-300 mt-1">{t("help.subheading")}</p>
         </div>
 
-        <Card className="mb-6 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+        <Card className="mb-6 bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-400/20">
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
-              <Mail size={20} className="text-orange-600 shrink-0 mt-1" />
+              <Mail size={20} className="text-orange-400 shrink-0 mt-1" />
               <div>
-                <p className="font-semibold text-[#1a365d]">{t("help.contactTitle")}</p>
+                <p className="font-semibold text-white">{t("help.contactTitle")}</p>
                 <p className="text-sm text-gray-300 mt-1">
                   {t("help.contactDesc")}{" "}
-                  <a href="mailto:support@anglotec-ai.com" className="text-orange-600 hover:text-orange-700 font-medium underline">support@anglotec-ai.com</a>
+                  <a href="mailto:support@anglotec-ai.com" className="text-orange-400 hover:text-orange-300 font-medium underline">support@anglotec-ai.com</a>
                 </p>
               </div>
             </div>
@@ -71,9 +69,9 @@ export default function Help() {
 
         <div className="space-y-4">
           {faqs.map((faq, i) => (
-            <Card key={i} className="hover:shadow-md transition-shadow">
+            <Card key={i} className="bg-white/5 border-white/10 hover:border-white/20 transition-all">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2 text-white">
                   {faq.icon}
                   {faq.q}
                 </CardTitle>
@@ -86,10 +84,8 @@ export default function Help() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link to="/">
-            <button className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-6 py-3 font-semibold transition-colors">
-              {t("flashcards.backToDashboard")}
-            </button>
+          <Link to="/" className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-6 py-3 font-semibold transition-colors">
+            {t("flashcards.backToDashboard")}
           </Link>
         </div>
       </main>

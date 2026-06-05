@@ -368,6 +368,57 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
+        {/* Hidden SEO Content — accessible to crawlers but visually hidden */}
+        <div className="sr-only" aria-hidden="true">
+          <h2>AI Prompt Engineering Masterclass — Complete Course Overview</h2>
+          <p>
+            The Anglotec AI Masterclass is the most comprehensive AI prompt engineering course available online,
+            featuring over 3,000 AI prompting phrases organized into 12 expert categories. Whether you are a complete
+            beginner looking to learn how to use ChatGPT, Claude, or Gemini, or an experienced professional seeking
+            to refine your prompt engineering skills, this masterclass provides structured, practical training that
+            delivers results.
+          </p>
+          <h3>What You Will Learn</h3>
+          <ul>
+            <li><strong>Code Generation:</strong> 250 prompts for writing, debugging, and optimizing code in any language</li>
+            <li><strong>UI/UX Design:</strong> 250 prompts for creating beautiful user interfaces and experiences</li>
+            <li><strong>Content Creation:</strong> 250 prompts for writing, editing, and producing engaging content</li>
+            <li><strong>Business Strategy:</strong> 250 prompts for market analysis, planning, and decision-making</li>
+            <li><strong>Data Analysis:</strong> 250 prompts for extracting insights and visualizing data</li>
+            <li><strong>Project Management:</strong> 250 prompts for agile planning, sprints, and team coordination</li>
+            <li><strong>API & Backend:</strong> 250 prompts for building robust server-side applications</li>
+            <li><strong>Machine Learning:</strong> 250 prompts for training models and deploying AI solutions</li>
+            <li><strong>Security & Privacy:</strong> 250 prompts for cybersecurity and compliance</li>
+            <li><strong>DevOps & Cloud:</strong> 250 prompts for CI/CD, infrastructure, and cloud deployment</li>
+            <li><strong>Mobile Development:</strong> 250 prompts for iOS, Android, and cross-platform apps</li>
+            <li><strong>Emerging Tech:</strong> 250 prompts for blockchain, AR/VR, IoT, and cutting-edge technology</li>
+          </ul>
+          <h3>Why Choose Anglotec AI Masterclass</h3>
+          <ul>
+            <li>Interactive flashcards with AI-powered voice pronunciation in 12 languages</li>
+            <li>Progress tracking with XP, levels, streaks, and achievements</li>
+            <li>Free tier available — start learning immediately with no credit card</li>
+            <li>Pro tier unlocks all 3,000 prompts for just £19.99 per month</li>
+            <li>14-day free trial with full access to all features</li>
+            <li>Family plan supports up to 3 members</li>
+            <li>Classroom plan for schools and educational institutions</li>
+            <li>Works on all devices — mobile, tablet, and desktop</li>
+            <li>Offline mode for learning without internet</li>
+          </ul>
+          <h3>Prompt Engineering Skills Covered</h3>
+          <p>
+            This course covers every aspect of modern prompt engineering including chain-of-thought prompting,
+            few-shot learning, zero-shot techniques, role-based prompting, structured output formatting,
+            context window optimization, prompt chaining, and advanced techniques used by AI researchers
+            and industry professionals. Each prompt is designed to work with leading AI models including
+            OpenAI GPT-4, Anthropic Claude, Google Gemini, Meta Llama, and others.
+          </p>
+          <p>
+            Start your AI mastery journey today. Join thousands of learners worldwide who are transforming
+            their AI skills with the Anglotec AI Masterclass. Part of the Anglotec AI Apps Family.
+          </p>
+        </div>
+
         {/* Footer */}
         <footer className="text-center text-gray-300 text-xs pb-4 pt-2">
           <p>{t("app.family")}</p>

@@ -151,7 +151,14 @@
     "premiumVoiceError": "خطأ في الصوت المتميز",
     "upgradeVoice": "ترقية ElevenLabs",
     "bestStreak": "أفضل سلسلة",
-    "hint": "تلميح: اضغط على البطاقة لقلبها"
+    "hint": "تلميح: اضغط على البطاقة لقلبها",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "الإعدادات",
@@ -246,7 +253,20 @@
     "reportBug": "الإبلاغ عن مشكلة",
     "bugPlaceholder": "ماذا حدث؟ ماذا كنت تفعل؟",
     "sendReport": "إرسال التقرير",
-    "manageSubscription": "إدارة الاشتراك"
+    "manageSubscription": "إدارة الاشتراك",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "اختر خطتك",
@@ -405,14 +425,18 @@
     "justPerUser": "فقط {{amount}}/مستخدم/شهر",
     "bootcampComparison": "لماذا تدفع £2,000 لمعسكر AI بينما يمكنك الحصول على نفس المعرفة هنا؟",
     "sameKnowledgeFractionCost": "نفس المعرفة. 1% من التكلفة.",
-    "joinLearners": "انضم إلى 10,000+ متعلمي الذكاء الاصطناعي المتقنين للعبارات",
+    "joinLearners": "انضم إلى متعلمي الذكاء الاصطناعي المتقنين للعبارات",
     "masterIn30Days": "ضمان استرداد الأموال لمدة 7 أيام",
     "limitedOffer": "محدود: خصم 50% على الشهر الأول — ينتهي قريبًا",
     "riskFree": "100% بدون مخاطر. ابدأ التعلم في 60 ثانية.",
     "terms": "فوترة شهرية. إلغاء في أي وقت.",
     "paymentSuccess": "تم الدفع بنجاح! اشتراكك الآن نشط.",
     "paymentCancelled": "تم إلغاء الدفع. يمكنك المحاولة مرة أخرى في أي وقت.",
-    "saveVsMonthly": "وفر 25% مقابل الشهري"
+    "saveVsMonthly": "وفر 25% مقابل الشهري",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "مجاني",

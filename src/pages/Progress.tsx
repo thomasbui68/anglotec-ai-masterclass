@@ -101,23 +101,23 @@ export default function ProgressPage() {
   const currentStage = masteryStages.find((s) => masteryPercent >= s.min && masteryPercent < s.max) || masteryStages[3];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-white">
-      <header className="bg-[#1a365d] text-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a]">
+      <header className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/app-icon.png" alt={t("app.name")} className="h-8 w-8 object-contain rounded-lg" />
-            <span className="font-bold tracking-wider text-sm">{t("progress.title")}</span>
+            <span className="font-bold tracking-wider text-sm text-white">{t("progress.title")}</span>
           </div>
-          <Link to="/dashboard">
+          <Link to="/">
             <Button variant="ghost" size="sm" className="text-white hover:bg-white/10"><ArrowLeft size={18} className="mr-1" />{t("nav.dashboard")}</Button>
           </Link>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <Card className={`mb-8 ${currentStage.color} text-white border-0`}>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
+        <Card className="bg-white/5 border-white/10">
+          <CardContent className={`p-6 flex items-center justify-between ${currentStage.color} rounded-lg`}>
+            <div className="text-white">
               <p className="text-white/80 text-sm uppercase tracking-wider">{t("progress.currentLevel")}</p>
               <h2 className="text-3xl font-bold">{currentStage.label}</h2>
               <p className="text-white/90 mt-1">{masteryPercent}% {t("progress.completeTowards")}</p>
@@ -127,30 +127,30 @@ export default function ProgressPage() {
         </Card>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><BookOpen className="text-[#1a365d]" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{mastered}</p><p className="text-xs text-gray-300">{t("progress.mastered")}</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="text-blue-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{learning}</p><p className="text-xs text-gray-300">{t("progress.learning")}</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Calendar className="text-orange-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.active_days || 0}</p><p className="text-xs text-gray-300">{t("progress.activeDays")}</p></div></div></CardContent></Card>
-          <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Flame className="text-red-500" size={24} /><div><p className="text-2xl font-bold text-[#1a365d]">{stats?.total_practices || 0}</p><p className="text-xs text-gray-300">{t("progress.totalPractices")}</p></div></div></CardContent></Card>
+          <Card className="bg-white/5 border-white/10"><CardContent className="pt-6"><div className="flex items-center gap-3"><BookOpen className="text-green-400" size={24} /><div><p className="text-2xl font-bold text-white">{mastered}</p><p className="text-xs text-gray-300">{t("progress.mastered")}</p></div></div></CardContent></Card>
+          <Card className="bg-white/5 border-white/10"><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="text-blue-400" size={24} /><div><p className="text-2xl font-bold text-white">{learning}</p><p className="text-xs text-gray-300">{t("progress.learning")}</p></div></div></CardContent></Card>
+          <Card className="bg-white/5 border-white/10"><CardContent className="pt-6"><div className="flex items-center gap-3"><Calendar className="text-orange-400" size={24} /><div><p className="text-2xl font-bold text-white">{stats?.active_days || 0}</p><p className="text-xs text-gray-300">{t("progress.activeDays")}</p></div></div></CardContent></Card>
+          <Card className="bg-white/5 border-white/10"><CardContent className="pt-6"><div className="flex items-center gap-3"><Flame className="text-red-400" size={24} /><div><p className="text-2xl font-bold text-white">{stats?.total_practices || 0}</p><p className="text-xs text-gray-300">{t("progress.totalPractices")}</p></div></div></CardContent></Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader><CardTitle className="text-lg">{t("progress.learningDistribution")}</CardTitle></CardHeader>
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader><CardTitle className="text-lg text-white">{t("progress.learningDistribution")}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div><div className="flex justify-between text-sm mb-1"><span>{t("progress.mastered")}</span><span className="font-semibold">{mastered} ({Math.round((mastered / total) * 100)}%)</span></div><Progress value={(mastered / total) * 100} className="h-2 bg-gray-100" /></div>
-              <div><div className="flex justify-between text-sm mb-1"><span>{t("progress.learning")}</span><span className="font-semibold">{learning} ({Math.round((learning / total) * 100)}%)</span></div><Progress value={(learning / total) * 100} className="h-2 bg-gray-100" /></div>
-              <div><div className="flex justify-between text-sm mb-1"><span>{t("progress.new")}</span><span className="font-semibold">{newCount} ({Math.round((newCount / total) * 100)}%)</span></div><Progress value={(newCount / total) * 100} className="h-2 bg-gray-100" /></div>
+              <div><div className="flex justify-between text-sm mb-1 text-white"><span>{t("progress.mastered")}</span><span className="font-semibold text-white">{mastered} ({Math.round((mastered / total) * 100)}%)</span></div><Progress value={(mastered / total) * 100} className="h-2 bg-gray-700" /></div>
+              <div><div className="flex justify-between text-sm mb-1 text-white"><span>{t("progress.learning")}</span><span className="font-semibold text-white">{learning} ({Math.round((learning / total) * 100)}%)</span></div><Progress value={(learning / total) * 100} className="h-2 bg-gray-700" /></div>
+              <div><div className="flex justify-between text-sm mb-1 text-white"><span>{t("progress.new")}</span><span className="font-semibold text-white">{newCount} ({Math.round((newCount / total) * 100)}%)</span></div><Progress value={(newCount / total) * 100} className="h-2 bg-gray-700" /></div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="text-lg">{t("progress.masteryRoadmap")}</CardTitle></CardHeader>
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader><CardTitle className="text-lg text-white">{t("progress.masteryRoadmap")}</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {masteryStages.map((stage) => (
-                <div key={stage.label} className={`flex items-center gap-3 p-2 rounded-lg ${currentStage.label === stage.label ? "bg-[#d4af37]/10 border border-[#d4af37]" : "bg-gray-50"}`}>
+                <div key={stage.label} className={`flex items-center gap-3 p-2 rounded-lg ${currentStage.label === stage.label ? "bg-[#d4af37]/10 border border-[#d4af37]" : "bg-white/5"}`}>
                   <div className={`w-4 h-4 rounded-full ${stage.color}`} />
                   <div className="flex-1">
-                    <p className={`font-semibold text-sm ${currentStage.label === stage.label ? "text-[#d4af37]" : "text-gray-700"}`}>{stage.label}</p>
+                    <p className={`font-semibold text-sm ${currentStage.label === stage.label ? "text-[#d4af37]" : "text-white"}`}>{stage.label}</p>
                     <p className="text-xs text-gray-300">{stage.min}% - {stage.max}%</p>
                   </div>
                   {currentStage.label === stage.label && <Badge className="bg-[#d4af37] text-white">{t("common.current")}</Badge>}
@@ -160,9 +160,9 @@ export default function ProgressPage() {
           </Card>
         </div>
 
-        <Card>
+        <Card className="bg-white/5 border-white/10">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2"><Trophy className="text-[#d4af37]" size={20} />{t("progress.achievements")}</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2 text-white"><Trophy className="text-[#d4af37]" size={20} />{t("progress.achievements")}</CardTitle>
           </CardHeader>
           <CardContent>
             {achievements.length === 0 ? (
@@ -173,7 +173,7 @@ export default function ProgressPage() {
                   <div key={ach.id} className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#d4af37]/10 to-transparent rounded-lg border border-[#d4af37]/20">
                     <div className="w-10 h-10 rounded-full bg-[#d4af37]/20 flex items-center justify-center"><Award size={20} className="text-[#d4af37]" /></div>
                     <div>
-                      <p className="font-semibold text-sm text-[#1a365d]">{ach.badgeName}</p>
+                      <p className="font-semibold text-sm text-white">{ach.badgeName}</p>
                       <p className="text-xs text-gray-300">{new Date(ach.earnedAt).toLocaleDateString()}</p>
                     </div>
                   </div>

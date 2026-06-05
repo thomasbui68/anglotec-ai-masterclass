@@ -5,6 +5,7 @@ import { useGamification } from "@/hooks/useGamification";
 import { useProgress, usePrompts } from "@/hooks/useApi";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useBrowserTTS } from "@/hooks/useBrowserTTS";
+import { useTransformersSTT } from "@/hooks/useTransformersSTT";
 import { useSessionRestore } from "@/components/SelfSavingProvider";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
 import { Button } from "@/components/ui/button";
@@ -15,9 +16,10 @@ import { toast } from "sonner";
 import {
   Volume2, CheckCircle, XCircle, ChevronLeft, ChevronRight,
   Home, RotateCcw, Brain, Sparkles, Star, Flame,
-  Zap, Loader2, Lock, ArrowLeft, X, SkipForward, AlertTriangle
+  Zap, Loader2, Lock, ArrowLeft, X, SkipForward, AlertTriangle,
+  Mic, MicOff, AudioLines
 } from "lucide-react";
-import { useTranslation } from "@/i18n";
+import { useTranslation, i18n } from "@/i18n";
 
 const BASIC_CATEGORIES = [
   "Code Generation", "UI/UX Design", "Content Creation",
@@ -33,6 +35,7 @@ export default function Flashcards() {
   const { user } = useAuth();
   const game = useGamification();
   const tts = useBrowserTTS();
+  const stt = useTransformersSTT(i18n.language || "en");
   const progressApi = useProgress(user?.id || 0);
   const promptApi = usePrompts();
   const subscription = useSubscription();
@@ -415,7 +418,7 @@ export default function Flashcards() {
               </div>
               <div className="flex items-center gap-1 text-yellow-400">
                 <Star size={14} />
-                <span className="text-xs font-bold">{sessionStats.correct * 10} XP</span>
+                <span className="text-xs font-bold">{sessionStats.correct * 10} {t("dashboard.xp")}</span>
               </div>
             </div>
 
@@ -554,6 +557,64 @@ export default function Flashcards() {
                     <Sparkles size={10} className="mr-1" /> {tts.isNeural ? t("flashcards.premiumVoice") : t("flashcards.aiVoice")}
                   </Badge>
                 )}
+
+                {/* Practice Speaking with Distil-Whisper */}
+                <div className="mt-4 pt-4 border-t border-white/10 w-full max-w-md">
+                  {stt.isLoadingModel && (
+                    <div className="flex items-center gap-2 text-xs text-gray-300">
+                      <Loader2 size={12} className="animate-spin" />
+                      {t("flashcards.loadingSpeechModel", { progress: stt.progress })}
+                    </div>
+                  )}
+
+                  {stt.modelLoaded && !stt.isListening && !stt.transcript && (
+                    <button
+                      onClick={stt.startListening}
+                      className="flex items-center gap-2 mx-auto px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 rounded-xl text-purple-300 text-sm font-medium transition-all"
+                    >
+                      <Mic size={16} /> {t("flashcards.practiceSpeaking")}
+                    </button>
+                  )}
+
+                  {stt.isListening && (
+                    <div className="text-center">
+                      <button
+                        onClick={stt.stopListening}
+                        className="flex items-center gap-2 mx-auto px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 rounded-xl text-red-300 text-sm font-medium transition-all animate-pulse"
+                      >
+                        <MicOff size={16} /> {t("flashcards.stopTranscribe")}
+                      </button>
+                      <div className="flex items-center justify-center gap-1 mt-2">
+                        <AudioLines size={12} className="text-purple-400 animate-pulse" />
+                        <span className="text-xs text-purple-300">{t("flashcards.listeningWithAI")}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {stt.isTranscribing && (
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-300">
+                      <Loader2 size={12} className="animate-spin" />
+                      {t("flashcards.transcribingWithAI")}
+                    </div>
+                  )}
+
+                  {stt.transcript && (
+                    <div className="bg-purple-500/10 border border-purple-400/20 rounded-xl p-3 mt-2">
+                      <p className="text-xs text-purple-300 font-medium mb-1">{t("flashcards.youSaid")}</p>
+                      <p className="text-sm text-white">{stt.transcript}</p>
+                      <button
+                        onClick={() => { stt.clearTranscript(); stt.startListening(); }}
+                        className="mt-2 text-xs text-purple-400 hover:text-purple-300 underline"
+                      >
+                        {t("flashcards.tryAgain")}
+                      </button>
+                    </div>
+                  )}
+
+                  {stt.error && (
+                    <p className="text-xs text-red-400 mt-2">{stt.error}</p>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-2 mt-4">
                   <p className="text-xs text-gray-300">{t("flashcards.tapAfterListening")}</p>

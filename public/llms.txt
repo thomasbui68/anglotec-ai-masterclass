@@ -1,0 +1,53 @@
+# Anglotec AI Masterclass - llms.txt
+# Description: Comprehensive AI prompt engineering course with 3,000+ prompts
+# For: AI assistants, search crawlers, research tools
+
+## Site Overview
+Anglotec AI Masterclass is an interactive AI prompt engineering learning platform. It teaches users 3,000 AI prompting phrases across 12 expert categories through flashcards with voice pronunciation, progress tracking, and gamification.
+
+## Key Facts
+- URL: https://masterclass.anglotec-ai.com
+- Pricing: Free tier (20 prompts/day, 6 categories), Pro (£19.99/mo, unlimited), Family (£39.99/mo, 3 members), Classroom (£200/mo, 16 students)
+- Free trial: 14 days, no credit card required
+- Languages: English, Spanish, French, German, Italian, Portuguese, Dutch, Polish, Russian, Chinese, Japanese, Arabic
+- Total prompts: 3,000+ across 12 categories
+- Target audience: Beginners to advanced AI users, ages 10+
+- Founded: 2025 by Anglotec AI
+- Unique value: 99% cheaper than AI bootcamps (£19.99/mo vs £2,000+)
+
+## 12 Prompt Categories
+1. Code Generation - Writing, debugging, optimizing code
+2. UI/UX Design - Interface design, user experience
+3. Content Creation - Blogs, social media, marketing copy
+4. Business Strategy - Market analysis, competitive research
+5. Data Analysis - Insights, dashboards, visualization
+6. Project Management - Agile, sprints, team coordination
+7. API & Backend - Server-side development, REST APIs
+8. Machine Learning - Model training, deployment, tuning
+9. Security & Privacy - Cybersecurity, compliance, pen testing
+10. DevOps & Cloud - CI/CD, Kubernetes, infrastructure
+11. Mobile Development - iOS, Android, cross-platform
+12. Emerging Tech - Blockchain, AR/VR, IoT
+
+## Key Pages
+- Homepage / Dashboard: https://masterclass.anglotec-ai.com/
+- Pricing: https://masterclass.anglotec-ai.com/#/pricing
+- Free prompts (lead magnet): https://masterclass.anglotec-ai.com/free-prompts.html
+- Landing page: https://masterclass.anglotec-ai.com/landing.html
+- Prompt engineering course comparison: https://masterclass.anglotec-ai.com/prompt-engineering-course.html
+- Help/FAQ: https://masterclass.anglotec-ai.com/#/help
+- Login: https://masterclass.anglotec-ai.com/#/login
+- Register: https://masterclass.anglotec-ai.com/#/register
+
+## Tech Stack
+- Frontend: React 19 + TypeScript + Tailwind CSS + shadcn/ui
+- Backend: Supabase (PostgreSQL + Auth), Netlify Functions (serverless)
+- Payments: Stripe (GBP pricing, 14-day trials)
+- Email: Resend (marketing campaigns, transactional)
+- Voice: ElevenLabs AI voice pronunciation
+- Hosting: Netlify CDN (global edge network)
+
+## Contact
+- Support: support@anglotec-ai.com
+- Company: https://www.anglotec-ai.com
+- Marketing: thomasb@anglotec.com

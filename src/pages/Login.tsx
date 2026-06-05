@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
+import { useDemoLogin } from "@/hooks/useDemoLogin";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export default function Login() {
   const { login, isSupabaseReady } = useAuth();
   const webAuthn = useWebAuthn();
   const protect = useSelfProtecting();
+  const demo = useDemoLogin();
 
   // Form state
   const [email, setEmail] = useState("");
@@ -274,6 +276,37 @@ export default function Login() {
             </div>
           </CardContent>
         </Card>
+
+        {/* ── Try Demo Buttons ── */}
+        <div className="mt-4 space-y-3">
+          <button
+            onClick={() => demo.login({ tier: "free", welcomeMessage: "Welcome! You're using the Free demo." })}
+            disabled={demo.isLoading}
+            className="w-full h-12 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-400/30 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {demo.isLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <><Sparkles size={18} className="text-orange-400" /> Try Free Demo (No Signup)</>
+            )}
+          </button>
+
+          <button
+            onClick={() => demo.login({ tier: "pro", welcomeMessage: "Welcome! You're using the Pro demo with all features unlocked." })}
+            disabled={demo.isLoading}
+            className="w-full h-12 bg-gradient-to-r from-purple-500/10 to-blue-500/10 hover:from-purple-500/20 hover:to-blue-500/20 border border-purple-400/20 hover:border-purple-400/40 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {demo.isLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <><GraduationCap size={18} className="text-purple-400" /> Try Pro Demo (All 3,000 Prompts)</>
+            )}
+          </button>
+
+          <p className="text-center text-gray-300 text-xs">
+            Demo accounts let you explore instantly — no email required.
+          </p>
+        </div>
       </div>
     </div>
   );

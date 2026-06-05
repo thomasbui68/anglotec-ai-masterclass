@@ -153,7 +153,14 @@
     "bestStreak": "Best Streak",
     "hint": "Hint: Tap the card to flip it and see the AI prompt",
     "browserVoice": "Browser Voice",
-    "voiceError": "Voice Error"
+    "voiceError": "Voice Error",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "Settings",
@@ -252,7 +259,20 @@
     "browserVoiceActive": "Browser Voice Active",
     "voiceUnavailable": "No Voice Available",
     "noVoiceFound": "No browser voices found on this device.",
-    "testVoice": "Test Voice"
+    "testVoice": "Test Voice",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "Choose Your Plan",
@@ -373,6 +393,10 @@
     "faq4A": "Yes! Classroom plans include special educational pricing. Contact us and we will set up a free evaluation for your school.",
     "faq5Q": "What payment methods do you accept?",
     "faq5A": "All major credit cards, PayPal, and Apple Pay. For Classroom plans, we can also send an invoice.",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo",
     "supportEmail": "Questions? Contact us at support@anglotec.ai",
     "classroomRequestTitle": "Contact Sales",
     "classroomRequestDesc": "Tell us about your organization or department. We'll get back to you within 24 hours with a custom quote.",
@@ -411,14 +435,15 @@
     "justPerUser": "Just {{amount}}/user/month",
     "bootcampComparison": "Why pay £2,000 for an AI bootcamp when you get the same knowledge here?",
     "sameKnowledgeFractionCost": "Same knowledge. 1% of the cost.",
-    "joinLearners": "Join 10,000+ AI learners mastering prompts",
+    "joinLearners": "Join AI learners mastering prompts",
     "masterIn30Days": "7-Day Money-Back Guarantee",
     "limitedOffer": "Limited: First month 50% off — ends soon",
     "riskFree": "100% Risk-Free. Start learning in 60 seconds.",
     "terms": "Billed monthly. Cancel anytime.",
     "paymentSuccess": "Payment successful! Your subscription is now active.",
     "paymentCancelled": "Payment cancelled. You can try again anytime.",
-    "saveVsMonthly": "Save 25% vs monthly"
+    "saveVsMonthly": "Save 25% vs monthly",
+    "billedAnnually": " billed annually"
   },
   "tiers": {
     "free": "Free",

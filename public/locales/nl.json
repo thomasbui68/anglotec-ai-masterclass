@@ -151,7 +151,14 @@
     "premiumVoiceError": "Premium Stem Fout",
     "upgradeVoice": "Upgrade ElevenLabs",
     "bestStreak": "Beste Reeks",
-    "hint": "Tip: Tik op de kaart om deze om te draaien"
+    "hint": "Tip: Tik op de kaart om deze om te draaien",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "Instellingen",
@@ -246,7 +253,20 @@
     "reportBug": "Meld een probleem",
     "bugPlaceholder": "Wat ging er mis? Wat deed u?",
     "sendReport": "Rapport verzenden",
-    "manageSubscription": "Abonnement beheren"
+    "manageSubscription": "Abonnement beheren",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "Kies Je Plan",
@@ -405,14 +425,18 @@
     "justPerUser": "Slechts {{amount}}/gebruiker/maand",
     "bootcampComparison": "Waarom £2,000 betalen voor een AI-bootcamp als je hier dezelfde kennis krijgt?",
     "sameKnowledgeFractionCost": "Zelfde kennis. 1% van de kosten.",
-    "joinLearners": "Sluit je aan bij 10,000+ AI-leerlingen die prompts beheersen",
+    "joinLearners": "Doe mee met AI-leerlingen die prompts beheersen",
     "masterIn30Days": "7-dagen geld-terug-garantie",
     "limitedOffer": "Beperkt: 50% korting eerste maand — eindigt binnenkort",
     "riskFree": "100% risicovrij. Begin binnen 60 seconden met leren.",
     "terms": "Maandelijkse facturering. Op elk moment opzegbaar.",
     "paymentSuccess": "Betaling geslaagd! Je abonnement is nu actief.",
     "paymentCancelled": "Betaling geannuleerd. Je kunt op elk moment opnieuw proberen.",
-    "saveVsMonthly": "Bespaar 25% vs maandelijks"
+    "saveVsMonthly": "Bespaar 25% vs maandelijks",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "Gratis",

@@ -1,34 +1,12 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { trpc } from "@/providers/trpc";
-import { useAuth } from "./useAuth";
+import { useState, useCallback, useMemo } from "react";
 import { getCategories, getAllPrompts, getTotalPromptCount } from "@/lib/prompts-data";
 
-// ===== PHRASES =====
+// ===== PROMPTS =====
 export function usePrompts() {
-  const { isReady } = useAuth();
-
-  // tRPC queries — for cloud backend when available
-  const categoriesQuery = trpc.prompt.categories.useQuery(undefined, {
-    enabled: false, // Don't try tRPC on static deploy
-    retry: 0,
-  });
-
-  const listQuery = trpc.prompt.list.useQuery(
-    { page: 1, limit: 50 },
-    { enabled: false, retry: 0 }
-  );
-
-  // Always use bundled prompt data (no localStorage)
+  // Always use bundled prompt data (no backend needed)
   const categories = useMemo(() => getCategories(), []);
   const allPrompts = useMemo(() => getAllPrompts(), []);
   const totalCount = useMemo(() => getTotalPromptCount(), []);
-
-  const prompts = useMemo(() => ({
-    prompts: allPrompts.slice(0, 50),
-    total: totalCount,
-    page: 1,
-    limit: 50,
-  }), [allPrompts, totalCount]);
 
   const isLoading = false; // Bundled data loads instantly
 
@@ -56,21 +34,12 @@ export function usePrompts() {
     [allPrompts]
   );
 
-  return useMemo(() => ({ categories, prompts: prompts.prompts, getPrompts, isLoading }),
-    [categories, prompts.prompts, getPrompts, isLoading]);
+  return useMemo(() => ({ categories, prompts: allPrompts.slice(0, 50), getPrompts, isLoading }),
+    [categories, allPrompts, getPrompts, isLoading]);
 }
 
 // ===== PROGRESS =====
-export function useProgress(_userId: number) {
-  const { user } = useAuth();
-
-  const statsQuery = trpc.progress.getStats.useQuery(undefined, {
-    enabled: false, // Don't try tRPC on static deploy
-    retry: 0,
-  });
-
-  const updateMutation = trpc.progress.update.useMutation();
-
+export function useProgress(_userId: string | number) {
   // Default stats — will show 3,000 total
   const [stats, setStats] = useState({
     total_prompts: 3000,
@@ -84,8 +53,7 @@ export function useProgress(_userId: number) {
   });
 
   const update = useCallback(
-    (promptId: number, status: string) => {
-      // Update local stats for UI feedback
+    (_promptId: number, status: string) => {
       setStats((prev) => {
         const next = { ...prev };
         if (status === "mastered") {
@@ -98,18 +66,8 @@ export function useProgress(_userId: number) {
         next.total_practices = prev.total_practices + 1;
         return next;
       });
-
-      // Also try to update cloud if available
-      try {
-        updateMutation.mutate({
-          promptId,
-          status: status as "mastered" | "learning" | "new",
-        });
-      } catch {
-        // Silently fail if no backend — local stats already updated
-      }
     },
-    [updateMutation]
+    []
   );
 
   const getAll = useCallback(() => [], []);
@@ -118,15 +76,8 @@ export function useProgress(_userId: number) {
 }
 
 // ===== ACHIEVEMENTS =====
-export function useAchievements(_userId: number) {
-  const listQuery = trpc.achievement.list.useQuery(undefined, {
-    enabled: false,
-    retry: 0,
-  });
-
-  const achievements: any[] = [];
-
-  return { achievements, isLoading: false };
+export function useAchievements(_userId: string | number) {
+  return { achievements: [] as any[], isLoading: false };
 }
 
 // Legacy compatibility export

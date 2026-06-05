@@ -14,6 +14,9 @@ export interface AuthUser {
   plan: "free" | "pro" | "family" | "classroom";
   hasBiometric: boolean;
   isAdmin: boolean;
+  backupEmail?: string;
+  phoneNumber?: string;
+  securityQuestion?: string;
 }
 
 export interface RegisterData {
@@ -153,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /* ---- Listen for auth state changes (Supabase only) ---- */
   useEffect(() => {
     if (mode !== "cloud") return;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
       if (session?.user) {
         setUser(buildAuthUser(session.user));
       } else {

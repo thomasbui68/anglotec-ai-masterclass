@@ -1,11 +1,30 @@
 User-agent: *
 Allow: /
-
-# Disallow auth callbacks and private routes
-Disallow: /login
-Disallow: /register
-Disallow: /forgot-password
 Disallow: /settings
-Disallow: /api/
+Disallow: /forgot-password
 
 Sitemap: https://masterclass.anglotec-ai.com/sitemap.xml
+
+# Crawl-delay for bots that support it
+Crawl-delay: 1
+
+# Allow Googlebot full access
+User-agent: Googlebot
+Allow: /
+
+# Allow Bingbot full access
+User-agent: Bingbot
+Allow: /
+
+# Allow ChatGPT/AI crawlers
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /

@@ -151,7 +151,14 @@
     "premiumVoiceError": "Ошибка Премиум Голоса",
     "upgradeVoice": "Обновить ElevenLabs",
     "bestStreak": "Лучшая Серия",
-    "hint": "Подсказка: Нажмите на карточку, чтобы перевернуть её"
+    "hint": "Подсказка: Нажмите на карточку, чтобы перевернуть её",
+    "loadingSpeechModel": "Loading AI speech model ({{progress}}%)...",
+    "practiceSpeaking": "Practice Speaking",
+    "stopTranscribe": "Stop & Transcribe",
+    "listeningWithAI": "Listening with Distil-Whisper AI...",
+    "transcribingWithAI": "Transcribing with AI...",
+    "youSaid": "You said:",
+    "tryAgain": "Try again"
   },
   "settings": {
     "title": "Настройки",
@@ -246,7 +253,20 @@
     "reportBug": "Сообщить о проблеме",
     "bugPlaceholder": "Что пошло не так? Что вы делали?",
     "sendReport": "Отправить отчет",
-    "manageSubscription": "Управление подпиской"
+    "manageSubscription": "Управление подпиской",
+    "neuralVoiceDetected": "Neural-quality voice detected on your device.",
+    "standardBrowserVoice": "Standard browser voice. For better quality, use Safari on macOS/iOS or Edge on Windows 11.",
+    "siriVoices": "Siri voices available on this device.",
+    "microsoftVoices": "Microsoft voices available on this device.",
+    "browserVoices": "Browser voices available on this device.",
+    "voiceSpeed": "Voice Speed",
+    "voicePitch": "Voice Pitch",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "low": "Low",
+    "high": "High",
+    "couldNotOpenBilling": "Could not open billing portal"
   },
   "pricing": {
     "title": "Выберите Ваш План",
@@ -405,14 +425,18 @@
     "justPerUser": "Всего {{amount}}/пользователь/месяц",
     "bootcampComparison": "Зачем платить £2,000 за AI буткемп, когда можно получить те же знания здесь?",
     "sameKnowledgeFractionCost": "Те же знания. 1% от стоимости.",
-    "joinLearners": "Присоединяйтесь к 10,000+ ученикам AI, осваивающим промпты",
+    "joinLearners": "Присоединяйтесь к ученикам AI, осваивающим промпты",
     "masterIn30Days": "7-дневная гарантия возврата денег",
     "limitedOffer": "Ограниченное: 50% скидка на первый месяц — скоро заканчивается",
     "riskFree": "100% без риска. Начните обучение за 60 секунд.",
     "terms": "Ежемесячная оплата. Отмена в любое время.",
     "paymentSuccess": "Оплата прошла успешно! Ваша подписка теперь активна.",
     "paymentCancelled": "Оплата отменена. Вы можете повторить попытку в любое время.",
-    "saveVsMonthly": "Экономия 25% vs ежемесячно"
+    "saveVsMonthly": "Экономия 25% vs ежемесячно",
+    "moneyBackGuarantee": "7-Day Money-Back Guarantee",
+    "noCreditCardRequired": "No Credit Card Required for Free",
+    "aiBootcamp": "£2,000+ AI Bootcamp",
+    "pricePerMonth": "/mo"
   },
   "tiers": {
     "free": "Бесплатно",

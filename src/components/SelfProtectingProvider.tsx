@@ -103,25 +103,12 @@ export function SelfProtectingProvider({ children }: { children: React.ReactNode
       const attempts = prev.loginAttempts + 1;
       if (attempts >= LOGIN_MAX_ATTEMPTS) {
         const expiry = Date.now() + LOGIN_LOCKOUT_MINUTES * 60 * 1000;
-        toast.error(
-          <div className="flex items-start gap-2">
-            <AlertTriangle size={16} className="text-red-400 shrink-0 mt-0.5" />
-            <div className="text-xs">
-              <p className="font-medium">{i18n.t("security.tooManyAttempts")}</p>
-              <p className="text-gray-400">{i18n.t("security.accountLockedFor", { minutes: LOGIN_LOCKOUT_MINUTES })}</p>
-            </div>
-          </div>,
-          { duration: 6000, id: "login-locked" }
-        );
+        toast.error(`${i18n.t("security.tooManyAttempts")} ${i18n.t("security.accountLockedFor", { minutes: LOGIN_LOCKOUT_MINUTES })}`);
         return { ...prev, isLocked: true, lockExpiry: expiry, loginAttempts: attempts };
       }
 
       if (attempts >= 3) {
-        toast.warning(i18n.t("security.attemptsRemaining", { count: LOGIN_MAX_ATTEMPTS - attempts }), {
-          icon: <Clock size={14} />,
-          duration: 4000,
-          id: "login-warn",
-        });
+        toast.warning(i18n.t("security.attemptsRemaining", { count: LOGIN_MAX_ATTEMPTS - attempts }));
       }
 
       return { ...prev, loginAttempts: attempts };

@@ -140,7 +140,15 @@ export const i18n = {
     i18n.language = lang;
     localStorage.setItem("anglotec-language", lang);
   },
-  t: (key: string): string => EN_TRANSLATIONS[key] || key,
+  t: (key: string, options?: Record<string, string | number>): string => {
+    let text = EN_TRANSLATIONS[key] || key;
+    if (options) {
+      for (const [k, v] of Object.entries(options)) {
+        text = text.replace(new RegExp(`\\{\\{${k}\\}\\}`, "g"), String(v));
+      }
+    }
+    return text;
+  },
 };
 
 export default i18n;
