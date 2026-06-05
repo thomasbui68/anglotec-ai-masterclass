@@ -1,24 +1,20 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Build output
+dist/
+deploy.zip
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies
+node_modules/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Test results
+test-results/
+*.webm
+
+# Misc
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.log
+.vscode/
+.idea/
+
+# Large assets (already on Netlify)
+public/assets/*.mp4
+public/assets/*.webm

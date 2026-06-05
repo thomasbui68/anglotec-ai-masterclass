@@ -2,7 +2,6 @@ functionsDirectory = "/mnt/agents/output/app/netlify/functions"
 functionsDirectoryOrigin = "config"
 headersOrigin = "config"
 redirectsOrigin = "config"
-plugins = []
 
 [build]
 publish = "/mnt/agents/output/app/dist"
@@ -35,6 +34,24 @@ minify = true
 [functions]
 
 [functions."*"]
+
+[[plugins]]
+origin = "ui"
+package = "netlify-plugin-submit-sitemap"
+
+[plugins.inputs]
+
+[[plugins]]
+origin = "ui"
+package = "@21yunbox/netlify-plugin-21yunbox-deploy-to-china-cdn"
+
+[plugins.inputs]
+
+[[plugins]]
+origin = "ui"
+package = "netlify-plugin-pagewatch"
+
+[plugins.inputs]
 
 [[headers]]
 for = "/*"
