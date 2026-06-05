@@ -5,7 +5,9 @@
   <url><loc>https://masterclass.anglotec-ai.com/#/register</loc><lastmod>2026-06-05</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/#/login</loc><lastmod>2026-06-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/#/help</loc><lastmod>2026-06-05</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <!-- SEO Category Landing Pages -->
+  <url><loc>https://masterclass.anglotec-ai.com/seo/</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/blog/</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <!-- Category SEO Pages v1 -->
   <url><loc>https://masterclass.anglotec-ai.com/seo/code-generation-ai-prompts.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-business-strategy.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/seo/content-creation-ai-prompts.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -18,7 +20,6 @@
   <url><loc>https://masterclass.anglotec-ai.com/seo/mobile-development-ai-prompts.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/seo/project-management-ai-prompts.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompt-engineering-course.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://masterclass.anglotec-ai.com/seo/</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <!-- Blog Posts -->
   <url><loc>https://masterclass.anglotec-ai.com/blog/chatgpt-prompts-for-beginners.html</loc><lastmod>2026-06-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/blog/prompt-engineering-cheat-sheet.html</loc><lastmod>2026-06-02</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -30,5 +31,25 @@
   <url><loc>https://masterclass.anglotec-ai.com/blog/ai-prompts-for-kids.html</loc><lastmod>2026-06-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/blog/prompt-engineering-salary-career.html</loc><lastmod>2026-06-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://masterclass.anglotec-ai.com/blog/ai-prompts-for-educators-teachers.html</loc><lastmod>2026-06-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://masterclass.anglotec-ai.com/blog/</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <!-- Additional SEO Pages v2 -->
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-code-prompts-examples.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-marketing.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-writing.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-data-science.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/prompt-engineering-jobs-remote.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-business-analysis.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/how-to-use-chatgpt-for-coding.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-cybersecurity-professionals.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-students.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-ux-designers.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/prompt-engineering-certification.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-sales.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-devops-engineers.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-email-writing.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-mobile-app-development.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/how-to-learn-prompt-engineering.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-social-media.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-machine-learning-engineers.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/chatgpt-prompts-for-project-managers.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://masterclass.anglotec-ai.com/seo/ai-prompts-for-api-development.html</loc><lastmod>2026-06-05</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
