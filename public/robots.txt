@@ -1,30 +1,24 @@
 User-agent: *
 Allow: /
-Disallow: /settings
-Disallow: /forgot-password
+Disallow: /#/settings
+Disallow: /#/flashcards
+Disallow: /#/progress
 
-Sitemap: https://masterclass.anglotec-ai.com/sitemap.xml
-
-# Crawl-delay for bots that support it
+# Crawl-delay for rate limiting
 Crawl-delay: 1
 
-# Allow Googlebot full access
+# Sitemap location
+Sitemap: https://masterclass.anglotec-ai.com/sitemap.xml
+
+# Allow major crawlers full access
 User-agent: Googlebot
 Allow: /
 
-# Allow Bingbot full access
 User-agent: Bingbot
 Allow: /
 
-# Allow ChatGPT/AI crawlers
-User-agent: ChatGPT-User
+User-agent: Slurp
 Allow: /
 
-User-agent: GPTBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Claude-Web
+User-agent: DuckDuckBot
 Allow: /
