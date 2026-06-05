@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Prompt of the Day — Daily Prompts for ChatGPT, Claude & Gemini</title>
+<meta name="description" content="Get a new AI prompt every day. Copy-paste ready for ChatGPT, Claude, and Gemini. Improve your prompt engineering skills daily.">
+<meta name="keywords" content="prompt of the day, daily ai prompt, chatgpt prompt daily, ai prompt calendar">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://masterclass.anglotec-ai.com/prompt-of-the-day.html">
+<meta property="og:title" content="AI Prompt of the Day">
+<meta property="og:description" content="Get a new AI prompt every day. Copy-paste ready for ChatGPT, Claude, and Gemini.">
+<meta property="og:url" content="https://masterclass.anglotec-ai.com/prompt-of-the-day.html">
+<meta property="og:image" content="https://masterclass.anglotec-ai.com/og-banner.jpg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R82NV3DH8"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6R82NV3DH8');</script>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.7;max-width:800px;margin:0 auto;padding:20px;color:#1a2332;background:#f8f9fa}
+h1{color:#0f172a}h2{color:#1a365d;border-bottom:2px solid #f59e0b;padding-bottom:.3em;margin-top:1.5em}
+.hero{background:linear-gradient(135deg,#0f172a,#1a365d);color:#fff;padding:40px 30px;border-radius:16px;margin-bottom:30px;text-align:center}
+.hero h1{color:#fff;margin:0;font-size:2.2em}.hero p{color:#cbd5e1;margin:.4em 0 0;font-size:1.1em}
+.prompt-box{background:#fff;border:2px solid #dbeafe;border-radius:16px;padding:25px;margin:20px 0;position:relative}
+.prompt-box .label{position:absolute;top:-12px;left:20px;background:#2563eb;color:#fff;padding:4px 14px;border-radius:20px;font-size:.75em;font-weight:700}
+.prompt-box .cat{color:#64748b;font-size:.85em;margin-bottom:10px}
+.prompt-box .prompt-text{font-size:1.15em;color:#0f172a;font-weight:500;line-height:1.6}
+.prompt-box .date{color:#94a3b8;font-size:.8em;margin-top:10px}
+.cta{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:14px 30px;border-radius:12px;text-decoration:none;font-weight:700;font-size:1.1em;margin:10px 5px;box-shadow:0 4px 12px rgba(245,158,11,.3)}
+.badge{display:inline-block;background:#dbeafe;color:#1e40af;padding:4px 12px;border-radius:20px;font-size:.82em;font-weight:600;margin:3px}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;color:#64748b;font-size:.88em}
+.breadcrumb{font-size:.88em;color:#64748b;margin-bottom:12px}.breadcrumb a{color:#2563eb;text-decoration:none}
+.history{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav class="breadcrumb"><a href="/">Anglotec AI</a> &rsaquo; Prompt of the Day</nav>
+<div class="hero">
+<h1>AI Prompt of the Day</h1>
+<p>A new prompt every day to level up your AI skills. Copy-paste ready.</p>
+</div>
+
+<div id="today-prompt"></div>
+
+<div style="text-align:center;margin:25px 0;">
+<p><span class="badge">Free</span> <span class="badge">Daily Updated</span> <span class="badge">Copy-Paste Ready</span></p>
+<a href="/" class="cta">Get 3,000 More Prompts &rarr;</a>
+</div>
+
+<h2>This Week's Prompts</h2>
+<div id="week-prompts" class="history"></div>
+
+<footer>
+<p><strong>Anglotec AI Masterclass</strong> — 3,000 AI Prompts, 12 Categories, 12 Languages</p>
+<p>&copy; 2026 Anglotec AI. All rights reserved.</p>
+</footer>
+
+<script>
+// Prompt database - 31 prompts (one per day rotation)
+const prompts = [
+  {cat:"Code Generation", text:"Write a Python function that takes a list of dictionaries and returns a sorted list by a specified key. Include type hints, docstring, and error handling for missing keys."},
+  {cat:"Business Strategy", text:"Analyze the competitive landscape for [your industry] in 2026. Identify the top 5 competitors, their strengths, weaknesses, and 3 untapped market opportunities."},
+  {cat:"Content Creation", text:"Write a 2,000-word SEO-optimized blog post about [topic]. Include H2 and H3 headings, meta description, internal linking suggestions, and a compelling CTA."},
+  {cat:"Data Analysis", text:"Analyze this dataset and identify the top 5 trends. Create a summary with visual suggestions and actionable insights for stakeholders: [paste data]"},
+  {cat:"UI/UX Design", text:"Design a complete mobile onboarding flow for [app type]. Include wireframe descriptions, micro-interactions, and progressive disclosure strategy."},
+  {cat:"Machine Learning", text:"Build a classification model to predict [target variable] from this dataset. Include data preprocessing, feature selection, model comparison, and evaluation metrics: [paste data]"},
+  {cat:"Cybersecurity", text:"Conduct a security audit of this [system type]. Identify vulnerabilities, rate severity (Critical/High/Medium/Low), and provide remediation steps with timelines."},
+  {cat:"DevOps & Cloud", text:"Create a complete CI/CD pipeline configuration for [tech stack]. Include build, test, security scanning, and deployment stages with rollback strategy."},
+  {cat:"API & Backend", text:"Design a RESTful API for [resource] with CRUD operations. Include endpoint definitions, request/response schemas, authentication, rate limiting, and error handling."},
+  {cat:"Mobile Development", text:"Create a responsive mobile app layout for [app type] using [framework]. Include navigation, main screens, and adaptive design for tablets and foldables."},
+  {cat:"Project Management", text:"Create a sprint plan for [project]. Define user stories with acceptance criteria, story points, dependencies, and risk mitigation strategies."},
+  {cat:"Content Creation", text:"Generate 30 social media post ideas for [brand/industry] across Instagram, Twitter, LinkedIn, and TikTok. Include hashtags and optimal posting times."},
+  {cat:"Code Generation", text:"Refactor this legacy code to use modern [language] patterns. Add unit tests, improve performance, and ensure backward compatibility: [paste code]"},
+  {cat:"Business Strategy", text:"Create a financial forecast for [business] over the next 3 years. Include revenue projections, cost analysis, break-even analysis, and funding requirements."},
+  {cat:"Data Analysis", text:"Write SQL queries to answer these business questions: monthly revenue trends, customer cohort retention, top-performing products, and churn prediction features."},
+  {cat:"UI/UX Design", text:"Create a design system for [product]. Define color palette, typography, spacing grid, component library, and accessibility guidelines (WCAG 2.1 AA)."},
+  {cat:"Machine Learning", text:"Perform feature engineering on this dataset. Create 10 new features, handle missing values, encode categoricals, and prepare for model training: [paste data]"},
+  {cat:"Cybersecurity", text:"Write an incident response plan for [organization type]. Define roles, escalation procedures, communication templates, and post-incident review process."},
+  {cat:"DevOps & Cloud", text:"Create Kubernetes manifests for deploying [application]. Include deployment, service, ingress, config maps, secrets, and horizontal pod autoscaling."},
+  {cat:"API & Backend", text:"Implement JWT authentication for an API. Include token generation, refresh mechanism, logout handling, and middleware for protected routes."},
+  {cat:"Mobile Development", text:"Optimize this mobile app for performance. Analyze startup time, memory usage, battery consumption, and provide specific optimization recommendations."},
+  {cat:"Project Management", text:"Create a stakeholder communication plan for [project]. Define audiences, message types, channels, frequency, and escalation triggers."},
+  {cat:"Content Creation", text:"Write an email nurture sequence of 5 emails for [product/service]. Include subject lines, body copy, CTAs, and send timing optimized for open rates."},
+  {cat:"Code Generation", text:"Generate a comprehensive test suite for this function. Include unit tests, edge cases, mock dependencies, and integration test scenarios: [paste code]"},
+  {cat:"Business Strategy", text:"Develop a go-to-market strategy for [product]. Include target segments, pricing strategy, distribution channels, launch timeline, and success metrics."},
+  {cat:"Data Analysis", text:"Create a dashboard specification for [business metric]. Define KPIs, chart types, data sources, refresh frequency, and user access levels."},
+  {cat:"UI/UX Design", text:"Conduct a heuristic evaluation of [interface]. Apply Nielsen's 10 heuristics, score each, and provide prioritized recommendations with severity ratings."},
+  {cat:"Machine Learning", text:"Deploy a trained model to production using [platform]. Include model versioning, A/B testing setup, monitoring, and rollback procedures."},
+  {cat:"Cybersecurity", text:"Create a security awareness training program for [organization]. Define modules for phishing, password hygiene, social engineering, and incident reporting."},
+  {cat:"DevOps & Cloud", text:"Set up infrastructure monitoring for [system]. Define key metrics, alerting thresholds, dashboard layouts, and on-call rotation procedures."},
+  {cat:"General", text:"You are an expert consultant with 20 years of experience. I need to [describe your challenge]. Walk me through a structured approach, ask clarifying questions, and provide a step-by-step action plan."}
+];
+
+function render() {
+  const now = new Date();
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+  const idx = dayOfYear % prompts.length;
+  const today = prompts[idx];
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  document.getElementById('today-prompt').innerHTML = 
+    '<div class="prompt-box">' +
+    '<span class="label">TODAY\'S PROMPT</span>' +
+    '<div class="cat">' + today.cat + '</div>' +
+    '<div class="prompt-text">"' + today.text + '"</div>' +
+    '<div class="date">' + dateStr + '</div>' +
+    '</div>';
+
+  let weekHtml = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+    const p = prompts[doy % prompts.length];
+    const ds = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    weekHtml += '<div class="prompt-box">' +
+      '<span class="label">' + (i === 0 ? 'TODAY' : ds.toUpperCase()) + '</span>' +
+      '<div class="cat">' + p.cat + '</div>' +
+      '<div class="prompt-text">"' + p.text + '"</div>' +
+      '</div>';
+  }
+  document.getElementById('week-prompts').innerHTML = weekHtml;
+}
+render();
+</script>
+</body>
+</html>
