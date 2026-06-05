@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useCallback } from 'react'
 import { Routes, Route, useLocation } from 'react-router'
 import { useEffect } from 'react'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { DEFAULT_META, ROUTE_META } from '@/hooks/useMetaTags'
+import { useTranslation } from '@/i18n'
 
 // ═══════════════════════════════════════════════
 // Route-Level Code Splitting
@@ -31,11 +32,12 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 
 /** Simple loading fallback — shown while chunks download */
 function PageLoader() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center">
       <div className="text-center">
         <div className="w-12 h-12 border-3 border-orange-400/20 border-t-orange-400 rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-gray-300 text-sm">Loading...</p>
+        <p className="text-gray-300 text-sm">{t("common.pageLoader")}</p>
       </div>
     </div>
   )

@@ -83,7 +83,8 @@
     "emailPlaceholder": "tu@email.com",
     "phonePlaceholder": "+34 123 456 789",
     "faceId": "Face ID",
-    "cloudAuth": "Auth en la Nube"
+    "cloudAuth": "Auth en la Nube",
+    "resendSuccess": "Verification email resent! Check your inbox."
   },
   "dashboard": {
     "welcome": "Bienvenido de nuevo",
@@ -266,7 +267,9 @@
     "fast": "Fast",
     "low": "Low",
     "high": "High",
-    "couldNotOpenBilling": "Could not open billing portal"
+    "couldNotOpenBilling": "Could not open billing portal",
+    "deleteRequestSent": "Account deletion request sent. Your data will be removed shortly.",
+    "selectLanguage": "Change language"
   },
   "pricing": {
     "title": "Elige Tu Plan",
@@ -468,7 +471,8 @@
     "registerFailed": "Registro fallido. Inténtalo de nuevo.",
     "faceIdNotAvailable": "Face ID no está disponible en este navegador.",
     "resetFailed": "Error al enviar el correo de restablecimiento. Inténtalo de nuevo.",
-    "enterEmailFirst": "Por favor introduce tu correo primero"
+    "enterEmailFirst": "Por favor introduce tu correo primero",
+    "resendFailed": "Failed to resend. Please try again."
   },
   "common": {
     "loading": "Cargando...",
@@ -495,7 +499,8 @@
     "online": "En línea",
     "offline": "Sin conexión",
     "mobile": "Móvil",
-    "desktop": "Escritorio"
+    "desktop": "Escritorio",
+    "pageLoader": "Loading your app..."
   },
   "onboarding": {
     "title": "Bienvenido al Masterclass de AI Anglotec",

@@ -83,7 +83,8 @@
     "emailPlaceholder": "your@email.com",
     "phonePlaceholder": "+81 90 1234 5678",
     "faceId": "Face ID",
-    "cloudAuth": "クラウド認証"
+    "cloudAuth": "クラウド認証",
+    "resendSuccess": "Verification email resent! Check your inbox."
   },
   "dashboard": {
     "welcome": "おかえりなさい",
@@ -266,7 +267,9 @@
     "fast": "Fast",
     "low": "Low",
     "high": "High",
-    "couldNotOpenBilling": "Could not open billing portal"
+    "couldNotOpenBilling": "Could not open billing portal",
+    "deleteRequestSent": "Account deletion request sent. Your data will be removed shortly.",
+    "selectLanguage": "Change language"
   },
   "pricing": {
     "title": "プランを選択",
@@ -468,7 +471,8 @@
     "registerFailed": "登録に失敗しました。再試行してください。",
     "faceIdNotAvailable": "このブラウザではFace IDを使用できません。",
     "resetFailed": "リセットメールの送信に失敗しました。もう一度お試しください。",
-    "enterEmailFirst": "まずメールアドレスを入力してください"
+    "enterEmailFirst": "まずメールアドレスを入力してください",
+    "resendFailed": "Failed to resend. Please try again."
   },
   "common": {
     "loading": "読み込み中...",
@@ -495,7 +499,8 @@
     "online": "オンライン",
     "offline": "オフライン",
     "mobile": "モバイル",
-    "desktop": "デスクトップ"
+    "desktop": "デスクトップ",
+    "pageLoader": "Loading your app..."
   },
   "onboarding": {
     "title": "Anglotec AI マスタークラスへようこそ",

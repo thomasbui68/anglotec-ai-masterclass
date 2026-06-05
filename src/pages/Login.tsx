@@ -59,7 +59,7 @@ export default function Login() {
       const pendingTier = localStorage.getItem("pending_checkout_tier") as "pro" | "family" | "classroom" | null;
       if (pendingTier) {
         localStorage.removeItem("pending_checkout_tier");
-        toast.success(`Payment confirmed! Activating ${pendingTier.toUpperCase()} plan...`);
+        toast.success(t("demo.paymentConfirmed", { tier: pendingTier.toUpperCase() }));
         // Small delay so user sees the toast before redirect
         setTimeout(() => navigate("/settings?checkout=success&tier=" + pendingTier), 1500);
         return;
@@ -287,7 +287,7 @@ export default function Login() {
             {demo.isLoading ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              <><Sparkles size={18} className="text-orange-400" /> Try Free Demo (No Signup)</>
+              <><Sparkles size={18} className="text-orange-400" /> {t("demo.tryFree")}</>
             )}
           </button>
 
@@ -299,12 +299,12 @@ export default function Login() {
             {demo.isLoading ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              <><GraduationCap size={18} className="text-purple-400" /> Try Pro Demo (All 3,000 Prompts)</>
+              <><GraduationCap size={18} className="text-purple-400" /> {t("demo.tryPro")}</>
             )}
           </button>
 
           <p className="text-center text-gray-300 text-xs">
-            Demo accounts let you explore instantly — no email required.
+            {t("demo.description")}
           </p>
         </div>
       </div>

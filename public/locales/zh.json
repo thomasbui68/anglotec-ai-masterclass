@@ -83,7 +83,8 @@
     "emailPlaceholder": "your@email.com",
     "phonePlaceholder": "+86 123 4567 8900",
     "faceId": "面容 ID",
-    "cloudAuth": "云认证"
+    "cloudAuth": "云认证",
+    "resendSuccess": "Verification email resent! Check your inbox."
   },
   "dashboard": {
     "welcome": "欢迎回来",
@@ -266,7 +267,9 @@
     "fast": "Fast",
     "low": "Low",
     "high": "High",
-    "couldNotOpenBilling": "Could not open billing portal"
+    "couldNotOpenBilling": "Could not open billing portal",
+    "deleteRequestSent": "Account deletion request sent. Your data will be removed shortly.",
+    "selectLanguage": "Change language"
   },
   "pricing": {
     "title": "选择你的计划",
@@ -468,7 +471,8 @@
     "registerFailed": "注册失败。请重试。",
     "faceIdNotAvailable": "此浏览器不支持面容 ID。",
     "resetFailed": "发送重置邮件失败。请重试。",
-    "enterEmailFirst": "请先输入您的电子邮件"
+    "enterEmailFirst": "请先输入您的电子邮件",
+    "resendFailed": "Failed to resend. Please try again."
   },
   "common": {
     "loading": "加载中...",
@@ -495,7 +499,8 @@
     "online": "在线",
     "offline": "离线",
     "mobile": "移动端",
-    "desktop": "桌面端"
+    "desktop": "桌面端",
+    "pageLoader": "Loading your app..."
   },
   "onboarding": {
     "title": "欢迎来到 Anglotec AI 大师班",

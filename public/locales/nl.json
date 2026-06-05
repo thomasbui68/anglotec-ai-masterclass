@@ -83,7 +83,8 @@
     "emailPlaceholder": "jouw@email.com",
     "phonePlaceholder": "+31 6 12345678",
     "faceId": "Face ID",
-    "cloudAuth": "Cloud Auth"
+    "cloudAuth": "Cloud Auth",
+    "resendSuccess": "Verification email resent! Check your inbox."
   },
   "dashboard": {
     "welcome": "Welkom terug",
@@ -266,7 +267,9 @@
     "fast": "Fast",
     "low": "Low",
     "high": "High",
-    "couldNotOpenBilling": "Could not open billing portal"
+    "couldNotOpenBilling": "Could not open billing portal",
+    "deleteRequestSent": "Account deletion request sent. Your data will be removed shortly.",
+    "selectLanguage": "Change language"
   },
   "pricing": {
     "title": "Kies Je Plan",
@@ -468,7 +471,8 @@
     "registerFailed": "Registratie mislukt. Probeer opnieuw.",
     "faceIdNotAvailable": "Face ID is niet beschikbaar in deze browser.",
     "resetFailed": "Reset-e-mail kon niet worden verzonden. Probeer het opnieuw.",
-    "enterEmailFirst": "Voer eerst uw e-mailadres in"
+    "enterEmailFirst": "Voer eerst uw e-mailadres in",
+    "resendFailed": "Failed to resend. Please try again."
   },
   "common": {
     "loading": "Laden...",
@@ -495,7 +499,8 @@
     "online": "Online",
     "offline": "Offline",
     "mobile": "Mobiel",
-    "desktop": "Desktop"
+    "desktop": "Desktop",
+    "pageLoader": "Loading your app..."
   },
   "onboarding": {
     "title": "Welkom bij Anglotec AI Masterclass",

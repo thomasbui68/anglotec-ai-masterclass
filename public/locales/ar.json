@@ -83,7 +83,8 @@
     "emailPlaceholder": "your@email.com",
     "phonePlaceholder": "+971 50 123 4567",
     "faceId": "Face ID",
-    "cloudAuth": "مصادقة السحابة"
+    "cloudAuth": "مصادقة السحابة",
+    "resendSuccess": "Verification email resent! Check your inbox."
   },
   "dashboard": {
     "welcome": "مرحبًا بعودتك",
@@ -266,7 +267,9 @@
     "fast": "Fast",
     "low": "Low",
     "high": "High",
-    "couldNotOpenBilling": "Could not open billing portal"
+    "couldNotOpenBilling": "Could not open billing portal",
+    "deleteRequestSent": "Account deletion request sent. Your data will be removed shortly.",
+    "selectLanguage": "Change language"
   },
   "pricing": {
     "title": "اختر خطتك",
@@ -468,7 +471,8 @@
     "registerFailed": "فشل التسجيل. يرجى إعادة المحاولة.",
     "faceIdNotAvailable": "Face ID غير متاح على هذا المتصفح.",
     "resetFailed": "فشل في إرسال بريد إعادة التعيين. يرجى المحاولة مرة أخرى.",
-    "enterEmailFirst": "الرجاء إدخال بريدك الإلكتروني أولاً"
+    "enterEmailFirst": "الرجاء إدخال بريدك الإلكتروني أولاً",
+    "resendFailed": "Failed to resend. Please try again."
   },
   "common": {
     "loading": "جارٍ التحميل...",
@@ -495,7 +499,8 @@
     "online": "متصل",
     "offline": "غير متصل",
     "mobile": "جوال",
-    "desktop": "كمبيوتر"
+    "desktop": "كمبيوتر",
+    "pageLoader": "Loading your app..."
   },
   "onboarding": {
     "title": "مرحبًا بك في دورة Anglotec AI ماستر",

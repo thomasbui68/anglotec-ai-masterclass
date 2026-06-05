@@ -75,9 +75,9 @@ export default function Register() {
   const handleResend = async () => {
     try {
       await auth.resendVerification(email);
-      toast.success("Verification email resent! Check your inbox.");
+      toast.success(t("auth.resendSuccess"));
     } catch (err: any) {
-      toast.error(err.message || "Failed to resend. Please try again.");
+      toast.error(err.message || t("errors.resendFailed"));
     }
   };
 

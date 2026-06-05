@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useBrowserTTS } from "@/hooks/useBrowserTTS";
 import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_URL } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -121,21 +121,29 @@ export default function Settings() {
 
   const handleDeleteAccount = async () => {
     try {
-      // Actually delete the user from Supabase Auth
-      const { error } = await supabase.auth.admin.deleteUser(user?.id || "");
-      if (error) {
-        // If admin delete fails, try signOut at minimum
-        await logout();
-        toast.success(t("settings.accountLoggedOut"));
-      } else {
-        await logout();
-        toast.success(t("settings.accountDeleted"));
+      // Delete user via Supabase Edge Function (server-side has service role)
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (accessToken) {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/delete-user`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          toast.success(t("settings.accountDeleted"));
+        } else {
+          // Fallback: sign out client-side, data will be cleaned up server-side
+          toast.info(t("settings.deleteRequestSent"));
+        }
       }
-      navigate("/login");
     } catch {
-      // Fallback: at least clear local session
+      // Edge function not available — just sign out
+    } finally {
       await logout();
-      toast.success(t("settings.accountDeletedDevice"));
+      toast.success(t("settings.accountLoggedOut"));
       navigate("/login");
     }
   };

@@ -4,7 +4,7 @@ import { Globe, Check } from "lucide-react";
 import { LANGUAGES } from "@/i18n";
 
 export function LanguageSelector() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export function LanguageSelector() {
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1 px-1.5 sm:px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-white/80 hover:text-white text-xs"
-        title="Change language"
+        title={t("settings.selectLanguage")}
       >
         <span className="text-base leading-none">{current.flag}</span>
         <span className="font-bold uppercase tracking-wider hidden sm:inline">{current.code}</span>

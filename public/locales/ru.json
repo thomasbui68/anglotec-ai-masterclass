@@ -83,7 +83,8 @@
     "emailPlaceholder": "vash@email.com",
     "phonePlaceholder": "+7 123 456 7890",
     "faceId": "Face ID",
-    "cloudAuth": "Облачная Авторизация"
+    "cloudAuth": "Облачная Авторизация",
+    "resendSuccess": "Verification email resent! Check your inbox."
   },
   "dashboard": {
     "welcome": "С возвращением",
@@ -266,7 +267,9 @@
     "fast": "Fast",
     "low": "Low",
     "high": "High",
-    "couldNotOpenBilling": "Could not open billing portal"
+    "couldNotOpenBilling": "Could not open billing portal",
+    "deleteRequestSent": "Account deletion request sent. Your data will be removed shortly.",
+    "selectLanguage": "Change language"
   },
   "pricing": {
     "title": "Выберите Ваш План",
@@ -468,7 +471,8 @@
     "registerFailed": "Регистрация не удалась. Попробуйте снова.",
     "faceIdNotAvailable": "Face ID недоступен в этом браузере.",
     "resetFailed": "Не удалось отправить письмо для сброса пароля. Попробуйте ещё раз.",
-    "enterEmailFirst": "Пожалуйста, сначала введите ваш email"
+    "enterEmailFirst": "Пожалуйста, сначала введите ваш email",
+    "resendFailed": "Failed to resend. Please try again."
   },
   "common": {
     "loading": "Загрузка...",
@@ -495,7 +499,8 @@
     "online": "Онлайн",
     "offline": "Офлайн",
     "mobile": "Мобильный",
-    "desktop": "Компьютер"
+    "desktop": "Компьютер",
+    "pageLoader": "Loading your app..."
   },
   "onboarding": {
     "title": "Добро пожаловать в Мастер-класс AI Anglotec",
