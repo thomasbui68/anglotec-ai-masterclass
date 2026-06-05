@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { DEFAULT_META, ROUTE_META } from '@/hooks/useMetaTags'
 import { useTranslation } from '@/i18n'
+import { usePageTracking } from '@/hooks/useAnalytics'
 
 // ═══════════════════════════════════════════════
 // Route-Level Code Splitting
@@ -47,6 +48,7 @@ function PageLoader() {
 function RouteMetaUpdater() {
   const { pathname } = useLocation()
   useScrollToTop()
+  usePageTracking()
 
   useEffect(() => {
     const meta = ROUTE_META[pathname] || DEFAULT_META
