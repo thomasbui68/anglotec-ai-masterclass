@@ -123,13 +123,28 @@ export function useTransformersSTT(language: string = "en") {
           const script = document.createElement("script");
           script.src = "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js";
           script.crossOrigin = "anonymous";
-          script.onload = () => { Transformers = win.Transformers; resolve(); };
-          script.onerror = () => reject(new Error("Failed to load Transformers.js"));
+          // Wait for script to fully initialize (some browsers need extra time)
+          script.onload = () => {
+            setTimeout(() => {
+              Transformers = win.Transformers;
+              resolve();
+            }, 500);
+          };
+          script.onerror = () => reject(new Error("Failed to load speech library"));
           document.head.appendChild(script);
         });
       }
+      // Retry checking for Transformers with delay (CDN scripts can be slow to init)
+      let retries = 0;
+      while ((!Transformers || !Transformers.pipeline) && retries < 10) {
+        await new Promise(r => setTimeout(r, 300));
+        Transformers = win.Transformers;
+        retries++;
+      }
       if (!Transformers || !Transformers.pipeline) {
-        throw new Error("Transformers.js loaded but pipeline not available");
+        console.warn("[TransformersSTT] Speech recognition not available on this browser");
+        setState((s) => ({ ...s, status: "idle", modelLoaded: false, error: null }));
+        return false;
       }
       const { pipeline } = Transformers;
 

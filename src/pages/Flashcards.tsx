@@ -558,7 +558,8 @@ export default function Flashcards() {
                   </Badge>
                 )}
 
-                {/* Practice Speaking with Distil-Whisper */}
+                {/* Practice Speaking with Distil-Whisper — only show if model loaded */}
+                {stt.modelLoaded && (
                 <div className="mt-4 pt-4 border-t border-white/10 w-full max-w-md">
                   {stt.isLoadingModel && (
                     <div className="flex items-center gap-2 text-xs text-gray-300">
@@ -567,7 +568,7 @@ export default function Flashcards() {
                     </div>
                   )}
 
-                  {stt.modelLoaded && !stt.isListening && !stt.transcript && (
+                  {!stt.isListening && !stt.transcript && (
                     <button
                       onClick={stt.startListening}
                       className="flex items-center gap-2 mx-auto px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 rounded-xl text-purple-300 text-sm font-medium transition-all"
@@ -610,11 +611,8 @@ export default function Flashcards() {
                       </button>
                     </div>
                   )}
-
-                  {stt.error && (
-                    <p className="text-xs text-red-400 mt-2">{stt.error}</p>
-                  )}
                 </div>
+                )}
 
                 <div className="flex items-center gap-2 mt-4">
                   <p className="text-xs text-gray-300">{t("flashcards.tapAfterListening")}</p>
