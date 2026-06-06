@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useBrowserTTS } from "@/hooks/useBrowserTTS";
+import { useKokoroTTS } from "@/hooks/useKokoroTTS";
 import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
 import { supabase, SUPABASE_URL } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const tts = useBrowserTTS();
+  const tts = useKokoroTTS();
   const subscription = useSubscription();
 
   const trialDaysLeft = subscription.trialEndsAt
@@ -280,107 +280,48 @@ export default function Settings() {
           <CardContent className="space-y-4">
             {/* Voice status banner */}
             <div className={`p-3 rounded-xl border flex items-start gap-3 ${
-              tts.hasConfig
-                ? tts.isNeural
-                  ? "bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200"
+              tts.isReady
+                ? "bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200"
+                : tts.isLoading
+                  ? "bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200"
                   : "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
-                : "bg-gray-50 border-gray-200"
             }`}>
-              <Sparkles size={18} className={`shrink-0 mt-0.5 ${tts.hasConfig ? (tts.isNeural ? "text-purple-600" : "text-blue-600") : "text-gray-300"}`} />
+              <Sparkles size={18} className={`shrink-0 mt-0.5 ${tts.isReady ? "text-purple-600" : tts.isLoading ? "text-yellow-600" : "text-blue-600"}`} />
               <div>
                 <p className="text-sm font-semibold text-gray-800">
-                  {tts.hasConfig
-                    ? (tts.isNeural ? t("settings.premiumVoiceActive") : t("settings.browserVoiceActive"))
-                    : t("settings.voiceUnavailable")}
+                  {tts.isReady ? t("settings.premiumVoiceActive") : tts.isLoading ? "Loading Premium AI Voice..." : t("settings.browserVoiceActive")}
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {tts.hasConfig
-                    ? t("settings.usingVoice", { voice: tts.currentVoiceName })
-                    : t("settings.noVoiceFound")}
-                </p>
-                {tts.hasConfig && (
-                  <p className="text-[10px] text-gray-400 mt-1">
-                    {tts.isNeural
-                      ? t("settings.neuralVoiceDetected")
-                      : t("settings.standardBrowserVoice")}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Browser voice selector */}
-            {tts.voices.length > 0 && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">{t("settings.voiceCharacter")}</label>
-                <select
-                  value={tts.currentVoice?.id || ""}
-                  onChange={(e) => tts.selectVoice(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none"
-                >
-                  {tts.voices.map((voice) => (
-                    <option key={voice.id} value={voice.id}>
-                      {voice.name} {voice.isNeural ? "(Neural)" : ""} — {voice.accent} {voice.gender}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-gray-400">
-                  {tts.platform === "macos" || tts.platform === "ios"
-                    ? t("settings.siriVoices")
-                    : tts.platform === "windows"
-                      ? t("settings.microsoftVoices")
-                      : t("settings.browserVoices")}
+                  {tts.isReady ? "Kokoro AI Neural Voice (82M params)" : tts.isLoading ? `Downloading... ${tts.progress}%` : "Browser voice fallback"}
                 </p>
               </div>
-            )}
-
-            {/* Speed control */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium text-gray-700">{t("settings.voiceSpeed")}</label>
-                <span className="text-xs text-gray-500">{Math.round(tts.rate * 100)}%</span>
-              </div>
-              <input
-                type="range"
-                min="0.5"
-                max="1.5"
-                step="0.05"
-                value={tts.rate}
-                onChange={(e) => tts.setRate(parseFloat(e.target.value))}
-                className="w-full accent-amber-500"
-              />
-              <div className="flex justify-between text-[10px] text-gray-400">
-                <span>{t("settings.slow")}</span>
-                <span>{t("settings.normal")}</span>
-                <span>{t("settings.fast")}</span>
-              </div>
             </div>
 
-            {/* Pitch control */}
+            {/* AI Voice character selector */}
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium text-gray-700">{t("settings.voicePitch")}</label>
-                <span className="text-xs text-gray-500">{Math.round(tts.pitch * 100)}%</span>
-              </div>
-              <input
-                type="range"
-                min="0.5"
-                max="1.5"
-                step="0.05"
-                value={tts.pitch}
-                onChange={(e) => tts.setPitch(parseFloat(e.target.value))}
-                className="w-full accent-amber-500"
-              />
-              <div className="flex justify-between text-[10px] text-gray-400">
-                <span>{t("settings.low")}</span>
-                <span>{t("settings.normal")}</span>
-                <span>{t("settings.high")}</span>
-              </div>
+              <label className="text-sm font-medium text-gray-700">{t("settings.voiceCharacter")}</label>
+              <select
+                value={tts.currentVoice || "af_bella"}
+                onChange={(e) => tts.selectVoice(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none"
+              >
+                {tts.availableVoices.map((voiceId: string) => (
+                  <option key={voiceId} value={voiceId}>
+                    {tts.voiceNames[voiceId]?.name || voiceId}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-gray-400">
+                Powered by Kokoro TTS — Open-source neural voice
+              </p>
             </div>
+
+
 
             {/* Test Voice Button */}
             <Button
               onClick={() => tts.speak("Welcome to Anglotec AI Masterclass. Let's learn some amazing AI prompts together.")}
-              disabled={tts.isSpeaking || !tts.isReady}
+              disabled={tts.isSpeaking}
               variant="outline"
               className="w-full h-12 border-amber-300 text-amber-700 hover:bg-amber-50 rounded-xl"
             >

@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
 import { useProgress, usePrompts } from "@/hooks/useApi";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useBrowserTTS } from "@/hooks/useBrowserTTS";
+import { useKokoroTTS } from "@/hooks/useKokoroTTS";
 import { useTransformersSTT } from "@/hooks/useTransformersSTT";
 import { useSessionRestore } from "@/components/SelfSavingProvider";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import {
   Volume2, CheckCircle, XCircle, ChevronLeft, ChevronRight,
   Home, RotateCcw, Brain, Sparkles, Star, Flame,
-  Zap, Loader2, Lock, ArrowLeft, X, SkipForward, AlertTriangle,
+  Zap, Loader2, Lock, ArrowLeft, X, SkipForward,
   Mic, MicOff, AudioLines
 } from "lucide-react";
 import { useTranslation, i18n } from "@/i18n";
@@ -34,7 +34,7 @@ export default function Flashcards() {
 
   const { user } = useAuth();
   const game = useGamification();
-  const tts = useBrowserTTS();
+  const tts = useKokoroTTS(i18n.language);
   const stt = useTransformersSTT(i18n.language || "en");
   const progressApi = useProgress(user?.id || 0);
   const promptApi = usePrompts();
@@ -436,20 +436,6 @@ export default function Flashcards() {
         </div>
       </div>
 
-      {/* Voice error banner */}
-      {tts.error && (
-        <div className="bg-red-500/10 border-b border-red-400/20 px-4 py-2 flex items-start gap-2">
-          <AlertTriangle size={14} className="text-red-400 shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-red-300 font-medium">{t("flashcards.voiceError")}</p>
-            <p className="text-[10px] text-red-400/80">{tts.error}</p>
-          </div>
-          <button onClick={tts.clearError} className="text-red-400 hover:text-red-300 shrink-0">
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
       <main className="max-w-3xl mx-auto px-4 py-6 pb-24">
         {/* Category selector with lock indicators */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
@@ -551,12 +537,11 @@ export default function Flashcards() {
                   )}
                 </Button>
 
-                {/* Voice quality badge — shows what voice is active */}
-                {tts.hasConfig && (
-                  <Badge variant="secondary" className={`mt-2 text-[10px] border-0 ${tts.isNeural ? "bg-purple-500/20 text-purple-300" : "bg-blue-500/20 text-blue-300"}`}>
-                    <Sparkles size={10} className="mr-1" /> {tts.isNeural ? t("flashcards.premiumVoice") : t("flashcards.aiVoice")}
-                  </Badge>
-                )}
+                {/* Voice badge — shows AI voice status */}
+                <Badge variant="secondary" className={`mt-2 text-[10px] border-0 ${tts.isReady ? "bg-purple-500/20 text-purple-300" : tts.isLoading ? "bg-yellow-500/20 text-yellow-300" : "bg-blue-500/20 text-blue-300"}`}>
+                  <Sparkles size={10} className="mr-1" />
+                  {tts.isLoading ? `${t("flashcards.premiumVoice")} (Loading ${tts.progress}%)` : tts.isReady ? t("flashcards.premiumVoice") : t("flashcards.aiVoice")}
+                </Badge>
 
                 {/* Practice Speaking with Distil-Whisper — only show if model loaded */}
                 {stt.modelLoaded && (
