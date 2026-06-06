@@ -166,7 +166,7 @@ export default function Flashcards() {
   }, [currentPrompt, flipped, showScore, showQuitConfirm, currentIndex, prompts.length]);
 
   const playAudio = useCallback(() => {
-    if (!currentPrompt || !tts.isReady) return;
+    if (!currentPrompt) return;
     tts.speak(currentPrompt.prompt);
   }, [currentPrompt, tts]);
 
@@ -526,7 +526,7 @@ export default function Flashcards() {
                 {/* Listen button — FREE for all users */}
                 <Button
                   onClick={() => playAudio()}
-                  disabled={tts.isSpeaking || !tts.isReady}
+                  disabled={tts.isSpeaking}
                   className="h-12 px-6 font-semibold text-base rounded-xl bg-orange-500 hover:bg-orange-600 text-white"
                   size="lg"
                 >
