@@ -36,7 +36,7 @@ interface AuthContextType {
   isSupabaseReady: boolean;
   mode: "cloud" | "local" | "unknown";
   login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<{ verificationCode?: string }>;
+  register: (data: RegisterData) => Promise<{ requiresVerification: boolean; email: string }>;
   logout: () => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -268,18 +268,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: { data: { display_name: displayName || email.split("@")[0] } },
       });
       if (error) {
-        // If email exists in Supabase, fall through to local
         if (!error.message?.includes("already")) {
           throw new Error(error.message);
         }
-      } else if (signUpData.user) {
+        // User already exists — still show verification screen (they may need to verify)
+      }
+      if (signUpData.user) {
         setMode("cloud");
-        // Return verification code for demo mode
-        return { verificationCode: "123456" };
+        // User created — they need to confirm email before logging in
+        // Return info so UI can show "check your email" screen
+        return { requiresVerification: true, email };
       }
     }
 
-    // Local registration fallback
+    // Local registration fallback (when Supabase is down)
     setMode("local");
     const existing = getLocalUser(email);
     if (existing) throw new Error("An account with this email already exists");
@@ -297,12 +299,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verified: true, // Auto-verify in local mode
     });
 
-    // Auto-login after registration
+    // Auto-login after local registration
     const authUser = buildAuthUser({ id, email, user_metadata: { display_name: displayName } });
     setUser(authUser);
     localStorage.setItem("anglotec_current_user", JSON.stringify({ email: email.toLowerCase() }));
 
-    return { verificationCode: "123456" };
+    return { requiresVerification: false, email };
   }, []);
 
   /* ---- LOGOUT ---- */
@@ -318,11 +320,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [mode]);
 
   /* ---- RESEND VERIFICATION ---- */
-  const resendVerification = useCallback(async (_email: string) => {
-    // In local mode, just confirm the code is 123456
-    if (mode === "local") return;
-    // In cloud mode, this would resend via Supabase
-  }, [mode]);
+  const resendVerification = useCallback(async (email: string) => {
+    // Always try Supabase first (works in both modes if Supabase is available)
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      });
+      if (error) throw new Error(error.message);
+    } catch (err: any) {
+      // If Supabase resend fails (e.g., not configured), throw the error
+      throw new Error(err.message || "Failed to resend verification email");
+    }
+  }, []);
 
   /* ---- RESET PASSWORD ---- */
   const resetPassword = useCallback(async (email: string) => {
