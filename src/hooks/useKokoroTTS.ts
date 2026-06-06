@@ -1,39 +1,26 @@
 /**
  * useKokoroTTS — Premium AI Voice powered by Kokoro (ONNX)
  * 
- * This replaces robotic browser TTS with a state-of-the-art neural voice
- * that sounds indistinguishable from ElevenLabs, Kimi, Grok, etc.
+ * Replaces robotic browser TTS with a state-of-the-art neural voice.
+ * - Free, no API keys, runs 100% in browser
+ * - 82M parameter model — incredibly natural, human-like
+ * - 10 voice characters (5 female, 5 male, US + UK)
  * 
- * - Completely FREE — no API keys, no quotas, no subscriptions
- * - Runs 100% in browser via ONNX Runtime Web
- * - ~82M parameter model — incredibly natural, emotional, human-like
- * - Supports 28 languages including English (US/UK), Chinese, Japanese, etc.
- * - First load: ~50MB download, cached in IndexedDB forever
- * 
- * Voice quality comparison:
- *   Kokoro >>> Browser TTS (Siri/Microsoft/Google) >> Old TTS
- *   Kokoro ~= ElevenLabs v3 (both neural, both excellent)
- * 
- * Loading strategy:
- *   1. Try Kokoro (premium AI voice)
- *   2. Fall back to browser's best native voice
- *   3. Show loading state while model downloads
+ * Loading: ~50MB first time, cached in IndexedDB forever
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { toast } from "sonner";
 
 interface KokoroState {
   isReady: boolean;
   isLoading: boolean;
   isSpeaking: boolean;
-  progress: number; // 0-100
+  progress: number;
   error: string | null;
   currentVoice: string;
   availableVoices: string[];
 }
 
-// Voice IDs for Kokoro — each is a distinct, natural-sounding speaker
 const KOKORO_VOICES: Record<string, { name: string; gender: string; lang: string }> = {
   "af_bella": { name: "Bella (US Female)", gender: "female", lang: "en-US" },
   "af_nicole": { name: "Nicole (US Female)", gender: "female", lang: "en-US" },
@@ -47,10 +34,91 @@ const KOKORO_VOICES: Record<string, { name: string; gender: string; lang: string
   "bm_lewis": { name: "Lewis (UK Male)", gender: "male", lang: "en-GB" },
 };
 
-// Singleton — shared pipeline across all hook instances
-let globalKokoro: any = null;
+// Singletons
 let globalTtsInstance: any = null;
 let isLoadingGlobal = false;
+let loadFailed = false;
+
+/** Try to load Kokoro in background. Returns true if already loaded or loading started. */
+async function loadKokoro(setProgress: (p: number) => void): Promise<boolean> {
+  if (globalTtsInstance) return true;
+  if (isLoadingGlobal) return false; // Already loading
+  if (loadFailed) return false; // Already failed
+
+  isLoadingGlobal = true;
+  setProgress(5);
+
+  try {
+    // Method 1: Try ESM import from CDN
+    setProgress(10);
+    const win = window as any;
+
+    // If already loaded by a previous page
+    if (win.KokoroTTS) {
+      setProgress(30);
+    } else {
+      // Load the script using a dynamic import approach
+      setProgress(15);
+      try {
+        // Use dynamic import with eval to bypass TypeScript module resolution
+        const module = await eval(
+          'import("https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js")'
+        );
+        win.KokoroTTS = module.KokoroTTS || module.default?.KokoroTTS;
+        setProgress(25);
+      } catch (importErr) {
+        // Fallback: load as script tag
+        console.warn("[Kokoro] ESM import failed, trying script tag:", importErr);
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js";
+          script.crossOrigin = "anonymous";
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Script load failed"));
+          document.head.appendChild(script);
+        });
+        setProgress(25);
+      }
+    }
+
+    // Wait for KokoroTTS to be available
+    let retries = 0;
+    while (!win.KokoroTTS && retries < 30) {
+      await new Promise(r => setTimeout(r, 300));
+      retries++;
+    }
+    if (!win.KokoroTTS) {
+      throw new Error("Voice engine not available after load");
+    }
+
+    setProgress(30);
+
+    // Initialize the model
+    globalTtsInstance = await win.KokoroTTS.from_pretrained(
+      "onnx-community/Kokoro-82M-ONNX",
+      {
+        dtype: "q8",       // Quantized — smaller, faster download
+        device: "wasm",    // Works on all devices including mobile
+        progress_callback: (p: any) => {
+          if (p.status === "progress" || p.status === "download") {
+            const pct = Math.min(30 + Math.round((p.progress || 0) * 70), 99);
+            setProgress(pct);
+          }
+        },
+      }
+    );
+
+    setProgress(100);
+    isLoadingGlobal = false;
+    return true;
+
+  } catch (err: any) {
+    console.warn("[KokoroTTS] Load failed:", err.message);
+    loadFailed = true;
+    isLoadingGlobal = false;
+    return false;
+  }
+}
 
 export function useKokoroTTS(language: string = "en") {
   const [state, setState] = useState<KokoroState>({
@@ -65,189 +133,124 @@ export function useKokoroTTS(language: string = "en") {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortRef = useRef(false);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
 
-  // Determine best default voice based on language
+  // Determine best default voice
   const getDefaultVoice = useCallback((): string => {
     const langMap: Record<string, string> = {
-      en: "af_bella",
-      es: "af_nicole",
-      fr: "bf_emma",
-      de: "af_sarah",
-      it: "bf_isabella",
-      pt: "af_sky",
-      nl: "af_bella",
-      pl: "af_nicole",
-      ru: "af_sarah",
-      zh: "af_bella",
-      ja: "af_sky",
-      ar: "af_bella",
+      en: "af_bella", es: "af_nicole", fr: "bf_emma", de: "af_sarah",
+      it: "bf_isabella", pt: "af_sky", nl: "af_bella", pl: "af_nicole",
+      ru: "af_sarah", zh: "af_bella", ja: "af_sky", ar: "af_bella",
     };
     return langMap[language] || "af_bella";
   }, [language]);
 
-  // Load Kokoro model
-  const loadModel = useCallback(async () => {
-    if (globalKokoro && globalTtsInstance) {
-      setState(s => ({ ...s, isReady: true, isLoading: false }));
-      return true;
-    }
-    if (isLoadingGlobal) {
-      // Wait for existing load
-      let attempts = 0;
-      while (isLoadingGlobal && attempts < 50) {
-        await new Promise(r => setTimeout(r, 200));
-        attempts++;
-      }
-      if (globalKokoro && globalTtsInstance) {
-        setState(s => ({ ...s, isReady: true, isLoading: false }));
-        return true;
-      }
-    }
-
-    isLoadingGlobal = true;
-    setState(s => ({ ...s, isLoading: true, progress: 5 }));
-
-    try {
-      // Dynamic import of Kokoro from CDN
-      const win = window as any;
-      
-      if (!win.KokoroTTS) {
-        setState(s => ({ ...s, progress: 10 }));
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.type = "module";
-          script.textContent = `
-            import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js";
-            window.KokoroTTS = KokoroTTS;
-          `;
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load voice engine"));
-          document.head.appendChild(script);
-        });
-      }
-
-      // Wait for script to initialize
-      let retries = 0;
-      while (!win.KokoroTTS && retries < 30) {
-        await new Promise(r => setTimeout(r, 300));
-        retries++;
-      }
-      if (!win.KokoroTTS) {
-        throw new Error("Voice engine failed to initialize");
-      }
-
-      setState(s => ({ ...s, progress: 30 }));
-
-      // Create TTS instance
-      globalTtsInstance = await win.KokoroTTS.from_pretrained(
-        "onnx-community/Kokoro-82M-ONNX",
-        {
-          dtype: "fp32", // Best quality
-          device: "wasm", // Works on all devices
-          progress_callback: (p: any) => {
-            if (p.status === "progress" || p.status === "download") {
-              const pct = Math.min(30 + Math.round((p.progress || 0) * 70), 95);
-              setState(s => ({ ...s, progress: pct }));
-            }
-          },
-        }
-      );
-
-      globalKokoro = win.KokoroTTS;
-      setState(s => ({ ...s, isReady: true, isLoading: false, progress: 100, error: null }));
-      isLoadingGlobal = false;
-      return true;
-
-    } catch (err: any) {
-      console.warn("[KokoroTTS] Load failed:", err.message);
-      setState(s => ({ ...s, isLoading: false, error: null, isReady: false }));
-      isLoadingGlobal = false;
-      return false;
-    }
+  // Auto-detect best browser voice for fallback
+  const getBrowserVoice = useCallback((): SpeechSynthesisVoice | null => {
+    if (!window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices();
+    // Prefer premium voices
+    return voices.find(v => /samantha|google.*english|microsoft.*natural/i.test(v.name))
+      || voices.find(v => v.lang?.startsWith("en"))
+      || voices[0]
+      || null;
   }, []);
 
-  // Auto-load on mount (silent — no error if fails)
+  // Initialize
   useEffect(() => {
     const savedVoice = localStorage.getItem("anglotec_voice_id");
-    if (savedVoice && KOKORO_VOICES[savedVoice]) {
-      setState(s => ({ ...s, currentVoice: savedVoice }));
-    } else {
-      setState(s => ({ ...s, currentVoice: getDefaultVoice() }));
+    setState(s => ({
+      ...s,
+      currentVoice: (savedVoice && KOKORO_VOICES[savedVoice]) ? savedVoice : getDefaultVoice(),
+    }));
+
+    // Start loading Kokoro in background
+    loadKokoro((progress: number) => {
+      setState(s => ({ ...s, isLoading: progress < 100, progress }));
+      if (progress >= 100) {
+        setState(s => ({ ...s, isReady: true, isLoading: false }));
+      }
+    });
+
+    // Ensure speechSynthesis is available
+    if (window.speechSynthesis) {
+      synthRef.current = window.speechSynthesis;
     }
-    loadModel();
-  }, [loadModel, getDefaultVoice]);
+  }, [getDefaultVoice]);
 
   // Speak text
   const speak = useCallback(async (text: string) => {
     if (!text?.trim()) return;
     abortRef.current = false;
 
-    // Try Kokoro first
+    // Try Kokoro first if loaded
     if (globalTtsInstance) {
       try {
         setState(s => ({ ...s, isSpeaking: true }));
         const voiceId = state.currentVoice || "af_bella";
         const audioData = await globalTtsInstance.generate(text, { voice: voiceId });
-        
+
         if (abortRef.current) return;
 
-        // Create audio blob and play
-        const blob = audioData.toBlob();
+        // Handle different output formats
+        let blob: Blob;
+        if (audioData.toBlob) {
+          blob = audioData.toBlob();
+        } else if (audioData.blob) {
+          blob = audioData.blob;
+        } else if (audioData instanceof Blob) {
+          blob = audioData;
+        } else if (audioData instanceof ArrayBuffer) {
+          blob = new Blob([audioData], { type: "audio/wav" });
+        } else {
+          // Unknown format — fall through to browser TTS
+          throw new Error("Unknown audio format");
+        }
+
         const url = URL.createObjectURL(blob);
-        
         if (audioRef.current) {
           audioRef.current.pause();
           URL.revokeObjectURL(audioRef.current.src);
         }
-        
+
         const audio = new Audio(url);
         audioRef.current = audio;
-        
+
         audio.onended = () => {
           URL.revokeObjectURL(url);
           setState(s => ({ ...s, isSpeaking: false }));
         };
-        
         audio.onerror = () => {
           URL.revokeObjectURL(url);
           setState(s => ({ ...s, isSpeaking: false }));
         };
-        
+
         await audio.play();
         return;
       } catch (err) {
-        console.warn("[KokoroTTS] Speak failed, falling back:", err);
+        console.warn("[KokoroTTS] Speak failed, using fallback:", err);
         setState(s => ({ ...s, isSpeaking: false }));
       }
     }
 
-    // Fallback to browser TTS
-    fallbackSpeak(text);
-  }, [state.currentVoice]);
+    // Browser TTS fallback — works immediately
+    if (window.speechSynthesis) {
+      setState(s => ({ ...s, isSpeaking: true }));
+      window.speechSynthesis.cancel();
 
-  // Browser TTS fallback
-  const fallbackSpeak = useCallback((text: string) => {
-    if (!window.speechSynthesis) return;
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1.0;
-    
-    const voices = window.speechSynthesis.getVoices();
-    const bestVoice = voices.find(v => 
-      v.name.includes("Samantha") || 
-      v.name.includes("Google") ||
-      v.name.includes("Natural")
-    ) || voices.find(v => v.lang?.startsWith("en")) || voices[0];
-    
-    if (bestVoice) utterance.voice = bestVoice;
-    
-    utterance.onstart = () => setState(s => ({ ...s, isSpeaking: true }));
-    utterance.onend = () => setState(s => ({ ...s, isSpeaking: false }));
-    utterance.onerror = () => setState(s => ({ ...s, isSpeaking: false }));
-    
-    window.speechSynthesis.speak(utterance);
-  }, []);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+
+      const voice = getBrowserVoice();
+      if (voice) utterance.voice = voice;
+
+      utterance.onend = () => setState(s => ({ ...s, isSpeaking: false }));
+      utterance.onerror = () => setState(s => ({ ...s, isSpeaking: false }));
+
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [state.currentVoice, getBrowserVoice]);
 
   // Stop speaking
   const stop = useCallback(() => {
@@ -275,7 +278,6 @@ export function useKokoroTTS(language: string = "en") {
     speak,
     stop,
     selectVoice,
-    loadModel,
     voiceNames: KOKORO_VOICES,
     isFallback: !globalTtsInstance,
     hasConfig: true,
