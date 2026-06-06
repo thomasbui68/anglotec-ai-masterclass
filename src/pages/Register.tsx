@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
 import {
   Mail, Lock, User, Phone, Shield, CheckCircle, ArrowRight,
   ArrowLeft, Sparkles, Eye, EyeOff, AlertCircle
@@ -31,7 +30,6 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [needsVerification, setNeedsVerification] = useState(false);
 
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
   const passwordStrong = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password);
@@ -64,20 +62,10 @@ export default function Register() {
         securityAnswer: securityAnswer || undefined,
       });
       setRegistrationComplete(true);
-      setNeedsVerification(result.requiresVerification || false);
     } catch (err: any) {
       setError(err.message || t("errors.registerFailed"));
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      await auth.resendVerification(email);
-      toast.success(t("auth.resendSuccess"));
-    } catch (err: any) {
-      toast.error(err.message || t("errors.resendFailed"));
     }
   };
 
@@ -149,61 +137,24 @@ export default function Register() {
           </div>
         )}
 
-        {/* Registration Complete */}
+        {/* Registration Complete — always auto-logged in, no email verification */}
         {registrationComplete ? (
-          needsVerification ? (
-            /* Cloud mode — needs email verification */
-            <Card className="border-0 shadow-2xl">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                  <Mail size={32} className="text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">{t("auth.verifyEmail")}</h3>
-                  <p className="text-gray-500 text-sm mt-2">
-                    We have sent a verification email to <strong>{email}</strong>. Please check your inbox and click the confirmation link.
-                  </p>
-                </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-                  <p className="text-sm text-blue-800 font-medium mb-2">Next steps:</p>
-                  <ol className="text-sm text-blue-700 space-y-1.5 list-decimal pl-4">
-                    <li>Check your email inbox (and spam folder)</li>
-                    <li>Click the "Confirm your email" button in the email</li>
-                    <li>Return here to log in</li>
-                  </ol>
-                </div>
-                <div className="space-y-3">
-                  <Button onClick={handleResend} variant="outline" className="w-full h-12 border-blue-300 text-blue-700 hover:bg-blue-50">
-                    <Mail size={16} className="mr-2" /> {t("auth.resend")}
-                  </Button>
-                  <Button onClick={() => navigate("/login")} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">
-                    {t("nav.login")}
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-400">
-                  Did not receive the email? Check your spam folder or click Resend above.
+          <Card className="border-0 shadow-2xl">
+            <CardContent className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle size={32} className="text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">Account Created!</h3>
+                <p className="text-gray-500 text-sm mt-2">
+                  Welcome to Anglotec AI Masterclass. You are now logged in and ready to start learning.
                 </p>
-              </CardContent>
-            </Card>
-          ) : (
-            /* Local mode — auto logged in */
-            <Card className="border-0 shadow-2xl">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle size={32} className="text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">Account Created!</h3>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Welcome to Anglotec AI Masterclass. You are now logged in and ready to start learning.
-                  </p>
-                </div>
-                <Button onClick={() => navigate("/")} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">
-                  Start Learning &rarr;
-                </Button>
-              </CardContent>
-            </Card>
-          )
+              </div>
+              <Button onClick={() => navigate("/")} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold">
+                Start Learning &rarr;
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <>
             {/* Step 1: Email */}

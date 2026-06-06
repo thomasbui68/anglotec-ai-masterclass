@@ -261,7 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { email, password, displayName } = data;
 
     if (sbWorks) {
-      // Try Supabase registration with email_auto_confirm (no verification needed)
+      // Try Supabase registration — no email verification required
       const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
@@ -271,11 +271,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!error.message?.includes("already")) {
           throw new Error(error.message);
         }
-        // User already exists — try to log them in directly
+        // User already exists — log them in directly
         const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
           email, password
         });
-        if (loginError) throw new Error("Account exists but password is incorrect. Please use the correct password or reset it.");
+        if (loginError) throw new Error("Account exists but password is incorrect.");
         if (loginData.user) {
           setMode("cloud");
           setUser(buildAuthUser(loginData.user));
@@ -284,13 +284,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       if (signUpData.user) {
         setMode("cloud");
-        // If session is available, user is logged in immediately (auto-confirm enabled)
-        if (signUpData.session) {
-          setUser(buildAuthUser(signUpData.user));
-          return { requiresVerification: false, email };
+        // Immediately sign in after registration — bypasses email verification
+        const { data: loginData } = await supabase.auth.signInWithPassword({ email, password });
+        if (loginData?.user) {
+          setUser(buildAuthUser(loginData.user));
         }
-        // No session — email confirmation may be required by Supabase settings
-        return { requiresVerification: true, email };
+        return { requiresVerification: false, email };
       }
     }
 
