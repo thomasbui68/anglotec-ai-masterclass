@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +16,6 @@ export default function Register() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useAuth();
-  const webAuthn = useWebAuthn();
 
   // Form state
   const [step, setStep] = useState(1);

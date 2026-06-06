@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useBrowserTTS } from "@/hooks/useBrowserTTS";
 import { useSubscription, type SubscriptionTier } from "@/hooks/useSubscription";
 import { supabase, SUPABASE_URL } from "@/lib/supabase";
@@ -10,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Fingerprint, Trash2, Shield, Info, Loader2,
+  ArrowLeft, Trash2, Shield, Info, Loader2,
   CheckCircle, Mail, ShieldCheck, Play,
-  AlertTriangle, Crown, Clock, Zap, CreditCard, Sparkles
+  Crown, Clock, Zap, CreditCard, Sparkles
 } from "lucide-react";
 import { useTranslation } from "@/i18n";
 
@@ -20,7 +19,6 @@ export default function Settings() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const webAuthn = useWebAuthn();
   const tts = useBrowserTTS();
   const subscription = useSubscription();
 
@@ -29,7 +27,6 @@ export default function Settings() {
     : 0;
   const inTrial = subscription.status === "trial" && trialDaysLeft > 0;
 
-  const [isRegistering, setIsRegistering] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Handle Stripe checkout return — HashRouter stores params in hash fragment
@@ -58,8 +55,6 @@ export default function Settings() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [hasBiometricState, setHasBiometricState] = useState(user?.hasBiometric || false);
-
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a365d] to-[#0f172a] flex items-center justify-center p-6">
@@ -74,50 +69,6 @@ export default function Settings() {
       </div>
     );
   }
-
-  const hasBiometric = hasBiometricState;
-
-  const handleRegisterBiometric = async () => {
-    if (!webAuthn.canUseBiometric) {
-      toast.error(webAuthn.error || t("errors.faceIdNotAvailable"));
-      return;
-    }
-
-    setIsRegistering(true);
-    try {
-      const result = await webAuthn.registerBiometric(user.email);
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-      if (result.credentialId) {
-        // Save credential to Supabase user metadata
-        const { supabase } = await import("@/lib/supabase");
-        await supabase.auth.updateUser({
-          data: { credential_id: result.credentialId, has_biometric: true }
-        });
-        toast.success(t("settings.faceIdRegistered"));
-        setHasBiometricState(true);
-      }
-    } catch (err: any) {
-      toast.error(err.message || t("settings.faceIdRegisterError"));
-    } finally {
-      setIsRegistering(false);
-    }
-  };
-
-  const handleRemoveBiometric = async () => {
-    try {
-      const { supabase } = await import("@/lib/supabase");
-      await supabase.auth.updateUser({
-        data: { credential_id: null, has_biometric: false }
-      });
-      toast.success(t("settings.faceIdRemoved"));
-      setHasBiometricState(false);
-    } catch {
-      toast.error(t("settings.faceIdRemoveError"));
-    }
-  };
 
   const handleDeleteAccount = async () => {
     try {
@@ -444,80 +395,6 @@ export default function Settings() {
             {tts.error && (
               <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded-lg">{tts.error}</p>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Face ID / Biometric */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Fingerprint size={20} className="text-orange-500" /> {t("settings.faceIdLogin")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Status banner */}
-            {webAuthn.inIframe ? (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-3">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle size={20} className="text-yellow-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-yellow-800">{t("settings.previewMode")}</p>
-                    <p className="text-xs text-yellow-700 mt-1">{t("settings.previewModeDesc")}</p>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1">
-                  <p className="font-medium text-gray-800">{t("settings.faceIdSetupTitle")}</p>
-                  <ol className="list-decimal list-inside space-y-1">
-                    <li>{t("settings.faceIdStep1")}</li>
-                    <li>{t("settings.faceIdStep2")}</li>
-                    <li>{t("settings.faceIdStep3")}</li>
-                    <li>{t("settings.faceIdStep4")}</li>
-                  </ol>
-                </div>
-              </div>
-            ) : webAuthn.isReady ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start gap-2">
-                <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-green-800">{webAuthn.capabilityMessage}</p>
-              </div>
-            ) : (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
-                <Info size={18} className="text-blue-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-800">{webAuthn.capabilityMessage}</p>
-              </div>
-            )}
-
-            {/* Active status */}
-            {hasBiometric && (
-              <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 p-3 rounded-lg">
-                <CheckCircle size={18} /> {t("settings.faceIdActive")}
-              </div>
-            )}
-
-            {/* Error display */}
-            {webAuthn.error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                <AlertTriangle size={16} className="text-red-500 shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{webAuthn.error}</p>
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={handleRegisterBiometric}
-                disabled={isRegistering || !webAuthn.canUseBiometric}
-                className="bg-orange-500 hover:bg-orange-600 text-white h-12 disabled:opacity-50"
-              >
-                {isRegistering ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Fingerprint className="mr-2 h-5 w-5" />}
-                {isRegistering ? t("settings.settingUp") : hasBiometric ? t("settings.reRegisterFaceId") : t("settings.setUpFaceId")}
-              </Button>
-              {hasBiometric && (
-                <Button variant="outline" onClick={handleRemoveBiometric} className="h-12 border-red-300 text-red-600 hover:bg-red-50">
-                  <Trash2 className="mr-2 h-5 w-5" /> {t("settings.removeFaceId")}
-                </Button>
-              )}
-            </div>
           </CardContent>
         </Card>
 

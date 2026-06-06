@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  LogIn, Fingerprint, Loader2, Eye, EyeOff, ArrowRight, Users,
-  ShieldCheck, AlertCircle, Sparkles, GraduationCap
+  LogIn, Loader2, Eye, EyeOff, ArrowRight, Users,
+  AlertCircle, Sparkles, GraduationCap
 } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
@@ -20,7 +18,6 @@ export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, isSupabaseReady } = useAuth();
-  const webAuthn = useWebAuthn();
   const protect = useSelfProtecting();
   const demo = useDemoLogin();
 
@@ -30,10 +27,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("password");
-
-  // Face ID state
-  const [bioLoading, setBioLoading] = useState(false);
 
   /* ---- Password Login ---- */
   const handleLogin = async (e: React.FormEvent) => {
@@ -41,7 +34,7 @@ export default function Login() {
     setLoginError(null);
 
     if (protect.isLoginLocked) return;
-    if (!protect.canAct("login_submit", 2000)) return; // 2s anti-double-click
+    if (!protect.canAct("login_submit", 2000)) return;
 
     if (!isSupabaseReady) {
       setLoginError(t("errors.supabaseNotConfigured"));
@@ -54,17 +47,16 @@ export default function Login() {
     try {
       await login(email.trim(), password);
       toast.success(t("auth.welcomeBack"));
-      
+
       // Check for pending checkout tier (after Stripe payment)
       const pendingTier = localStorage.getItem("pending_checkout_tier") as "pro" | "family" | "classroom" | null;
       if (pendingTier) {
         localStorage.removeItem("pending_checkout_tier");
         toast.success(t("demo.paymentConfirmed", { tier: pendingTier.toUpperCase() }));
-        // Small delay so user sees the toast before redirect
         setTimeout(() => navigate("/settings?checkout=success&tier=" + pendingTier), 1500);
         return;
       }
-      
+
       navigate("/");
     } catch (err: any) {
       setLoginError(err.message || t("errors.authFailed"));
@@ -72,38 +64,6 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  /* ---- Face ID Login ---- */
-  const handleBiometricLogin = async () => {
-    if (!isSupabaseReady) {
-      setLoginError(t("errors.supabaseNotConfigured"));
-      return;
-    }
-    if (!email.trim()) {
-      setLoginError(t("errors.enterEmailFirst"));
-      setActiveTab("faceid");
-      return;
-    }
-    setBioLoading(true);
-    setLoginError(null);
-    try {
-      setLoginError(
-        t("errors.faceIdRequiresPassword")
-      );
-      setActiveTab("password");
-    } finally {
-      setBioLoading(false);
-    }
-  };
-
-  /* ---- Resend Verification ---- */
-  const handleResendVerification = async () => {
-    if (!email.trim()) {
-      toast.error(t("errors.enterEmailFirst"));
-      return;
-    }
-    toast.info(t("auth.checkInboxForLink"));
   };
 
   return (
@@ -173,98 +133,54 @@ export default function Login() {
               </div>
             )}
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
-                <TabsTrigger value="password" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">{t("auth.password")}</TabsTrigger>
-                <TabsTrigger value="faceid" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  <Fingerprint size={14} className="mr-1" /> {t("auth.faceId")}
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Password Login */}
-              <TabsContent value="password">
-                <form onSubmit={handleLogin} className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700 font-medium">{t("auth.email")}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder={t("auth.emailPlaceholder")}
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setLoginError(null); }}
-                      className="h-12 rounded-xl border-gray-200 focus:border-orange-400 focus:ring-orange-400"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-700 font-medium">{t("auth.password")}</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder={t("auth.enterPassword")}
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); setLoginError(null); }}
-                        className="h-12 rounded-xl border-gray-200 pr-10 focus:border-orange-400 focus:ring-orange-400"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-300"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Link to="/forgot-password" className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                      {t("auth.forgotPassword")}
-                    </Link>
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-bold text-base rounded-xl shadow-lg"
+            {/* Password Login Form */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-700 font-medium">{t("auth.email")}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t("auth.emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setLoginError(null); }}
+                  className="h-12 rounded-xl border-gray-200 focus:border-orange-400 focus:ring-orange-400"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-700 font-medium">{t("auth.password")}</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t("auth.enterPassword")}
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setLoginError(null); }}
+                    className="h-12 rounded-xl border-gray-200 pr-10 focus:border-orange-400 focus:ring-orange-400"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-300"
                   >
-                    {isLoading ? <Loader2 size={20} className="animate-spin" /> : <><ArrowRight size={18} className="mr-2" /> {t("auth.signIn")}</>}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              {/* Face ID Login */}
-              <TabsContent value="faceid">
-                <div className="space-y-4 mt-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-                    <ShieldCheck size={32} className="text-blue-500 mx-auto mb-2" />
-                    <p className="text-sm text-blue-700 font-medium">
-                      {webAuthn.capabilityMessage}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bio-email" className="text-gray-700 font-medium">{t("auth.email")}</Label>
-                    <Input
-                      id="bio-email"
-                      type="email"
-                      placeholder={t("auth.emailPlaceholder")}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-12 rounded-xl border-gray-200"
-                    />
-                    <p className="text-xs text-gray-300">
-                      {t("auth.faceIdDesc")}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleBiometricLogin}
-                    disabled={bioLoading}
-                    className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-base rounded-xl"
-                  >
-                    {bioLoading ? <Loader2 size={20} className="animate-spin" /> : <><Fingerprint size={20} className="mr-2" /> {t("auth.signIn")} {t("auth.withFaceId")}</>}
-                  </Button>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+              <div className="text-right">
+                <Link to="/forgot-password" className="text-sm text-orange-600 hover:text-orange-700 font-medium">
+                  {t("auth.forgotPassword")}
+                </Link>
+              </div>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-bold text-base rounded-xl shadow-lg"
+              >
+                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <><ArrowRight size={18} className="mr-2" /> {t("auth.signIn")}</>}
+              </Button>
+            </form>
 
             <div className="text-center pt-2 border-t">
               <p className="text-gray-300 text-sm">
