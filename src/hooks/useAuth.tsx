@@ -121,7 +121,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       setLoading(true);
 
-      // Try Supabase first
+      // Check for demo user first (highest priority — set by Try Demo buttons)
+      try {
+        const demoData = localStorage.getItem("anglotec_demo_user");
+        if (demoData) {
+          const parsed = JSON.parse(demoData);
+          const hoursSinceLogin = (Date.now() - (parsed.createdAt || 0)) / (1000 * 60 * 60);
+          // Demo sessions expire after 24 hours
+          if (hoursSinceLogin < 24) {
+            setMode("local");
+            setUser({
+              id: parsed.id || "demo",
+              email: parsed.email || "demo@anglotec.local",
+              displayName: parsed.displayName || "Demo User",
+              emailVerified: true,
+              plan: parsed.tier === "pro" || parsed.tier === "admin" ? "pro" : "free",
+              hasBiometric: false,
+              isAdmin: false,
+            });
+            setLoading(false);
+            return;
+          } else {
+            // Demo expired — clean up
+            localStorage.removeItem("anglotec_demo_user");
+            localStorage.removeItem("anglotec_current_user");
+          }
+        }
+      } catch { /* ignore */ }
+
+      // Try Supabase next
       const sbWorks = await testSupabase();
       if (sbWorks) {
         setMode("cloud");
@@ -139,12 +167,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const localSession = localStorage.getItem("anglotec_current_user");
         if (localSession) {
           const parsed = JSON.parse(localSession);
-          // Verify the user still exists in local storage
-          const found = getLocalUser(parsed.email);
-          if (found) {
-            setUser(buildAuthUser({ id: found.id, email: found.email, user_metadata: { display_name: found.displayName } }));
+          if (parsed.isDemo) {
+            // Demo user detected
+            setUser({
+              id: parsed.id || "demo",
+              email: parsed.email || "demo@anglotec.local",
+              displayName: parsed.displayName || "Demo User",
+              emailVerified: true,
+              plan: parsed.tier === "pro" || parsed.tier === "admin" ? "pro" : "free",
+              hasBiometric: false,
+              isAdmin: false,
+            });
           } else {
-            localStorage.removeItem("anglotec_current_user");
+            // Regular local user
+            const found = getLocalUser(parsed.email);
+            if (found) {
+              setUser(buildAuthUser({ id: found.id, email: found.email, user_metadata: { display_name: found.displayName } }));
+            } else {
+              localStorage.removeItem("anglotec_current_user");
+            }
           }
         }
       } catch { /* ignore */ }
@@ -258,7 +299,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (mode === "cloud") {
       await supabase.auth.signOut();
     }
+    // Always clear demo sessions too
     localStorage.removeItem("anglotec_current_user");
+    localStorage.removeItem("anglotec_demo_user");
+    localStorage.removeItem("anglotec_pending_tier");
     setUser(null);
   }, [mode]);
 

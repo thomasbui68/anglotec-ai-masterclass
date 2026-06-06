@@ -106,51 +106,87 @@ export function useDemoLogin() {
 
   /**
    * Fetch — call the Netlify Function to get a demo JWT.
-   * Returns a Supabase-compatible session object.
+   * Falls back to a local demo session on static deployments.
    */
   const fetchDemoSession = useCallback(
     async (tier: DemoLoginOptions["tier"] = "free"): Promise<DemoLoginResult> => {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const res = await fetch(`${origin}${DEMO_FUNCTION}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier }),
-      });
 
-      const data = await res.json();
+      // Try the Netlify Function first
+      try {
+        const res = await fetch(`${origin}${DEMO_FUNCTION}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tier }),
+        });
 
-      if (!res.ok || data.error) {
-        return { success: false, error: data.error || `HTTP ${res.status}` };
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.error && data.session) {
+            return { success: true, session: data.session };
+          }
+        }
+      } catch {
+        // Netlify function not available — fall through to local demo
       }
 
-      return { success: true, session: data.session };
+      // Fallback: create a local demo session directly
+      // This works on static deployments without a backend
+      const demoId = `demo-${tier}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const mockSession = {
+        access_token: `demo_token_${demoId}`,
+        refresh_token: `demo_refresh_${demoId}`,
+        expires_at: Math.floor(Date.now() / 1000) + 86400 * 7, // 7 days
+        user: {
+          id: demoId,
+          email: `demo-${tier}@anglotec.local`,
+          user_metadata: {
+            display_name: `Demo ${tier.charAt(0).toUpperCase() + tier.slice(1)} User`,
+            avatar_url: null,
+          },
+          app_metadata: {
+            tier: tier === "pro" || tier === "admin" ? "pro" : "free",
+            is_demo: true,
+          },
+          created_at: new Date().toISOString(),
+          email_confirmed_at: new Date().toISOString(),
+        },
+      };
+
+      return { success: true, session: mockSession };
     },
     []
   );
 
   /**
-   * Activate — inject the fetched session into Supabase so the
-   * rest of the app (useAuth, protected routes, etc.) sees the
-   * user as logged in.
+   * Activate — save demo session to localStorage so useAuth
+   * recognizes the demo user on the next render cycle.
    */
   const activateSession = useCallback(
     async (session: any): Promise<boolean> => {
-      if (!session?.access_token || !session?.refresh_token) {
+      if (!session?.user) {
         return false;
       }
 
       try {
-        // Supabase setSession() makes the client treat this as the
-        // current user — no page reload, no redirect.
-        const { error } = await supabase.auth.setSession({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-        });
+        // For demo sessions, save to localStorage so useAuth can pick it up
+        // This works on static deployments without a backend
+        const demoUserData = {
+          id: session.user.id,
+          email: session.user.email,
+          displayName: session.user.user_metadata?.display_name || `Demo ${(session.user.app_metadata?.tier || "free").charAt(0).toUpperCase() + (session.user.app_metadata?.tier || "free").slice(1)}`,
+          tier: session.user.app_metadata?.tier || "free",
+          isDemo: true,
+          createdAt: Date.now(),
+        };
+        localStorage.setItem("anglotec_demo_user", JSON.stringify(demoUserData));
+        localStorage.setItem("anglotec_current_user", JSON.stringify(demoUserData));
 
-        if (error) {
-          console.error("[useDemoLogin] setSession error:", error.message);
-          return false;
-        }
+        // Also broadcast so other tabs know
+        window.dispatchEvent(new StorageEvent("storage", {
+          key: "anglotec_current_user",
+          newValue: JSON.stringify(demoUserData),
+        }));
 
         return true;
       } catch (err: any) {
