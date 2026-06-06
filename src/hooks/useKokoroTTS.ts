@@ -178,7 +178,7 @@ export function useKokoroTTS(language: string = "en") {
     }
   }, [getDefaultVoice]);
 
-  // Speak text
+  // Speak text — with timeout and fallback
   const speak = useCallback(async (text: string) => {
     if (!text?.trim()) return;
     abortRef.current = false;
@@ -188,24 +188,36 @@ export function useKokoroTTS(language: string = "en") {
       try {
         setState(s => ({ ...s, isSpeaking: true }));
         const voiceId = state.currentVoice || "af_bella";
-        const audioData = await globalTtsInstance.generate(text, { voice: voiceId });
+
+        // Wrap generate with 10-second timeout
+        const generatePromise = globalTtsInstance.generate(text, { voice: voiceId });
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Voice generation timed out")), 10000)
+        );
+        const audioData = await Promise.race([generatePromise, timeoutPromise]);
 
         if (abortRef.current) return;
 
         // Handle different output formats
         let blob: Blob;
-        if (audioData.toBlob) {
-          blob = audioData.toBlob();
-        } else if (audioData.blob) {
-          blob = audioData.blob;
+        if ((audioData as any).toBlob) {
+          blob = (audioData as any).toBlob();
+        } else if ((audioData as any).blob) {
+          blob = (audioData as any).blob;
         } else if (audioData instanceof Blob) {
           blob = audioData;
         } else if (audioData instanceof ArrayBuffer) {
           blob = new Blob([audioData], { type: "audio/wav" });
+        } else if (audioData && typeof (audioData as any).arrayBuffer === "function") {
+          // Response-like object
+          const ab = await (audioData as any).arrayBuffer();
+          blob = new Blob([ab], { type: "audio/wav" });
         } else {
-          // Unknown format — fall through to browser TTS
           throw new Error("Unknown audio format");
         }
+
+        // Verify blob has content
+        if (blob.size === 0) throw new Error("Empty audio generated");
 
         const url = URL.createObjectURL(blob);
         if (audioRef.current) {
@@ -216,30 +228,38 @@ export function useKokoroTTS(language: string = "en") {
         const audio = new Audio(url);
         audioRef.current = audio;
 
+        // Auto-reset if audio doesn't start/end within 30 seconds
+        const resetTimeout = setTimeout(() => {
+          URL.revokeObjectURL(url);
+          setState(s => ({ ...s, isSpeaking: false }));
+        }, 30000);
+
         audio.onended = () => {
+          clearTimeout(resetTimeout);
           URL.revokeObjectURL(url);
           setState(s => ({ ...s, isSpeaking: false }));
         };
         audio.onerror = () => {
+          clearTimeout(resetTimeout);
           URL.revokeObjectURL(url);
           setState(s => ({ ...s, isSpeaking: false }));
         };
 
         await audio.play();
         return;
-      } catch (err) {
-        console.warn("[KokoroTTS] Speak failed, using fallback:", err);
-        setState(s => ({ ...s, isSpeaking: false }));
+      } catch (err: any) {
+        console.warn("[KokoroTTS] Speak failed, using browser fallback:", err.message || err);
+        // Don't return — fall through to browser TTS
       }
     }
 
-    // Browser TTS fallback — works immediately
+    // Browser TTS fallback — works immediately on all devices
     if (window.speechSynthesis) {
       setState(s => ({ ...s, isSpeaking: true }));
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
+      utterance.rate = 0.85;
       utterance.pitch = 1.0;
 
       const voice = getBrowserVoice();
@@ -249,6 +269,9 @@ export function useKokoroTTS(language: string = "en") {
       utterance.onerror = () => setState(s => ({ ...s, isSpeaking: false }));
 
       window.speechSynthesis.speak(utterance);
+    } else {
+      // No voice available at all
+      setState(s => ({ ...s, isSpeaking: false }));
     }
   }, [state.currentVoice, getBrowserVoice]);
 
