@@ -261,7 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { email, password, displayName } = data;
 
     if (sbWorks) {
-      // Try Supabase registration
+      // Try Supabase registration with email_auto_confirm (no verification needed)
       const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
@@ -271,12 +271,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!error.message?.includes("already")) {
           throw new Error(error.message);
         }
-        // User already exists — still show verification screen (they may need to verify)
+        // User already exists — try to log them in directly
+        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+          email, password
+        });
+        if (loginError) throw new Error("Account exists but password is incorrect. Please use the correct password or reset it.");
+        if (loginData.user) {
+          setMode("cloud");
+          setUser(buildAuthUser(loginData.user));
+          return { requiresVerification: false, email };
+        }
       }
       if (signUpData.user) {
         setMode("cloud");
-        // User created — they need to confirm email before logging in
-        // Return info so UI can show "check your email" screen
+        // If session is available, user is logged in immediately (auto-confirm enabled)
+        if (signUpData.session) {
+          setUser(buildAuthUser(signUpData.user));
+          return { requiresVerification: false, email };
+        }
+        // No session — email confirmation may be required by Supabase settings
         return { requiresVerification: true, email };
       }
     }
@@ -296,7 +309,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       securityQuestion: data.securityQuestion,
       securityAnswer: data.securityAnswer,
       createdAt: new Date().toISOString(),
-      verified: true, // Auto-verify in local mode
+      verified: true, // Auto-verify
     });
 
     // Auto-login after local registration
