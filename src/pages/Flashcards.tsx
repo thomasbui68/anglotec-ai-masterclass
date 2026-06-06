@@ -538,9 +538,9 @@ export default function Flashcards() {
                 </Button>
 
                 {/* Voice badge — shows AI voice status */}
-                <Badge variant="secondary" className={`mt-2 text-[10px] border-0 ${tts.isReady ? "bg-purple-500/20 text-purple-300" : tts.isLoading ? "bg-yellow-500/20 text-yellow-300" : "bg-blue-500/20 text-blue-300"}`}>
+                <Badge variant="secondary" className={`mt-2 text-[10px] border-0 ${tts.isFallback ? "bg-blue-500/20 text-blue-300" : "bg-purple-500/20 text-purple-300"}`}>
                   <Sparkles size={10} className="mr-1" />
-                  {tts.isLoading ? `${t("flashcards.premiumVoice")} (Loading ${tts.progress}%)` : tts.isReady ? t("flashcards.premiumVoice") : t("flashcards.aiVoice")}
+                  {tts.isFallback ? "AI Voice" : "Premium AI Voice"}
                 </Badge>
 
                 {/* Practice Speaking with Distil-Whisper — only show if model loaded */}

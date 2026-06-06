@@ -333,9 +333,7 @@ export default function Settings() {
               {tts.isSpeaking ? t("flashcards.playing") : t("settings.testVoice")}
             </Button>
 
-            {tts.error && (
-              <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded-lg">{tts.error}</p>
-            )}
+
           </CardContent>
         </Card>
 
