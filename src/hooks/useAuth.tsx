@@ -102,8 +102,19 @@ async function testSupabase(): Promise<boolean> {
   if (supabaseTested) return supabaseWorks;
   if (!isConfigured) { supabaseTested = true; supabaseWorks = false; return false; }
   try {
+    // Health-check: try to get settings (lightweight, no auth needed)
+    // getSession() returns error when no user is logged in — that's NORMAL
     const { error } = await supabase.auth.getSession();
-    supabaseWorks = !error || !error.message?.includes("Network");
+    if (!error) {
+      // No error = Supabase is working
+      supabaseWorks = true;
+    } else if (error.message?.includes("Network") || error.message?.includes("fetch") || error.message?.includes("Failed to fetch")) {
+      // Network error = Supabase unreachable
+      supabaseWorks = false;
+    } else {
+      // Other errors (e.g., "User not found") = Supabase IS working, just no session
+      supabaseWorks = true;
+    }
   } catch {
     supabaseWorks = false;
   }

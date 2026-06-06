@@ -17,7 +17,7 @@ import { useDemoLogin } from "@/hooks/useDemoLogin";
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login, isSupabaseReady } = useAuth();
+  const { login } = useAuth();
   const protect = useSelfProtecting();
   const demo = useDemoLogin();
 
@@ -36,10 +36,6 @@ export default function Login() {
     if (protect.isLoginLocked) return;
     if (!protect.canAct("login_submit", 2000)) return;
 
-    if (!isSupabaseReady) {
-      setLoginError(t("errors.supabaseNotConfigured"));
-      return;
-    }
     if (!email.trim()) { setLoginError(t("errors.enterEmail")); return; }
     if (!password) { setLoginError(t("errors.enterPassword")); return; }
 
@@ -90,25 +86,6 @@ export default function Login() {
             {t("masterclass.subtitle")}
           </p>
         </div>
-
-        {/* Supabase Not Configured Warning */}
-        {!isSupabaseReady && (
-          <div className="bg-yellow-500/10 border border-yellow-400/30 rounded-xl p-4 mb-6 text-center">
-            <AlertCircle size={20} className="text-yellow-400 mx-auto mb-2" />
-            <p className="text-yellow-300 text-sm font-medium">{t("errors.cloudAuthNotConnected")}</p>
-            <p className="text-yellow-400/70 text-xs mt-1">
-              {t("errors.cloudAuthDesc")}
-            </p>
-            <a
-              href="https://supabase.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-400 text-xs underline mt-2 inline-block"
-            >
-              {t("errors.getStartedSupabase")} →
-            </a>
-          </div>
-        )}
 
         {/* Social Proof Bar */}
         <div className="text-center mb-6">
