@@ -44,7 +44,7 @@ export default function Dashboard() {
   const categories = promptApi.categories ?? [];
   const catLoading = promptApi.isLoading;
   const stats = progressApi.stats ?? {
-    total_prompts: 3000, mastered: 0, learning: 0, new_count: 3000,
+    total_prompts: 9000, mastered: 0, learning: 0, new_count: 9000,
     avg_mastery: 0, total_practices: 0, active_days: 0, last_active: null,
   };
 
@@ -185,11 +185,11 @@ export default function Dashboard() {
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center gap-1 text-xs text-gray-300">
                   <BookOpen size={12} className="text-blue-400" />
-                  <span>{stats.mastered.toLocaleString()} / 3,000 {t("masterclass.learned")}</span>
+                  <span>{stats.mastered.toLocaleString()} / 9,000 {t("masterclass.learned")}</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-gray-300">
                   <Target size={12} className="text-green-400" />
-                  <span>{Math.max(0, 3000 - stats.mastered).toLocaleString()} {t("masterclass.remaining")}</span>
+                  <span>{Math.max(0, 9000 - stats.mastered).toLocaleString()} {t("masterclass.remaining")}</span>
                 </div>
               </div>
             </div>
@@ -373,7 +373,7 @@ export default function Dashboard() {
           <h2>AI Prompt Engineering Masterclass — Complete Course Overview</h2>
           <p>
             The Anglotec AI Masterclass is the most comprehensive AI prompt engineering course available online,
-            featuring over 3,000 AI prompting phrases organized into 12 expert categories. Whether you are a complete
+            featuring over 9,000 AI prompting phrases organized into 12 expert categories. Whether you are a complete
             beginner looking to learn how to use ChatGPT, Claude, or Gemini, or an experienced professional seeking
             to refine your prompt engineering skills, this masterclass provides structured, practical training that
             delivers results.
@@ -398,7 +398,7 @@ export default function Dashboard() {
             <li>Interactive flashcards with AI-powered voice pronunciation in 12 languages</li>
             <li>Progress tracking with XP, levels, streaks, and achievements</li>
             <li>Free tier available — start learning immediately with no credit card</li>
-            <li>Pro tier unlocks all 3,000 prompts for just £19.99 per month</li>
+            <li>Pro tier unlocks all 9,000 prompts for just £19.99 per month</li>
             <li>14-day free trial with full access to all features</li>
             <li>Family plan supports up to 3 members</li>
             <li>Classroom plan for schools and educational institutions</li>

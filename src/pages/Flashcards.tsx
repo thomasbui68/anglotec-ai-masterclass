@@ -359,7 +359,7 @@ export default function Flashcards() {
         <div className="text-center">
           <Loader2 size={40} className="text-orange-400 animate-spin mx-auto mb-4" />
           <p className="text-gray-300">{t("flashcards.loadingPrompts")}</p>
-          <p className="text-gray-300 text-xs mt-2">{t("masterclass.title")} — 3,000 {t("flashcards.prompts")}</p>
+          <p className="text-gray-300 text-xs mt-2">{t("masterclass.title")} — 9,000 {t("flashcards.prompts")}</p>
         </div>
       </div>
     );
@@ -494,7 +494,7 @@ export default function Flashcards() {
           <div className="min-w-0">
             <p className="text-xs text-orange-400 font-bold tracking-wide">{t("masterclass.title")}</p>
             <p className="text-[10px] text-gray-300 truncate">
-              {t("flashcards.promptOf", { current: currentIndex + 1, total: prompts.length })} &middot; 3,000 {t("flashcards.promptsTotal")}
+              {t("flashcards.promptOf", { current: currentIndex + 1, total: prompts.length })} &middot; 9,000 {t("flashcards.promptsTotal")}
             </p>
           </div>
         </div>

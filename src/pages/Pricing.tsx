@@ -374,7 +374,7 @@ export default function Pricing() {
             <span className="text-green-400 text-sm font-semibold">{t("pricing.save98Percent")}</span>
           </div>
           <p className="text-xs text-gray-300 max-w-md mx-auto">
-            {t("pricing.perPromptValue", { count: "3,000", price: "£0.007" })}
+            {t("pricing.perPromptValue", { count: "9,000", price: "£0.002" })}
           </p>
         </div>
 

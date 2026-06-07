@@ -85,7 +85,7 @@ export default function ProgressPage() {
     );
   }
 
-  const total = stats?.total_prompts || 3000;
+  const total = stats?.total_prompts || 9000;
   const mastered = stats?.mastered || 0;
   const learning = stats?.learning || 0;
   const newCount = stats?.new_count || total - mastered - learning;

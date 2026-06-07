@@ -40,12 +40,12 @@ export function usePrompts() {
 
 // ===== PROGRESS =====
 export function useProgress(_userId: string | number) {
-  // Default stats — will show 3,000 total
+  // Default stats — will show 9,000 total
   const [stats, setStats] = useState({
-    total_prompts: 3000,
+    total_prompts: 9000,
     mastered: 0,
     learning: 0,
-    new_count: 3000,
+    new_count: 9000,
     avg_mastery: 0,
     total_practices: 0,
     active_days: 0,
