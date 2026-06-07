@@ -132,41 +132,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       setLoading(true);
 
-      // Check for demo user first (highest priority — set by Try Demo buttons)
+      // Check for cached user first (fastest — avoids API calls)
+      try {
+        const cachedUser = localStorage.getItem("anglotec_cached_user");
+        if (cachedUser) {
+          const parsed = JSON.parse(cachedUser);
+          setMode(parsed.mode || "local");
+          setUser(parsed.user);
+          // Don't return — still verify with Supabase in background
+        }
+      } catch { /* ignore */ }
+
+      // Check for demo user (highest priority — set by Try Demo buttons)
       try {
         const demoData = localStorage.getItem("anglotec_demo_user");
         if (demoData) {
           const parsed = JSON.parse(demoData);
           const hoursSinceLogin = (Date.now() - (parsed.createdAt || 0)) / (1000 * 60 * 60);
-          // Demo sessions expire after 24 hours
           if (hoursSinceLogin < 24) {
-            setMode("local");
-            setUser({
+            const demoUser: AuthUser = {
               id: parsed.id || "demo",
               email: parsed.email || "demo@anglotec.local",
               displayName: parsed.displayName || "Demo User",
               emailVerified: true,
-              plan: parsed.tier === "pro" || parsed.tier === "admin" ? "pro" : "free",
+              plan: (parsed.tier === "pro" || parsed.tier === "admin" ? "pro" : "free") as AuthUser["plan"],
               hasBiometric: false,
               isAdmin: false,
-            });
+            };
+            setMode("local");
+            setUser(demoUser);
+            localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: demoUser, mode: "local" }));
             setLoading(false);
             return;
           } else {
-            // Demo expired — clean up
             localStorage.removeItem("anglotec_demo_user");
             localStorage.removeItem("anglotec_current_user");
+            localStorage.removeItem("anglotec_cached_user");
           }
         }
       } catch { /* ignore */ }
 
-      // Try Supabase next
+      // Try Supabase
       const sbWorks = await testSupabase();
       if (sbWorks) {
         setMode("cloud");
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          setUser(buildAuthUser(session.user));
+          const authUser = buildAuthUser(session.user);
+          setUser(authUser);
+          localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "cloud" }));
+        } else {
+          // No Supabase session — check if we had a cached local user
+          try {
+            const localSession = localStorage.getItem("anglotec_current_user");
+            if (localSession) {
+              const parsed = JSON.parse(localSession);
+              const found = getLocalUser(parsed.email);
+              if (found) {
+                const localUser = buildAuthUser({ id: found.id, email: found.email, user_metadata: { display_name: found.displayName } });
+                setMode("local");
+                setUser(localUser);
+                localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: localUser, mode: "local" }));
+              }
+            }
+          } catch { /* ignore */ }
         }
         setLoading(false);
         return;
@@ -179,23 +208,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (localSession) {
           const parsed = JSON.parse(localSession);
           if (parsed.isDemo) {
-            // Demo user detected
-            setUser({
+            const demoUser: AuthUser = {
               id: parsed.id || "demo",
               email: parsed.email || "demo@anglotec.local",
               displayName: parsed.displayName || "Demo User",
               emailVerified: true,
-              plan: parsed.tier === "pro" || parsed.tier === "admin" ? "pro" : "free",
+              plan: (parsed.tier === "pro" || parsed.tier === "admin" ? "pro" : "free") as AuthUser["plan"],
               hasBiometric: false,
               isAdmin: false,
-            });
+            };
+            setUser(demoUser);
+            localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: demoUser, mode: "local" }));
           } else {
-            // Regular local user
             const found = getLocalUser(parsed.email);
             if (found) {
-              setUser(buildAuthUser({ id: found.id, email: found.email, user_metadata: { display_name: found.displayName } }));
+              const localUser = buildAuthUser({ id: found.id, email: found.email, user_metadata: { display_name: found.displayName } });
+              setUser(localUser);
+              localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: localUser, mode: "local" }));
             } else {
               localStorage.removeItem("anglotec_current_user");
+              localStorage.removeItem("anglotec_cached_user");
             }
           }
         }
@@ -210,10 +242,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (mode !== "cloud") return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
       if (session?.user) {
-        setUser(buildAuthUser(session.user));
-      } else {
-        setUser(null);
+        const authUser = buildAuthUser(session.user);
+        setUser(authUser);
+        localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "cloud" }));
       }
+      // Don't set user to null on sign out — let logout() handle that
     });
     return () => subscription.unsubscribe();
   }, [mode]);
@@ -233,13 +266,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const authUser = buildAuthUser({ id: localUser.id, email: localUser.email, user_metadata: { display_name: localUser.displayName } });
           setUser(authUser);
           localStorage.setItem("anglotec_current_user", JSON.stringify({ email: localUser.email }));
+          localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "local" }));
           return;
         }
         throw new Error(error.message || "Invalid email or password");
       }
       if (data.session?.user) {
+        const authUser = buildAuthUser(data.session.user);
         setMode("cloud");
-        setUser(buildAuthUser(data.session.user));
+        setUser(authUser);
+        localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "cloud" }));
       }
       return;
     }
@@ -253,6 +289,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authUser = buildAuthUser({ id: localUser.id, email: localUser.email, user_metadata: { display_name: localUser.displayName } });
     setUser(authUser);
     localStorage.setItem("anglotec_current_user", JSON.stringify({ email: localUser.email }));
+    localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "local" }));
   }, []);
 
   /* ---- REGISTER ---- */
@@ -277,8 +314,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         if (loginError) throw new Error("Account exists but password is incorrect.");
         if (loginData.user) {
+          const authUser = buildAuthUser(loginData.user);
           setMode("cloud");
-          setUser(buildAuthUser(loginData.user));
+          setUser(authUser);
+          localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "cloud" }));
           return { requiresVerification: false, email };
         }
       }
@@ -287,7 +326,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Immediately sign in after registration — bypasses email verification
         const { data: loginData } = await supabase.auth.signInWithPassword({ email, password });
         if (loginData?.user) {
-          setUser(buildAuthUser(loginData.user));
+          const authUser = buildAuthUser(loginData.user);
+          setUser(authUser);
+          localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "cloud" }));
         }
         return { requiresVerification: false, email };
       }
@@ -315,6 +356,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authUser = buildAuthUser({ id, email, user_metadata: { display_name: displayName } });
     setUser(authUser);
     localStorage.setItem("anglotec_current_user", JSON.stringify({ email: email.toLowerCase() }));
+    localStorage.setItem("anglotec_cached_user", JSON.stringify({ user: authUser, mode: "local" }));
 
     return { requiresVerification: false, email };
   }, []);
@@ -324,9 +366,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (mode === "cloud") {
       await supabase.auth.signOut();
     }
-    // Always clear demo sessions too
+    // Clear ALL auth-related storage
     localStorage.removeItem("anglotec_current_user");
     localStorage.removeItem("anglotec_demo_user");
+    localStorage.removeItem("anglotec_cached_user");
     localStorage.removeItem("anglotec_pending_tier");
     setUser(null);
   }, [mode]);
