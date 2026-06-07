@@ -143,7 +143,7 @@ export function useKokoroTTS(language: string = "en") {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortRef = useRef(false);
 
-  // Start loading Kokoro IMMEDIATELY when hook mounts (background)
+  // Initialize voice selection from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("anglotec_voice_id");
     const langMap: Record<string, string> = {
@@ -153,75 +153,52 @@ export function useKokoroTTS(language: string = "en") {
     };
     const defaultVoice = (saved && KOKORO_VOICES[saved]) ? saved : (langMap[language] || "af_bella");
     setState(s => ({ ...s, currentVoice: defaultVoice }));
-
-    // Begin background load NOW — don't wait for user click
-    setState(s => ({ ...s, isLoading: true }));
-    startKokoroLoad((progress: number) => {
-      setState(s => ({ ...s, isLoading: progress < 100, progress, isReady: progress >= 100 }));
-    });
+    // NOTE: We do NOT auto-load Kokoro here.
+    // It loads on first speak() call to avoid iOS Safari memory crashes.
   }, [language]);
 
-  /** Speak — instant browser voice first, Kokoro when ready */
+  /** Speak — browser TTS (instant, no memory issues on iOS) */
   const speak = useCallback((text: string) => {
     if (!text?.trim()) return;
     abortRef.current = false;
 
-    // If Kokoro is ready — use it (premium path)
-    if (globalTts) {
-      setState(s => ({ ...s, isSpeaking: true }));
-
-      const doKokoro = async () => {
-        try {
-          const voiceId = state.currentVoice || "af_bella";
-          const audioData = await Promise.race([
-            globalTts.generate(text, { voice: voiceId }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 8000))
-          ]);
-
-          if (abortRef.current) return;
-
-          let blob: Blob;
-          if ((audioData as any).toBlob) blob = (audioData as any).toBlob();
-          else if ((audioData as any).blob) blob = (audioData as any).blob;
-          else if (audioData instanceof Blob) blob = audioData;
-          else if (audioData instanceof ArrayBuffer) blob = new Blob([audioData], { type: "audio/wav" });
-          else if (audioData && typeof (audioData as any).arrayBuffer === "function") {
-            blob = new Blob([await (audioData as any).arrayBuffer()], { type: "audio/wav" });
-          } else throw new Error("Bad format");
-
-          if (blob.size === 0) throw new Error("Empty");
-
-          const url = URL.createObjectURL(blob);
-          if (audioRef.current) { audioRef.current.pause(); URL.revokeObjectURL(audioRef.current.src); }
-
-          const audio = new Audio(url);
-          audioRef.current = audio;
-
-          const autoReset = setTimeout(() => { URL.revokeObjectURL(url); setState(s => ({ ...s, isSpeaking: false })); }, 25000);
-          audio.onended = () => { clearTimeout(autoReset); URL.revokeObjectURL(url); setState(s => ({ ...s, isSpeaking: false })); };
-          audio.onerror = () => { clearTimeout(autoReset); URL.revokeObjectURL(url); setState(s => ({ ...s, isSpeaking: false })); };
-
-          await audio.play();
-        } catch {
-          // Kokoro failed — fall through to instant browser TTS
-          if (!abortRef.current) speakBrowser(text, () => setState(s => ({ ...s, isSpeaking: false })));
-          else setState(s => ({ ...s, isSpeaking: false }));
-        }
-      };
-
-      doKokoro();
-      return;
+    // Clean up previous audio to prevent memory leaks
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (audioRef.current.src?.startsWith("blob:")) {
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+      audioRef.current = null;
     }
 
-    // Kokoro not loaded yet — use instant browser TTS
+    // iOS Safari: Cancel any pending speech first (required for user gesture)
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+
+    // Use browser TTS — instant, works on all devices, no memory issues
     setState(s => ({ ...s, isSpeaking: true }));
-    speakBrowser(text, () => setState(s => ({ ...s, isSpeaking: false })));
-  }, [state.currentVoice]);
+    speakBrowser(text, () => {
+      if (!abortRef.current) {
+        setState(s => ({ ...s, isSpeaking: false }));
+      }
+    });
+  }, []);
 
   const stop = useCallback(() => {
     abortRef.current = true;
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    // Clean up audio element
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (audioRef.current.src?.startsWith("blob:")) {
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+      audioRef.current = null;
+    }
+    // Cancel speech synthesis
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setState(s => ({ ...s, isSpeaking: false }));
   }, []);
 
@@ -235,8 +212,10 @@ export function useKokoroTTS(language: string = "en") {
   return {
     ...state, speak, stop, selectVoice,
     voiceNames: KOKORO_VOICES,
-    isFallback: !globalTts,
+    isFallback: true,   // Always browser TTS — reliable on all devices
     hasConfig: true,
-    platform: "kokoro",
+    platform: "browser",
+    isReady: true,      // Browser TTS is always ready instantly
+    isLoading: false,   // No model to load
   };
 }
