@@ -97,7 +97,17 @@ export default function Flashcards() {
     setCurrentIndex(0);
   }, [selectedCategory]);
 
-  // Load prompts when category or promptApi changes
+  // Fisher-Yates shuffle for random card order
+  const shuffleArray = useCallback(<T,>(arr: T[]): T[] => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }, []);
+
+  // Load prompts when category changes — shuffled for variety
   useEffect(() => {
     setPromptsLoading(true);
     try {
@@ -105,13 +115,15 @@ export default function Flashcards() {
         selectedCategory !== "all" ? selectedCategory : undefined,
         undefined, 1, 50
       );
-      setPrompts(result.prompts);
+      // Shuffle so cards appear in random order every session
+      setPrompts(shuffleArray(result.prompts));
+      setCurrentIndex(0); // Reset to first card on category change
     } catch {
       setPrompts([]);
     } finally {
       setPromptsLoading(false);
     }
-  }, [selectedCategory, promptApi]);
+  }, [selectedCategory, promptApi, shuffleArray]);
 
   // Session start
   useEffect(() => {
