@@ -6,6 +6,7 @@ import { useProgress, usePrompts } from "@/hooks/useApi";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useKokoroTTS } from "@/hooks/useKokoroTTS";
 import { useTransformersSTT } from "@/hooks/useTransformersSTT";
+import { useWakeLock } from "@/hooks/useWakeLock";
 import { useSessionRestore } from "@/components/SelfSavingProvider";
 import { useSelfProtecting } from "@/components/SelfProtectingProvider";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export default function Flashcards() {
   const game = useGamification();
   const tts = useKokoroTTS(i18n.language);
   const stt = useTransformersSTT(i18n.language || "en");
+  const wakeLock = useWakeLock();
   const progressApi = useProgress(user?.id || 0);
   const promptApi = usePrompts();
   const subscription = useSubscription();
@@ -118,6 +120,16 @@ export default function Flashcards() {
     game.recordSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Keep screen awake during practice — release when session ends
+  useEffect(() => {
+    if (!showScore && prompts.length > 0) {
+      wakeLock.request(); // User is actively practicing — keep screen on
+    } else {
+      wakeLock.release(); // Session ended — allow screen to sleep
+    }
+    return () => { wakeLock.release(); };
+  }, [showScore, prompts.length]);
 
   useEffect(() => {
     if (prompts.length > 0 && showHint) {
